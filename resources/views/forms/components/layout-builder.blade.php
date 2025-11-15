@@ -1,7 +1,3 @@
-@php
-    $statePath = $getStatePath();
-@endphp
-
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
     <div class="layout-builder-container">
         <!-- Top Toolbar -->
@@ -10,13 +6,13 @@
                 <span class="layout-builder-logo">📧 Email Builder</span>
             </div>
             <div class="layout-builder-toolbar-right">
-                <button type="button" id="email-theme-toggle" class="layout-builder-btn" title="Toggle Email Content Theme">
+                <button type="button" id="email-theme-toggle-{{ $getStatePath() }}" class="layout-builder-btn" title="Toggle Email Content Theme">
                     <span class="theme-icon">📧</span> <span class="theme-text">Email Light</span>
                 </button>
-                <button type="button" id="background-config-btn" class="layout-builder-btn" title="Background Configuration">
+                <button type="button" id="background-config-btn-{{ $getStatePath() }}" class="layout-builder-btn" title="Background Configuration">
                     🎨 Background
                 </button>
-                <button type="button" class="layout-builder-btn" title="Clear Canvas">
+                <button type="button" id="clear-canvas-btn-{{ $getStatePath() }}" class="layout-builder-btn" title="Clear Canvas">
                     🗑️ Clear
                 </button>
                 <button type="button" class="layout-builder-btn" title="Settings">
@@ -35,7 +31,7 @@
                     <!-- Basic Blocks -->
                     <div class="layout-builder-block-category">
                         <h4>Basic</h4>
-                        <div class="layout-builder-block-item" data-block-type="text">
+                        <div class="layout-builder-block-item" data-block-type="text" draggable="true">
                             <span class="layout-builder-block-icon">📝</span>
                             <span class="layout-builder-block-label">Text</span>
                         </div>
@@ -94,7 +90,7 @@
                     </div>
                 </div>
                 <div class="layout-builder-canvas-wrapper">
-                    <div id="layout-builder-canvas-{{ $statePath }}" class="layout-builder-canvas" data-email-theme="light">
+                    <div id="layout-builder-canvas-{{ $getStatePath() }}" class="layout-builder-canvas" data-email-theme="light">
                         <div class="layout-builder-canvas-placeholder">
                             <p>✨ Start building your email</p>
                             <p>Drag blocks from the left sidebar to begin</p>
@@ -109,22 +105,91 @@
                     <h3>Properties</h3>
                 </div>
                 <div class="layout-builder-properties-panel">
-                    <div class="layout-builder-no-selection">
+                    <!-- No Selection State -->
+                    <div class="layout-builder-no-selection" id="no-selection-{{ $getStatePath() }}">
                         <p>🎯 Select a block to edit its properties</p>
                         <p>Click on any block in the canvas to see available options here.</p>
+                    </div>
+
+                    <!-- Text Properties Panel (Hidden by default) -->
+                    <div class="text-properties" id="text-properties-{{ $getStatePath() }}" style="display: none;">
+                        <h4>📝 Text Properties</h4>
+
+                        <!-- Font Family -->
+                        <div class="property-group">
+                            <label class="property-label">Font Family</label>
+                            <select id="text-font-family-{{ $getStatePath() }}" class="property-select">
+                                <option value="Arial, Helvetica, sans-serif">Arial</option>
+                                <option value="Georgia, serif">Georgia</option>
+                                <option value="Times New Roman, serif">Times New Roman</option>
+                            </select>
+                        </div>
+
+                        <!-- Font Size -->
+                        <div class="property-group">
+                            <label class="property-label">Font Size</label>
+                            <select id="text-font-size-{{ $getStatePath() }}" class="property-select">
+                                <option value="12px">12px</option>
+                                <option value="14px">14px</option>
+                                <option value="16px" selected>16px</option>
+                                <option value="18px">18px</option>
+                                <option value="20px">20px</option>
+                                <option value="24px">24px</option>
+                                <option value="28px">28px</option>
+                                <option value="32px">32px</option>
+                            </select>
+                        </div>
+
+                        <!-- Text Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Text Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn" data-align="left" title="Align Left">
+                                    📄
+                                </button>
+                                <button type="button" class="alignment-btn active" data-align="center" title="Align Center">
+                                    📄
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="right" title="Align Right">
+                                    📄
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Text Formatting -->
+                        <div class="property-group">
+                            <label class="property-label">Text Formatting</label>
+                            <div class="formatting-buttons">
+                                <button type="button" class="format-btn" data-format="bold" title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button type="button" class="format-btn" data-format="italic" title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button type="button" class="format-btn" data-format="link" title="Add Link">
+                                    🔗
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-text-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Background Configuration Modal -->
-    <div id="background-config-modal" class="background-modal" style="display: none;">
+        <!-- Background Configuration Modal -->
+        <div id="background-config-modal-{{ $getStatePath() }}" class="background-modal" style="display: none;">
         <div class="background-modal-overlay"></div>
         <div class="background-modal-content">
             <div class="background-modal-header">
                 <h3>🎨 Background Configuration</h3>
-                <button type="button" id="background-modal-close" class="background-modal-close">✕</button>
+                <button type="button" id="background-modal-close-{{ $getStatePath() }}" class="background-modal-close">✕</button>
             </div>
 
             <div class="background-modal-body">
@@ -132,39 +197,39 @@
                 <div class="background-config-section">
                     <label class="background-config-label">Background Type</label>
                     <div class="background-type-buttons">
-                        <button type="button" id="bg-type-color" class="background-type-btn active" data-type="color">
+                        <button type="button" id="bg-type-color-{{ $getStatePath() }}" class="background-type-btn active" data-type="color">
                             🎨 Color
                         </button>
-                        <button type="button" id="bg-type-image" class="background-type-btn" data-type="image">
+                        <button type="button" id="bg-type-image-{{ $getStatePath() }}" class="background-type-btn" data-type="image">
                             🖼️ Image
                         </button>
-                        <button type="button" id="bg-type-transparent" class="background-type-btn" data-type="transparent">
+                        <button type="button" id="bg-type-transparent-{{ $getStatePath() }}" class="background-type-btn" data-type="transparent">
                             ⬜ Transparent
                         </button>
                     </div>
                 </div>
 
                 <!-- Color Configuration -->
-                <div id="color-config" class="background-config-section">
-                    <label class="background-config-label" for="bg-color">Background Color</label>
+                <div id="color-config-{{ $getStatePath() }}" class="background-config-section">
+                    <label class="background-config-label" for="bg-color-{{ $getStatePath() }}">Background Color</label>
                     <div class="color-input-group">
-                        <input type="color" id="bg-color" class="background-color-picker" value="#ffffff">
-                        <input type="text" id="bg-color-text" class="background-color-text" value="#ffffff" placeholder="#ffffff">
+                        <input type="color" id="bg-color-{{ $getStatePath() }}" class="background-color-picker" value="#ffffff">
+                        <input type="text" id="bg-color-text-{{ $getStatePath() }}" class="background-color-text" value="#ffffff" placeholder="#ffffff">
                     </div>
                 </div>
 
                 <!-- Image Configuration -->
-                <div id="image-config" class="background-config-section" style="display: none;">
-                    <label class="background-config-label" for="bg-image">Background Image</label>
+                <div id="image-config-{{ $getStatePath() }}" class="background-config-section" style="display: none;">
+                    <label class="background-config-label" for="bg-image-{{ $getStatePath() }}">Background Image</label>
                     <div class="image-upload-area">
-                        <input type="file" id="bg-image" class="background-image-input" accept="image/*">
+                        <input type="file" id="bg-image-{{ $getStatePath() }}" class="background-image-input" accept="image/*">
                         <div class="image-upload-drop-zone">
                             <p>📁 Choose image or drag & drop</p>
                             <p class="image-upload-info">Max size: 2MB • Formats: JPG, PNG, GIF, WebP</p>
                         </div>
-                        <div id="image-preview" class="image-preview" style="display: none;">
-                            <img id="preview-img" src="" alt="Preview">
-                            <button type="button" id="remove-image" class="remove-image-btn">🗑️ Remove</button>
+                        <div id="image-preview-{{ $getStatePath() }}" class="image-preview" style="display: none;">
+                            <img id="preview-img-{{ $getStatePath() }}" src="" alt="Preview">
+                            <button type="button" id="remove-image-{{ $getStatePath() }}" class="remove-image-btn">🗑️ Remove</button>
                         </div>
                     </div>
 
@@ -172,8 +237,8 @@
                     <div class="image-properties">
                         <div class="property-row">
                             <div class="property-col">
-                                <label class="background-config-label" for="bg-size">Size</label>
-                                <select id="bg-size" class="background-select">
+                                <label class="background-config-label" for="bg-size-{{ $getStatePath() }}">Size</label>
+                                <select id="bg-size-{{ $getStatePath() }}" class="background-select">
                                     <option value="cover">Cover</option>
                                     <option value="contain">Contain</option>
                                     <option value="auto">Auto</option>
@@ -181,8 +246,8 @@
                                 </select>
                             </div>
                             <div class="property-col">
-                                <label class="background-config-label" for="bg-repeat">Repeat</label>
-                                <select id="bg-repeat" class="background-select">
+                                <label class="background-config-label" for="bg-repeat-{{ $getStatePath() }}">Repeat</label>
+                                <select id="bg-repeat-{{ $getStatePath() }}" class="background-select">
                                     <option value="no-repeat">No Repeat</option>
                                     <option value="repeat">Repeat</option>
                                     <option value="repeat-x">Repeat X</option>
@@ -192,8 +257,8 @@
                         </div>
                         <div class="property-row">
                             <div class="property-col">
-                                <label class="background-config-label" for="bg-position">Position</label>
-                                <select id="bg-position" class="background-select">
+                                <label class="background-config-label" for="bg-position-{{ $getStatePath() }}">Position</label>
+                                <select id="bg-position-{{ $getStatePath() }}" class="background-select">
                                     <option value="center center">Center</option>
                                     <option value="top left">Top Left</option>
                                     <option value="top center">Top Center</option>
@@ -206,8 +271,8 @@
                                 </select>
                             </div>
                             <div class="property-col">
-                                <label class="background-config-label" for="bg-attachment">Attachment</label>
-                                <select id="bg-attachment" class="background-select">
+                                <label class="background-config-label" for="bg-attachment-{{ $getStatePath() }}">Attachment</label>
+                                <select id="bg-attachment-{{ $getStatePath() }}" class="background-select">
                                     <option value="scroll">Scroll</option>
                                     <option value="fixed">Fixed</option>
                                     <option value="local">Local</option>
@@ -219,25 +284,26 @@
             </div>
 
             <div class="background-modal-footer">
-                <button type="button" id="background-apply-btn" class="background-apply-btn">Apply Background</button>
-                <button type="button" id="background-reset-btn" class="background-reset-btn">Reset</button>
+                <button type="button" id="background-apply-btn-{{ $getStatePath() }}" class="background-apply-btn">Apply Background</button>
+                <button type="button" id="background-reset-btn-{{ $getStatePath() }}" class="background-reset-btn">Reset</button>
             </div>
         </div>
-    </div>
 
-    <!-- Hidden input to store form data -->
-    <input type="hidden" name="{{ $statePath }}" value="" />
-</x-dynamic-component>
+        <!-- Hidden input to store form data -->
+        <input type="hidden" name="{{ $getStatePath() }}" value="" />
 
-<script>
+        <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Get unique instance identifier first
+    const statePath = '{{ $getStatePath() }}';
+
     // Theme state management
     let emailDarkMode = false;
 
-    // Get theme toggle buttons and elements
-    const emailToggle = document.getElementById('email-theme-toggle');
+    // Get theme toggle buttons and elements (unique per instance)
+    const emailToggle = document.getElementById('email-theme-toggle-' + statePath);
     const container = document.querySelector('.layout-builder-container');
-    const canvas = document.querySelector('.layout-builder-canvas');
+    const canvas = document.getElementById('layout-builder-canvas-' + statePath);
 
     // Make editor automatically sync with Filament's dark mode
     function syncEditorWithFilament() {
@@ -270,30 +336,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Email theme toggle (independent of editor theme)
-    emailToggle.addEventListener('click', function() {
-        emailDarkMode = !emailDarkMode;
+    if (emailToggle) {
+        emailToggle.addEventListener('click', function() {
+            emailDarkMode = !emailDarkMode;
 
-        if (emailDarkMode) {
-            canvas.setAttribute('data-email-theme', 'dark');
-        } else {
-            canvas.setAttribute('data-email-theme', 'light');
-        }
+            if (emailDarkMode) {
+                canvas.setAttribute('data-email-theme', 'dark');
+            } else {
+                canvas.setAttribute('data-email-theme', 'light');
+            }
 
-        updateEmailToggleButton();
-    });
+            updateEmailToggleButton();
+        });
+    } else {
+        console.error('Email toggle button not found');
+    }
 
     function updateEmailToggleButton() {
+        if (!emailToggle) return;
+
         const icon = emailToggle.querySelector('.theme-icon');
         const text = emailToggle.querySelector('.theme-text');
 
-        if (emailDarkMode) {
-            icon.textContent = '📧';
-            text.textContent = 'Email Light';
-            emailToggle.classList.add('active');
-        } else {
-            icon.textContent = '📧';
-            text.textContent = 'Email Dark';
-            emailToggle.classList.remove('active');
+        if (icon && text) {
+            if (emailDarkMode) {
+                icon.textContent = '📧';
+                text.textContent = 'Email Light';
+                emailToggle.classList.add('active');
+            } else {
+                icon.textContent = '📧';
+                text.textContent = 'Email Dark';
+                emailToggle.classList.remove('active');
+            }
         }
     }
 
@@ -302,34 +376,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ===== BACKGROUND CONFIGURATION FUNCTIONALITY =====
 
-    const backgroundBtn = document.getElementById('background-config-btn');
-    const backgroundModal = document.getElementById('background-config-modal');
-    const backgroundModalClose = document.getElementById('background-modal-close');
-    const backgroundApplyBtn = document.getElementById('background-apply-btn');
-    const backgroundResetBtn = document.getElementById('background-reset-btn');
+    const backgroundBtn = document.getElementById('background-config-btn-' + statePath);
+    const backgroundModal = document.getElementById('background-config-modal-' + statePath);
+    const backgroundModalClose = document.getElementById('background-modal-close-' + statePath);
+    const backgroundApplyBtn = document.getElementById('background-apply-btn-' + statePath);
+    const backgroundResetBtn = document.getElementById('background-reset-btn-' + statePath);
 
     // Background type buttons
-    const bgTypeColor = document.getElementById('bg-type-color');
-    const bgTypeImage = document.getElementById('bg-type-image');
-    const bgTypeTransparent = document.getElementById('bg-type-transparent');
+    const bgTypeColor = document.getElementById('bg-type-color-' + statePath);
+    const bgTypeImage = document.getElementById('bg-type-image-' + statePath);
+    const bgTypeTransparent = document.getElementById('bg-type-transparent-' + statePath);
 
     // Configuration sections
-    const colorConfig = document.getElementById('color-config');
-    const imageConfig = document.getElementById('image-config');
+    const colorConfig = document.getElementById('color-config-' + statePath);
+    const imageConfig = document.getElementById('image-config-' + statePath);
 
     // Form inputs
-    const bgColorPicker = document.getElementById('bg-color');
-    const bgColorText = document.getElementById('bg-color-text');
-    const bgImageInput = document.getElementById('bg-image');
-    const imagePreview = document.getElementById('image-preview');
-    const previewImg = document.getElementById('preview-img');
-    const removeImageBtn = document.getElementById('remove-image');
+    const bgColorPicker = document.getElementById('bg-color-' + statePath);
+    const bgColorText = document.getElementById('bg-color-text-' + statePath);
+    const bgImageInput = document.getElementById('bg-image-' + statePath);
+    const imagePreview = document.getElementById('image-preview-' + statePath);
+    const previewImg = document.getElementById('preview-img-' + statePath);
+    const removeImageBtn = document.getElementById('remove-image-' + statePath);
 
     // CSS property inputs
-    const bgSize = document.getElementById('bg-size');
-    const bgRepeat = document.getElementById('bg-repeat');
-    const bgPosition = document.getElementById('bg-position');
-    const bgAttachment = document.getElementById('bg-attachment');
+    const bgSize = document.getElementById('bg-size-' + statePath);
+    const bgRepeat = document.getElementById('bg-repeat-' + statePath);
+    const bgPosition = document.getElementById('bg-position-' + statePath);
+    const bgAttachment = document.getElementById('bg-attachment-' + statePath);
 
     // Background state
     let backgroundState = {
@@ -344,58 +418,73 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Open background modal
-    backgroundBtn.addEventListener('click', function() {
-        backgroundModal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    });
+    if (backgroundBtn && backgroundModal) {
+        backgroundBtn.addEventListener('click', function() {
+            backgroundModal.style.display = 'block';
+        });
+    } else {
+        console.error('Background button or modal not found for instance:', statePath);
+    }
 
     // Close background modal
     function closeBackgroundModal() {
-        backgroundModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        if (backgroundModal) {
+            backgroundModal.style.display = 'none';
+        }
     }
 
-    backgroundModalClose.addEventListener('click', closeBackgroundModal);
+    if (backgroundModalClose) {
+        backgroundModalClose.addEventListener('click', closeBackgroundModal);
+    }
 
     // Close modal when clicking overlay
-    backgroundModal.addEventListener('click', function(e) {
-        if (e.target === backgroundModal || e.target.classList.contains('background-modal-overlay')) {
-            closeBackgroundModal();
-        }
-    });
+    if (backgroundModal) {
+        backgroundModal.addEventListener('click', function(e) {
+            if (e.target === backgroundModal || e.target.classList.contains('background-modal-overlay')) {
+                closeBackgroundModal();
+            }
+        });
+    }
 
     // Background type switching
     function switchBackgroundType(type) {
         // Update button states
         document.querySelectorAll('.background-type-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('bg-type-' + type).classList.add('active');
+        const targetTypeBtn = document.getElementById('bg-type-' + type + '-' + statePath);
+        if (targetTypeBtn) {
+            targetTypeBtn.classList.add('active');
+        }
 
         // Show/hide configuration sections
-        colorConfig.style.display = type === 'color' ? 'block' : 'none';
-        imageConfig.style.display = type === 'image' ? 'block' : 'none';
+        if (colorConfig) colorConfig.style.display = type === 'color' ? 'block' : 'none';
+        if (imageConfig) imageConfig.style.display = type === 'image' ? 'block' : 'none';
 
         backgroundState.type = type;
     }
 
-    bgTypeColor.addEventListener('click', () => switchBackgroundType('color'));
-    bgTypeImage.addEventListener('click', () => switchBackgroundType('image'));
-    bgTypeTransparent.addEventListener('click', () => switchBackgroundType('transparent'));
+    if (bgTypeColor) bgTypeColor.addEventListener('click', () => switchBackgroundType('color'));
+    if (bgTypeImage) bgTypeImage.addEventListener('click', () => switchBackgroundType('image'));
+    if (bgTypeTransparent) bgTypeTransparent.addEventListener('click', () => switchBackgroundType('transparent'));
 
     // Color picker synchronization
-    bgColorPicker.addEventListener('change', function() {
-        bgColorText.value = this.value;
-        backgroundState.color = this.value;
-    });
-
-    bgColorText.addEventListener('input', function() {
-        if (/^#[0-9A-F]{6}$/i.test(this.value)) {
-            bgColorPicker.value = this.value;
+    if (bgColorPicker && bgColorText) {
+        bgColorPicker.addEventListener('change', function() {
+            bgColorText.value = this.value;
             backgroundState.color = this.value;
-        }
-    });
+        });
+
+        bgColorText.addEventListener('input', function() {
+            if (/^#[0-9A-F]{6}$/i.test(this.value)) {
+                bgColorPicker.value = this.value;
+                backgroundState.color = this.value;
+            }
+        });
+    }
 
     // Image upload handling
-    bgImageInput.addEventListener('change', handleImageUpload);
+    if (bgImageInput) {
+        bgImageInput.addEventListener('change', handleImageUpload);
+    }
 
     function handleImageUpload(e) {
         const file = e.target.files[0];
@@ -431,57 +520,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Remove image
-    removeImageBtn.addEventListener('click', function() {
-        bgImageInput.value = '';
-        backgroundState.image = null;
-        backgroundState.imageBase64 = null;
-        imagePreview.style.display = 'none';
-        document.querySelector('.image-upload-drop-zone').style.display = 'block';
-    });
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function() {
+            if (bgImageInput) bgImageInput.value = '';
+            backgroundState.image = null;
+            backgroundState.imageBase64 = null;
+            if (imagePreview) imagePreview.style.display = 'none';
+            const dropZone = document.querySelector('.image-upload-drop-zone');
+            if (dropZone) dropZone.style.display = 'block';
+        });
+    }
 
     // CSS property updates
-    bgSize.addEventListener('change', () => backgroundState.size = bgSize.value);
-    bgRepeat.addEventListener('change', () => backgroundState.repeat = bgRepeat.value);
-    bgPosition.addEventListener('change', () => backgroundState.position = bgPosition.value);
-    bgAttachment.addEventListener('change', () => backgroundState.attachment = bgAttachment.value);
+    if (bgSize) bgSize.addEventListener('change', () => backgroundState.size = bgSize.value);
+    if (bgRepeat) bgRepeat.addEventListener('change', () => backgroundState.repeat = bgRepeat.value);
+    if (bgPosition) bgPosition.addEventListener('change', () => backgroundState.position = bgPosition.value);
+    if (bgAttachment) bgAttachment.addEventListener('change', () => backgroundState.attachment = bgAttachment.value);
 
     // Apply background
-    backgroundApplyBtn.addEventListener('click', function() {
-        applyBackgroundToCanvas();
-        closeBackgroundModal();
-    });
+    if (backgroundApplyBtn) {
+        backgroundApplyBtn.addEventListener('click', function() {
+            applyBackgroundToCanvas();
+            closeBackgroundModal();
+        });
+    }
 
     // Reset background
-    backgroundResetBtn.addEventListener('click', function() {
-        backgroundState = {
-            type: 'color',
-            color: '#ffffff',
-            image: null,
-            imageBase64: null,
-            size: 'cover',
-            repeat: 'no-repeat',
-            position: 'center center',
-            attachment: 'scroll'
-        };
+    if (backgroundResetBtn) {
+        backgroundResetBtn.addEventListener('click', function() {
+            backgroundState = {
+                type: 'color',
+                color: '#ffffff',
+                image: null,
+                imageBase64: null,
+                size: 'cover',
+                repeat: 'no-repeat',
+                position: 'center center',
+                attachment: 'scroll'
+            };
 
-        // Reset form
-        switchBackgroundType('color');
-        bgColorPicker.value = '#ffffff';
-        bgColorText.value = '#ffffff';
-        bgImageInput.value = '';
-        removeImageBtn.click(); // Trigger image removal
-        bgSize.value = 'cover';
-        bgRepeat.value = 'no-repeat';
-        bgPosition.value = 'center center';
-        bgAttachment.value = 'scroll';
+            // Reset form
+            switchBackgroundType('color');
+            if (bgColorPicker) bgColorPicker.value = '#ffffff';
+            if (bgColorText) bgColorText.value = '#ffffff';
+            if (bgImageInput) bgImageInput.value = '';
+            if (removeImageBtn) removeImageBtn.click(); // Trigger image removal
+            if (bgSize) bgSize.value = 'cover';
+            if (bgRepeat) bgRepeat.value = 'no-repeat';
+            if (bgPosition) bgPosition.value = 'center center';
+            if (bgAttachment) bgAttachment.value = 'scroll';
 
-        // Apply reset background
-        applyBackgroundToCanvas();
-    });
+            // Apply reset background
+            applyBackgroundToCanvas();
+        });
+    }
 
     // Apply background styles to canvas
     function applyBackgroundToCanvas() {
-        const canvas = document.querySelector('.layout-builder-canvas');
+        // Use the unique canvas reference we already have
+        if (!canvas) {
+            console.error('Canvas not found for applying background');
+            return;
+        }
 
         if (backgroundState.type === 'transparent') {
             canvas.style.background = 'transparent';
@@ -534,11 +634,268 @@ document.addEventListener('DOMContentLoaded', function() {
         bgImageInput.click();
     });
 
+    // ===== PHASE 2 TEST: CANVAS DROP ZONE - NO DOM CREATION =====
+
+    // Phase 1: Basic drag start handling
+    document.querySelectorAll('.layout-builder-block-item[draggable="true"]').forEach(block => {
+        block.addEventListener('dragstart', function(e) {
+            const blockType = this.dataset.blockType;
+            e.dataTransfer.setData('text/plain', blockType);
+            e.dataTransfer.effectAllowed = 'copy';
+            console.log('Drag started for block type:', blockType);
+        });
+    });
+
+    // Phase 2: Canvas drop zone functionality - NO DOM CREATION
+    if (canvas) {
+        canvas.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            canvas.classList.add('drag-over-canvas');
+            console.log('Drag over canvas');
+        });
+
+        canvas.addEventListener('dragleave', function(e) {
+            if (!canvas.contains(e.relatedTarget)) {
+                canvas.classList.remove('drag-over-canvas');
+                console.log('Drag left canvas');
+            }
+        });
+
+        canvas.addEventListener('drop', function(e) {
+            e.preventDefault();
+            canvas.classList.remove('drag-over-canvas');
+
+            const blockType = e.dataTransfer.getData('text/plain');
+            console.log('Dropped block type:', blockType, 'at position:', e.clientX, e.clientY);
+
+            // Phase 3: DOM CREATION TEST
+            if (blockType === 'text') {
+                createTextBlock(e);
+            }
+        });
+    }
+
+    // Phase 3: DOM Creation Function - TESTING IF THIS CAUSES LIVEWIRE ERROR
+    let blockCounter = 0;
+    let selectedBlock = null;
+
+    // Get static properties panel elements (unique per instance)
+    const noSelectionPanel = document.getElementById('no-selection-' + statePath);
+    const textPropertiesPanel = document.getElementById('text-properties-' + statePath);
+
+    function createTextBlock(e) {
+        blockCounter++;
+        console.log('Creating text block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create text block element
+        const textBlock = document.createElement('div');
+        textBlock.className = 'email-block text-block';
+        textBlock.dataset.blockId = 'text-' + blockCounter;
+        textBlock.dataset.blockType = 'text';
+
+        const textContent = document.createElement('div');
+        textContent.className = 'text-block-content';
+        textContent.contentEditable = true;
+        textContent.innerHTML = 'Click to edit this text...';
+
+        textBlock.appendChild(textContent);
+
+        // Calculate position relative to canvas
+        const canvasRect = canvas.getBoundingClientRect();
+        const x = e.clientX - canvasRect.left - 10;
+        const y = e.clientY - canvasRect.top - 10;
+
+        textBlock.style.position = 'absolute';
+        textBlock.style.left = Math.max(0, x) + 'px';
+        textBlock.style.top = Math.max(0, y) + 'px';
+
+        // Add to canvas
+        canvas.appendChild(textBlock);
+
+        // Phase 4: ADD SELECTION FUNCTIONALITY
+        textBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(textBlock);
+        });
+
+        // Auto-select the new block
+        selectBlock(textBlock);
+
+        console.log('Text block created and appended to canvas:', textBlock.dataset.blockId);
+    }
+
+    // Phase 4: SELECTION AND PROPERTIES PANEL FUNCTIONALITY
+    function selectBlock(block) {
+        console.log('Selecting block:', block.dataset.blockId);
+
+        // Remove previous selection
+        document.querySelectorAll('.email-block.selected').forEach(b => {
+            b.classList.remove('selected');
+        });
+
+        // Select new block
+        block.classList.add('selected');
+        selectedBlock = block;
+
+        // Update properties panel - THIS MIGHT BE THE CULPRIT
+        updatePropertiesPanel(block);
+    }
+
+    function updatePropertiesPanel(block) {
+        console.log('Updating properties panel for block:', block.dataset.blockType);
+
+        // Hide all panels first
+        if (noSelectionPanel) noSelectionPanel.style.display = 'none';
+        if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+
+        // Show relevant panel - NO innerHTML UPDATES!
+        if (block.dataset.blockType === 'text' && textPropertiesPanel) {
+            textPropertiesPanel.style.display = 'block';
+            addPropertyListeners(block);
+        }
+    }
+
+    function addPropertyListeners(block) {
+        const textContent = block.querySelector('.text-block-content');
+
+        // Get static elements by unique IDs
+        const fontFamilySelect = document.getElementById('text-font-family-' + statePath);
+        const fontSizeSelect = document.getElementById('text-font-size-' + statePath);
+        const deleteBtn = document.getElementById('delete-text-block-' + statePath);
+        const alignmentBtns = textPropertiesPanel?.querySelectorAll('.alignment-btn');
+        const formatBtns = textPropertiesPanel?.querySelectorAll('.format-btn');
+
+        // Font family
+        if (fontFamilySelect) {
+            fontFamilySelect.onchange = function() {
+                textContent.style.fontFamily = this.value;
+            };
+        }
+
+        // Font size
+        if (fontSizeSelect) {
+            fontSizeSelect.onchange = function() {
+                textContent.style.fontSize = this.value;
+            };
+        }
+
+        // Text alignment
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.onclick = function() {
+                    // Update button states
+                    alignmentBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Apply alignment
+                    textContent.style.textAlign = this.dataset.align;
+                };
+            });
+        }
+
+        // Text formatting
+        if (formatBtns) {
+            formatBtns.forEach(btn => {
+                btn.onclick = function() {
+                    const format = this.dataset.format;
+
+                    if (format === 'link') {
+                        const url = prompt('Enter URL:');
+                        if (url) {
+                            document.execCommand('createLink', false, url);
+                        }
+                    } else {
+                        document.execCommand(format, false, null);
+                    }
+
+                    textContent.focus();
+                };
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Show no selection panel - NO innerHTML!
+                if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    // ===== CLEAR CANVAS FUNCTIONALITY =====
+
+    const clearCanvasBtn = document.getElementById('clear-canvas-btn-' + statePath);
+
+    if (clearCanvasBtn) {
+        clearCanvasBtn.addEventListener('click', function() {
+            // Show confirmation dialog
+            const confirmed = confirm('Are you sure you want to clear the canvas? This will remove all elements and reset the background. This action cannot be undone.');
+
+            if (confirmed) {
+                clearCanvas();
+            }
+        });
+    }
+
+    function clearCanvas() {
+        console.log('Clearing canvas...');
+
+        // Remove all email blocks from canvas
+        const emailBlocks = canvas.querySelectorAll('.email-block');
+        emailBlocks.forEach(block => {
+            console.log('Removing block:', block.dataset.blockId);
+            block.remove();
+        });
+
+        // Reset block counter and selected block
+        blockCounter = 0;
+        selectedBlock = null;
+
+        // Show canvas placeholder again
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'block';
+        }
+
+        // Reset background to default (white)
+        backgroundState = {
+            type: 'color',
+            color: '#ffffff',
+            image: null,
+            imageBase64: null,
+            size: 'cover',
+            repeat: 'no-repeat',
+            position: 'center center',
+            attachment: 'scroll'
+        };
+
+        // Apply the reset background
+        applyBackgroundToCanvas();
+
+        // Reset properties panel to no selection
+        if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+        if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+
+        console.log('Canvas cleared successfully');
+    }
+
     console.log('Layout builder initialized - Editor syncs with Filament theme, Email theme independent');
 });
-</script>
+        </script>
 
-<style>
+        <style>
 .layout-builder-container {
     width: 100%;
     min-height: 600px;
@@ -1302,4 +1659,287 @@ document.addEventListener('DOMContentLoaded', function() {
         flex-direction: column;
     }
 }
-</style>
+
+/* ===== TEXT BLOCKS & EMAIL ELEMENTS ===== */
+
+/* Canvas drag over effect */
+.layout-builder-canvas.drag-over-canvas {
+    border: 2px dashed #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+/* Email blocks */
+.email-block {
+    min-width: 100px;
+    min-height: 40px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.email-block:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.email-block.selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Text blocks */
+.text-block {
+    background: transparent;
+    padding: 8px;
+    max-width: 500px;
+    min-width: 100px;
+}
+
+.text-block-content {
+    outline: none;
+    border: none;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #374151;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 20px;
+    text-align: center;
+}
+
+.text-block-content:focus {
+    outline: none;
+}
+
+.text-block-content p {
+    margin: 0 0 1em 0;
+}
+
+.text-block-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Properties Panel Styles */
+.text-properties {
+    padding: 16px;
+}
+
+.text-properties h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+}
+
+.property-group {
+    margin-bottom: 20px;
+}
+
+.property-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.property-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.property-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Alignment buttons */
+.alignment-buttons {
+    display: flex;
+    gap: 4px;
+    background: #f3f4f6;
+    padding: 3px;
+    border-radius: 8px;
+}
+
+.alignment-btn {
+    flex: 1;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b7280;
+}
+
+.alignment-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.alignment-btn.active {
+    background: white;
+    color: #3b82f6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Format buttons */
+.formatting-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.format-btn {
+    width: 36px;
+    height: 36px;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+}
+
+.format-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    color: #1f2937;
+}
+
+.format-btn:active,
+.format-btn.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: white;
+}
+
+/* Delete button */
+.delete-block-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.delete-block-btn:hover {
+    background: #dc2626;
+}
+
+/* Canvas positioning */
+.layout-builder-canvas {
+    position: relative;
+    min-height: 400px;
+}
+
+/* Dark mode for text blocks and properties */
+.dark .email-block.selected {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.dark .text-block-content {
+    color: #f9fafb;
+}
+
+.dark .text-properties h4 {
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+.dark .property-label {
+    color: #e5e7eb;
+}
+
+.dark .property-select {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+.dark .property-select:focus {
+    border-color: #3b82f6;
+}
+
+.dark .alignment-buttons {
+    background: #374151;
+}
+
+.dark .alignment-btn {
+    color: #9ca3af;
+}
+
+.dark .alignment-btn:hover {
+    background: #4b5563;
+    color: #f9fafb;
+}
+
+.dark .alignment-btn.active {
+    background: #1f2937;
+    color: #3b82f6;
+}
+
+.dark .format-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.dark .format-btn:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+    color: #f9fafb;
+}
+
+/* Email theme specific styles */
+.layout-builder-canvas[data-email-theme="dark"] .text-block-content {
+    color: #f9fafb;
+}
+
+.layout-builder-canvas[data-email-theme="light"] .text-block-content {
+    color: #374151;
+}
+
+/* Responsive design for properties panel */
+@media (max-width: 768px) {
+    .alignment-buttons {
+        flex-direction: column;
+    }
+
+    .formatting-buttons {
+        flex-wrap: wrap;
+    }
+
+    .format-btn {
+        flex: 1;
+        min-width: 36px;
+    }
+}
+        </style>
+    </div>
+</x-dynamic-component>
