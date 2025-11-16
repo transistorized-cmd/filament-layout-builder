@@ -6,6 +6,9 @@
                 <span class="layout-builder-logo">📧 Email Builder</span>
             </div>
             <div class="layout-builder-toolbar-right">
+                <button type="button" id="preview-btn-{{ $getStatePath() }}" class="layout-builder-btn" title="Preview Email">
+                    👁️ Preview
+                </button>
                 <button type="button" id="email-theme-toggle-{{ $getStatePath() }}" class="layout-builder-btn" title="Toggle Email Content Theme">
                     <span class="theme-icon">📧</span> <span class="theme-text">Email Light</span>
                 </button>
@@ -4467,6 +4470,787 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     console.log('Layout builder initialized - Editor syncs with Filament theme, Email theme independent');
+
+    // ===== EMAIL PREVIEW FUNCTIONALITY =====
+
+    const previewBtn = document.getElementById('preview-btn-' + statePath);
+    const previewModal = document.getElementById('email-preview-modal-' + statePath);
+    const previewContent = document.getElementById('email-preview-content-' + statePath);
+    const previewCloseBtn = document.getElementById('preview-close-btn-' + statePath);
+    const previewThemeToggle = document.getElementById('preview-theme-toggle-' + statePath);
+
+    // Debug element finding
+    console.log('Preview elements:', {
+        previewBtn: previewBtn,
+        previewModal: previewModal,
+        previewContent: previewContent,
+        statePath: statePath
+    });
+
+    let isPreviewDarkMode = false;
+
+    // Show preview modal
+    if (previewBtn) {
+        previewBtn.addEventListener('click', function() {
+            console.log('Preview button clicked');
+            generateEmailPreview();
+            if (previewModal) {
+                previewModal.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent body scrolling
+
+                // Ensure proper positioning and stacking
+                previewModal.style.zIndex = '9999'; // High z-index
+                previewModal.style.position = 'fixed'; // Ensure fixed positioning
+
+                // Move modal to body to escape container constraints
+                if (!previewModal.hasAttribute('data-moved-to-body')) {
+                    document.body.appendChild(previewModal);
+                    previewModal.setAttribute('data-moved-to-body', 'true');
+                }
+
+                console.log('Preview modal opened');
+            } else {
+                console.error('Preview modal not found!');
+            }
+        });
+    } else {
+        console.error('Preview button not found!');
+    }
+
+    // Close preview modal
+    function closePreviewModal() {
+        if (previewModal) {
+            previewModal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore body scrolling
+            console.log('Preview modal closed');
+        }
+    }
+
+    if (previewCloseBtn) {
+        previewCloseBtn.addEventListener('click', closePreviewModal);
+    }
+
+    // Close on overlay click
+    if (previewModal) {
+        previewModal.addEventListener('click', function(e) {
+            if (e.target === this || e.target.classList.contains('email-preview-overlay')) {
+                closePreviewModal();
+            }
+        });
+    }
+
+    // Theme toggle for preview
+    if (previewThemeToggle && previewContent) {
+        previewThemeToggle.addEventListener('click', function() {
+            isPreviewDarkMode = !isPreviewDarkMode;
+
+            if (isPreviewDarkMode) {
+                previewContent.classList.add('dark-mode');
+                const iconEl = this.querySelector('.preview-theme-icon');
+                const textEl = this.querySelector('.preview-theme-text');
+                if (iconEl) iconEl.textContent = '🌙';
+                if (textEl) textEl.textContent = 'Dark Mode';
+            } else {
+                previewContent.classList.remove('dark-mode');
+                const iconEl = this.querySelector('.preview-theme-icon');
+                const textEl = this.querySelector('.preview-theme-text');
+                if (iconEl) iconEl.textContent = '☀️';
+                if (textEl) textEl.textContent = 'Light Mode';
+            }
+        });
+    }
+
+    // Generate email preview HTML
+    function generateEmailPreview() {
+        const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+        console.log('Generating preview for', blocks.length, 'blocks');
+
+        let previewHtml = '<div class="preview-email">';
+        let processedBlocks = new Set(); // Track blocks we've already processed
+
+        blocks.forEach(block => {
+            // Skip if already processed as part of a column layout
+            if (processedBlocks.has(block)) {
+                console.log('Skipping already processed block');
+                return;
+            }
+            const blockType = block.dataset.blockType;
+            console.log('Processing block:', {
+                blockType: blockType,
+                classList: block.className,
+                innerHTML: block.innerHTML.substring(0, 200) + '...',
+                allDatasets: block.dataset
+            });
+
+            // Skip spatial layout detection for column blocks - they handle their own content
+            const isColumnBlock = blockType === 'columns' || blockType === 'column' || blockType === 'two-column';
+
+            if (!isColumnBlock) {
+                // Check if this block is part of a column layout
+                // First try to find a direct parent container
+                let parentLayout = block.closest('.layout-block, .columns-container, .row, .email-block');
+                let isPartOfLayout = false;
+                let layoutBlocks = [];
+
+                if (parentLayout && parentLayout !== block) {
+                    const hasColumns = parentLayout.querySelector('.layout-column, .column, [data-column]') ||
+                                     parentLayout.innerHTML.includes('Column');
+                    if (hasColumns) {
+                        isPartOfLayout = true;
+                        layoutBlocks = Array.from(parentLayout.querySelectorAll('.email-block'));
+                    }
+                }
+
+                // Alternative approach: check if there are multiple blocks that might be part of a layout
+                if (!isPartOfLayout) {
+                    const allBlocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+                    // Look for blocks at similar vertical positions (indicating they're in the same row)
+                    const blockRect = block.getBoundingClientRect();
+                    const tolerance = 50; // pixels tolerance for "same row"
+
+                    const sameRowBlocks = allBlocks.filter(b => {
+                        if (processedBlocks.has(b) || b === block) return false;
+
+                        const bRect = b.getBoundingClientRect();
+                        const verticalDiff = Math.abs(blockRect.top - bRect.top);
+                        return verticalDiff <= tolerance;
+                    });
+
+                    // If we found blocks in the same row, treat as column layout
+                    if (sameRowBlocks.length >= 1) {
+                        console.log('Found blocks in same row, treating as layout (processing as group)');
+                        isPartOfLayout = true;
+
+                        // Include the current block and sort by horizontal position
+                        layoutBlocks = [block, ...sameRowBlocks].sort((a, b) => {
+                            const aRect = a.getBoundingClientRect();
+                            const bRect = b.getBoundingClientRect();
+                            return aRect.left - bRect.left;
+                        });
+
+                        parentLayout = block.parentElement;
+                    }
+                }
+
+                if (isPartOfLayout && layoutBlocks.length > 1) {
+                    console.log('Block is part of a layout, processing layout as a whole', {
+                        parentLayout: parentLayout,
+                        layoutBlocks: layoutBlocks.length
+                    });
+
+                    // Mark all layout blocks as processed
+                    layoutBlocks.forEach(layoutBlock => processedBlocks.add(layoutBlock));
+
+                    // Generate preview for the entire layout
+                    previewHtml += generateLayoutPreview(parentLayout, layoutBlocks);
+                    return; // Skip individual processing for this block
+                }
+            }
+
+            switch (blockType) {
+                case 'text':
+                    previewHtml += generateTextPreview(block);
+                    break;
+                case 'image':
+                    console.log('Found image block, generating preview...');
+                    previewHtml += generateImagePreview(block);
+                    break;
+                case 'button':
+                    previewHtml += generateButtonPreview(block);
+                    break;
+                case 'divider':
+                    previewHtml += generateDividerPreview(block);
+                    break;
+                case 'video':
+                    previewHtml += generateVideoPreview(block);
+                    break;
+                case 'social':
+                    previewHtml += generateSocialPreview(block);
+                    break;
+                case 'columns':
+                case 'column':
+                case 'two-column':
+                    console.log('=== FOUND COLUMN BLOCK ===');
+                    console.log('Block ID:', block.dataset.blockId);
+                    console.log('Column Type:', block.dataset.columnType);
+                    console.log('Generating layout preview...');
+                    previewHtml += generateColumnPreview(block);
+                    console.log('=== COLUMN BLOCK PROCESSED ===');
+                    break;
+                default:
+                    console.log('Unknown block type:', blockType);
+                    // Generic fallback for any unrecognized content
+                    previewHtml += `<div class="preview-block preview-generic-block" style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 6px; background: #f9fafb; margin: 10px 0;">
+                                        <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">📄 Content Block</div>
+                                        <div>${block.innerHTML}</div>
+                                    </div>`;
+            }
+        });
+
+        previewHtml += '</div>';
+
+        if (previewContent) {
+            previewContent.innerHTML = previewHtml;
+
+            // Apply current theme
+            if (isPreviewDarkMode) {
+                previewContent.classList.add('dark-mode');
+            } else {
+                previewContent.classList.remove('dark-mode');
+            }
+        } else {
+            console.error('Preview content element not found!');
+        }
+    }
+
+    function generateTextPreview(block) {
+        const textContent = block.querySelector('.text-block-content');
+        const html = textContent ? textContent.innerHTML : '<p>Sample text content</p>';
+        return `<div class="preview-block preview-text-block">${html}</div>`;
+    }
+
+    function generateImagePreview(block) {
+        const img = block.querySelector('img');
+        const alignment = block.dataset.align || 'center';
+        let alignStyle = 'text-align: center;';
+        if (alignment === 'left') alignStyle = 'text-align: left;';
+        if (alignment === 'right') alignStyle = 'text-align: right;';
+
+        if (img && img.src && !img.src.includes('placeholder')) {
+            return `<div class="preview-block preview-image-block" style="${alignStyle}">
+                        <img src="${img.src}" alt="${img.alt || ''}" style="max-width: ${block.dataset.width || '100%'}; height: auto;" />
+                    </div>`;
+        } else {
+            return `<div class="preview-block preview-image-block" style="${alignStyle}">
+                        <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 8px; padding: 40px; color: #6b7280; max-width: ${block.dataset.width || '300px'}; margin: 0 auto;">
+                            🖼️ Image Placeholder
+                        </div>
+                    </div>`;
+        }
+    }
+
+    function generateButtonPreview(block) {
+        const button = block.querySelector('a');
+        const text = button ? button.textContent : 'Click Here';
+        const url = button ? button.href : '#';
+        const style = block.dataset.style || 'primary';
+        const align = block.dataset.align || 'center';
+
+        let buttonStyles = 'padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-block;';
+
+        // Apply button styles based on type
+        if (style === 'primary') {
+            buttonStyles += ' background: #3b82f6; color: white; border: 2px solid #3b82f6;';
+        } else if (style === 'secondary') {
+            buttonStyles += ' background: transparent; color: #3b82f6; border: 2px solid #3b82f6;';
+        } else {
+            buttonStyles += ' background: #6b7280; color: white; border: 2px solid #6b7280;';
+        }
+
+        let alignStyle = 'text-align: center;';
+        if (align === 'left') alignStyle = 'text-align: left;';
+        if (align === 'right') alignStyle = 'text-align: right;';
+
+        return `<div class="preview-block preview-button-block" style="${alignStyle}">
+                    <a href="${url}" class="preview-button" style="${buttonStyles}">${text}</a>
+                </div>`;
+    }
+
+    function generateDividerPreview(block) {
+        const thickness = block.dataset.thickness || '2';
+        const width = block.dataset.width || '100';
+        const color = block.dataset.color || '#e5e7eb';
+
+        return `<div class="preview-block preview-divider-block">
+                    <hr class="preview-divider" style="height: ${thickness}px; background: ${color}; width: ${width}%; border: 0; border-radius: ${thickness}px;" />
+                </div>`;
+    }
+
+    function generateVideoPreview(block) {
+        const url = block.dataset.url || '';
+
+        if (url) {
+            // For preview, show a placeholder since embedded videos might not work
+            return `<div class="preview-block preview-video-block">
+                        <div class="preview-video-placeholder" style="aspect-ratio: 16/9; max-width: 500px;">
+                            🎥 Video Content<br>
+                            <small style="color: #9ca3af;">${url}</small>
+                        </div>
+                    </div>`;
+        } else {
+            return `<div class="preview-block preview-video-block">
+                        <div class="preview-video-placeholder" style="aspect-ratio: 16/9; max-width: 500px;">
+                            🎥 Video Placeholder<br>
+                            <small style="color: #9ca3af;">No video URL set</small>
+                        </div>
+                    </div>`;
+        }
+    }
+
+    function generateSocialPreview(block) {
+        const platformsData = JSON.parse(block.dataset.platforms || '{}');
+        const size = block.dataset.size || 'medium';
+        const alignment = block.dataset.alignment || 'center';
+        const grayscale = block.dataset.grayscale === 'true';
+
+        let alignStyle = 'justify-content: center;';
+        if (alignment === 'left') alignStyle = 'justify-content: flex-start;';
+        if (alignment === 'right') alignStyle = 'justify-content: flex-end;';
+
+        const sizes = { small: '24px', medium: '32px', large: '48px' };
+        const iconSize = sizes[size] || sizes.medium;
+
+        let socialLinksHtml = '';
+        Object.entries(platformsData).forEach(([platform, data]) => {
+            if (data.enabled && data.url) {
+                const platformIcons = {
+                    facebook: { icon: '📘', color: '#1877f2' },
+                    x: { icon: '✖️', color: '#000000' },
+                    linkedin: { icon: '💼', color: '#0a66c2' },
+                    youtube: { icon: '📺', color: '#ff0000' },
+                    instagram: { icon: '📸', color: '#e4405f' },
+                    tiktok: { icon: '🎵', color: '#000000' },
+                    whatsapp: { icon: '💬', color: '#25d366' },
+                    threads: { icon: '🧵', color: '#000000' },
+                    bluesky: { icon: '☁️', color: '#00a8e8' }
+                };
+
+                const icon = platformIcons[platform]?.icon || '🔗';
+                const color = grayscale ? '#6b7280' : (platformIcons[platform]?.color || '#666');
+
+                socialLinksHtml += `<a href="${data.url}" class="preview-social-link" style="color: ${color}; font-size: ${iconSize};">${icon}</a>`;
+            }
+        });
+
+        if (!socialLinksHtml) {
+            socialLinksHtml = '<div style="color: #6b7280; font-style: italic;">No social platforms enabled</div>';
+        }
+
+        return `<div class="preview-block preview-social-block">
+                    <div class="preview-social-links" style="${alignStyle}">
+                        ${socialLinksHtml}
+                    </div>
+                </div>`;
+    }
+
+    function generateColumnPreview(block) {
+        console.log('=== PROCESSING COLUMN LAYOUT BLOCK ===');
+        console.log('Block:', block);
+        console.log('Block HTML preview:', block.innerHTML.substring(0, 500));
+
+        // Get column type from data attribute
+        const columnType = block.dataset.columnType || '2';
+        console.log('Column type detected:', columnType);
+
+        // Look for ALL types of blocks within the column block
+        let contentBlocks = Array.from(block.querySelectorAll('.email-block[data-block-type], [data-block-type]'));
+
+        if (contentBlocks.length === 0) {
+            contentBlocks = Array.from(block.querySelectorAll('.email-block'));
+        }
+
+        console.log('Content blocks found:', contentBlocks.length);
+        contentBlocks.forEach((cb, i) => {
+            const blockType = cb.dataset.blockType || 'unknown';
+            const content = cb.textContent.trim().substring(0, 50) + '...';
+            console.log(`  Block ${i+1} (${blockType}):`, content);
+        });
+
+        if (contentBlocks.length > 0) {
+            console.log('Using content blocks for column generation');
+            // Sort blocks by position (left to right)
+            contentBlocks.sort((a, b) => {
+                const aRect = a.getBoundingClientRect();
+                const bRect = b.getBoundingClientRect();
+                return aRect.left - bRect.left;
+            });
+
+            const result = generateColumnsFromMixedBlocks(contentBlocks, columnType);
+            console.log('Generated column HTML from mixed content blocks');
+            return result;
+        }
+
+        // Fallback: look for any elements with text content that might be columns
+        const allElements = Array.from(block.querySelectorAll('*'));
+        let columnsWithContent = allElements.filter(el => {
+            const text = el.textContent.trim();
+            return text === 'Click to edit text' || // Exact match for placeholder text
+                   (text &&
+                    text !== block.textContent.trim() && // Not the parent container
+                    text.length > 0 &&
+                    text.length < 200 && // Not too long (likely a container)
+                    (text.includes('Click to edit') || text.includes('Column') || !el.querySelector('*'))); // Specific content or leaf element
+        });
+
+        // If we still haven't found any, be more aggressive
+        if (columnsWithContent.length === 0) {
+            columnsWithContent = allElements.filter(el => {
+                const text = el.textContent.trim();
+                return text && text.length > 0 && text.length < 100;
+            }).slice(0, parseInt(columnType) || 2); // Take first N elements
+        }
+
+        if (columnsWithContent.length > 0) {
+            console.log('Found', columnsWithContent.length, 'elements with content');
+            columnsWithContent.forEach((el, i) => {
+                console.log(`  Element ${i+1}:`, el.textContent.trim());
+            });
+            // Take first N elements based on column type
+            const numColumns = parseInt(columnType) || 2;
+            const selectedColumns = columnsWithContent.slice(0, numColumns);
+            console.log('Using fallback elements for column generation');
+            return generateColumnsFromElements(selectedColumns);
+        }
+
+        // Ultimate fallback - create placeholder columns based on column type
+        console.log('Using ultimate fallback - creating placeholder columns');
+        const numColumns = parseInt(columnType) || 2;
+        return generatePlaceholderColumns(numColumns);
+    }
+
+    function generateColumnsHTML(columns) {
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        columns.forEach((column, index) => {
+            console.log(`Processing column ${index + 1}:`, column);
+
+            let columnContent = '';
+            const blockType = column.dataset.blockType;
+
+            if (blockType === 'text') {
+                // For text blocks, get the HTML content
+                const textBlockContent = column.querySelector('.text-block-content');
+                if (textBlockContent) {
+                    columnContent = textBlockContent.innerHTML || textBlockContent.textContent || '';
+                } else {
+                    columnContent = column.textContent.trim();
+                }
+            } else {
+                // For other blocks, get text content
+                columnContent = column.textContent.trim();
+            }
+
+            // Clean up the content
+            columnContent = columnContent
+                .replace(/Drop content here/g, '')
+                .trim();
+
+            // If empty after cleaning, use default
+            if (!columnContent || columnContent === '') {
+                columnContent = `Column ${index + 1}`;
+            }
+
+            // Handle special cases
+            if (columnContent === 'Click to edit text') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            }
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
+                                ${columnContent}
+                            </div>`;
+        });
+
+        columnsHTML += '</div></div>';
+        return columnsHTML;
+    }
+
+    function generateColumnsFromTextBlocks(textBlocks, expectedColumnType) {
+        console.log('=== GENERATING COLUMNS FROM TEXT BLOCKS ===');
+        console.log('Number of text blocks to process:', textBlocks.length);
+        console.log('Expected column type:', expectedColumnType);
+        console.log('Expected number of columns:', parseInt(expectedColumnType) || 2);
+
+        const expectedColumns = parseInt(expectedColumnType) || 2;
+
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        textBlocks.forEach((textBlock, index) => {
+            console.log(`Processing text block ${index + 1} of ${textBlocks.length}:`, textBlock);
+
+            let columnContent = '';
+            const textBlockContent = textBlock.querySelector('.text-block-content');
+
+            if (textBlockContent) {
+                columnContent = textBlockContent.innerHTML || textBlockContent.textContent || '';
+            } else {
+                columnContent = textBlock.textContent.trim();
+            }
+
+            // Clean up content
+            columnContent = columnContent.replace(/Drop content here/g, '').trim();
+
+            if (!columnContent) {
+                columnContent = `Column ${index + 1}`;
+            }
+
+            // Handle placeholder text styling
+            if (columnContent === 'Click to edit text') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            }
+
+            console.log(`Generated column ${index + 1} with content:`, columnContent);
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
+                                ${columnContent}
+                            </div>`;
+        });
+
+        console.log(`Generated ${textBlocks.length} columns (expected: ${expectedColumns})`);
+
+        // Validation check
+        if (textBlocks.length !== expectedColumns) {
+            console.warn(`⚠️ Column count mismatch! Generated ${textBlocks.length} columns but expected ${expectedColumns}`);
+        }
+
+        columnsHTML += '</div></div>';
+        console.log('=== COLUMN GENERATION COMPLETE ===');
+        return columnsHTML;
+    }
+
+    function generateColumnsFromElements(elements) {
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        elements.forEach((element, index) => {
+            console.log(`Processing element ${index + 1}:`, element);
+
+            let columnContent = element.textContent.trim();
+
+            // Clean up content
+            columnContent = columnContent.replace(/Drop content here/g, '').trim();
+
+            if (!columnContent) {
+                columnContent = `Column ${index + 1}`;
+            }
+
+            // Handle placeholder text styling
+            if (columnContent === 'Click to edit text') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            }
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
+                                ${columnContent}
+                            </div>`;
+        });
+
+        columnsHTML += '</div></div>';
+        return columnsHTML;
+    }
+
+    function generatePlaceholderColumns(numColumns) {
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        for (let i = 0; i < numColumns; i++) {
+            const columnContent = `<span style="color: #9ca3af; font-style: italic;">Column ${i + 1}</span>`;
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
+                                ${columnContent}
+                            </div>`;
+        }
+
+        columnsHTML += '</div></div>';
+        return columnsHTML;
+    }
+
+    function generateColumnsFromMixedBlocks(contentBlocks, expectedColumnType) {
+        console.log('=== GENERATING COLUMNS FROM MIXED BLOCKS ===');
+        console.log('Number of content blocks to process:', contentBlocks.length);
+        console.log('Expected column type:', expectedColumnType);
+
+        const expectedColumns = parseInt(expectedColumnType) || 2;
+
+        // Group blocks by column (spatial position)
+        const columns = [];
+        for (let i = 0; i < expectedColumns; i++) {
+            columns.push([]);
+        }
+
+        // Distribute blocks into columns based on their horizontal position
+        contentBlocks.forEach((block, index) => {
+            const columnIndex = Math.floor(index / Math.ceil(contentBlocks.length / expectedColumns));
+            const finalColumnIndex = Math.min(columnIndex, expectedColumns - 1);
+            columns[finalColumnIndex].push(block);
+        });
+
+        console.log('Blocks distributed into columns:', columns.map(col => col.length));
+
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        columns.forEach((columnBlocks, colIndex) => {
+            console.log(`Processing column ${colIndex + 1} with ${columnBlocks.length} blocks`);
+
+            let columnContent = '';
+
+            columnBlocks.forEach(block => {
+                const blockType = block.dataset.blockType || 'unknown';
+                console.log(`  Processing ${blockType} block:`, block.textContent.trim().substring(0, 30));
+
+                switch (blockType) {
+                    case 'text':
+                        // Extract text content with detailed debugging
+                        console.log('    🔍 Debugging text block extraction:');
+                        console.log('      Block HTML:', block.innerHTML.substring(0, 200));
+
+                        const textContent = block.querySelector('.text-block-content');
+                        console.log('      Found .text-block-content:', !!textContent);
+
+                        if (textContent) {
+                            console.log('      Text content element:', textContent);
+                            console.log('      innerHTML:', textContent.innerHTML);
+                            console.log('      textContent:', textContent.textContent);
+
+                            let text = textContent.innerHTML || textContent.textContent || '';
+                            console.log('      Raw extracted text:', JSON.stringify(text));
+
+                            text = text.replace(/Drop content here/g, '').trim();
+                            console.log('      Cleaned text:', JSON.stringify(text));
+
+                            if (text && text !== 'Click to edit text') {
+                                columnContent += `<div style="margin-bottom: 10px;">${text}</div>`;
+                                console.log('      ✅ Added real content');
+                            } else if (text === 'Click to edit text') {
+                                columnContent += `<div style="margin-bottom: 10px; color: #9ca3af; font-style: italic;">Click to edit text</div>`;
+                                console.log('      ✅ Added placeholder text');
+                            } else {
+                                console.log('      ❌ No content added (empty or unmatched)');
+                            }
+                        } else {
+                            // Fallback: try to get text from any text-containing element
+                            console.log('      No .text-block-content found, trying fallback...');
+                            const blockText = block.textContent.trim();
+                            console.log('      Block textContent:', JSON.stringify(blockText));
+
+                            if (blockText && blockText !== 'Drop content here') {
+                                columnContent += `<div style="margin-bottom: 10px;">${blockText}</div>`;
+                                console.log('      ✅ Added fallback content');
+                            }
+                        }
+
+                        console.log('      Column content after text processing:', columnContent.length ? columnContent.substring(0, 50) : 'EMPTY');
+                        break;
+
+                    case 'image':
+                        // Extract image content
+                        const img = block.querySelector('img');
+                        if (img && img.src && !img.src.includes('placeholder')) {
+                            columnContent += `<div style="margin-bottom: 10px; text-align: center;">
+                                                <img src="${img.src}" alt="${img.alt || ''}" style="max-width: 100%; height: auto; border-radius: 4px;" />
+                                              </div>`;
+                        } else {
+                            columnContent += `<div style="margin-bottom: 10px; text-align: center; color: #9ca3af; font-style: italic;">🖼️ Image</div>`;
+                        }
+                        break;
+
+                    case 'button':
+                        // Extract button content
+                        const button = block.querySelector('a, button');
+                        if (button) {
+                            const text = button.textContent || 'Button';
+                            const style = block.dataset.style || 'primary';
+                            let buttonStyles = 'padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: 500; display: inline-block; text-align: center;';
+
+                            if (style === 'primary') {
+                                buttonStyles += ' background: #3b82f6; color: white; border: 2px solid #3b82f6;';
+                            } else if (style === 'secondary') {
+                                buttonStyles += ' background: transparent; color: #3b82f6; border: 2px solid #3b82f6;';
+                            } else {
+                                buttonStyles += ' background: #6b7280; color: white; border: 2px solid #6b7280;';
+                            }
+
+                            columnContent += `<div style="margin-bottom: 10px; text-align: center;">
+                                                <span style="${buttonStyles}">${text}</span>
+                                              </div>`;
+                        }
+                        break;
+
+                    default:
+                        // Fallback for unknown block types
+                        const content = block.textContent.trim();
+                        if (content) {
+                            columnContent += `<div style="margin-bottom: 10px;">${content}</div>`;
+                        }
+                        break;
+                }
+            });
+
+            // If column is empty, add placeholder
+            if (!columnContent.trim()) {
+                columnContent = `<span style="color: #9ca3af; font-style: italic;">Column ${colIndex + 1}</span>`;
+            }
+
+            console.log(`Generated content for column ${colIndex + 1}:`, columnContent.substring(0, 100));
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; flex-direction: column; justify-content: center; font-size: 14px; color: #374151;">
+                                ${columnContent}
+                            </div>`;
+        });
+
+        console.log(`Generated ${expectedColumns} columns from mixed content`);
+
+        columnsHTML += '</div></div>';
+        console.log('=== MIXED COLUMN GENERATION COMPLETE ===');
+        return columnsHTML;
+    }
+
+    function generateLayoutPreview(parentLayout, layoutBlocks) {
+        console.log('Generating layout preview for parent:', parentLayout);
+        console.log('Layout blocks:', layoutBlocks);
+
+        // Extract column content from the blocks
+        let columnsHTML = '<div class="preview-block preview-columns-block"><div class="preview-columns-container">';
+
+        layoutBlocks.forEach((block, index) => {
+            console.log(`Processing layout block ${index + 1}:`, block);
+
+            let columnContent = '';
+
+            // Try to extract content based on block type
+            const blockType = block.dataset.blockType;
+
+            if (blockType === 'text') {
+                // For text blocks, get the HTML content
+                const textBlockContent = block.querySelector('.text-block-content');
+                if (textBlockContent) {
+                    columnContent = textBlockContent.innerHTML || textBlockContent.textContent || '';
+                } else {
+                    columnContent = block.textContent.trim();
+                }
+            } else {
+                // For other blocks, get text content
+                columnContent = block.textContent.trim();
+            }
+
+            // Clean up the content
+            columnContent = columnContent
+                .replace(/Drop content here/g, '')
+                .replace(/Click to edit text/g, 'Click to edit text')
+                .trim();
+
+            // If content is empty after cleaning, use placeholder
+            if (!columnContent || columnContent === '') {
+                columnContent = `Column ${index + 1}`;
+            }
+
+            // Handle special cases
+            if (columnContent === 'Click to edit text') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            }
+
+            columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
+                                ${columnContent}
+                            </div>`;
+        });
+
+        columnsHTML += '</div></div>';
+        return columnsHTML;
+    }
+
+    // Close preview on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && previewModal && previewModal.style.display === 'block') {
+            closePreviewModal();
+        }
+    });
 });
         </script>
 
@@ -6345,6 +7129,322 @@ document.addEventListener('DOMContentLoaded', function() {
     pointer-events: none;
 }
 
+/* Email Preview Modal */
+.email-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.email-preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.email-preview-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    max-width: 800px;
+    max-height: 90vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.email-preview-header {
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.email-preview-title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.email-preview-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.email-preview-btn {
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    type: button; /* Prevent form submission */
+}
+
+.email-preview-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.email-preview-close {
+    background: #ef4444;
+    color: white;
+    border-color: #dc2626;
+}
+
+.email-preview-close:hover {
+    background: #dc2626;
+    border-color: #b91c1c;
+}
+
+.email-preview-content {
+    flex: 1;
+    overflow-y: auto;
+    background: #ffffff;
+    transition: background-color 0.3s ease;
+}
+
+/* Dark mode for preview content */
+.email-preview-content.dark-mode {
+    background: #111827;
+}
+
+.email-preview-content.dark-mode .preview-email {
+    background: #111827;
+    color: #f9fafb;
+}
+
+.email-preview-content.dark-mode .preview-text-block {
+    color: #f9fafb;
+}
+
+.email-preview-content.dark-mode .preview-button {
+    background: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.email-preview-content.dark-mode .preview-divider {
+    border-color: #374151 !important;
+}
+
+/* Preview email styles */
+.preview-email {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.preview-block {
+    margin: 20px 0;
+}
+
+.preview-text-block {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #374151;
+}
+
+.preview-text-block p {
+    margin: 0 0 1em 0;
+    line-height: 1.6;
+}
+
+.preview-text-block p:last-child {
+    margin-bottom: 0;
+}
+
+.preview-text-block strong,
+.preview-text-block b {
+    font-weight: 600;
+    color: inherit;
+}
+
+.preview-text-block em,
+.preview-text-block i {
+    font-style: italic;
+    color: inherit;
+}
+
+.preview-text-block a {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.preview-text-block a:hover {
+    color: #1d4ed8;
+}
+
+/* Dark mode text formatting */
+.email-preview-content.dark-mode .preview-text-block a {
+    color: #60a5fa;
+}
+
+.email-preview-content.dark-mode .preview-text-block a:hover {
+    color: #93c5fd;
+}
+
+.preview-image-block {
+    text-align: center;
+}
+
+.preview-image-block img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Column Layout Styles */
+.preview-columns-block {
+    margin: 20px 0;
+}
+
+.preview-columns-container {
+    display: flex;
+    gap: 15px;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.preview-column {
+    flex: 1;
+    min-width: 120px;
+    max-width: none;
+    padding: 15px;
+    margin: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Dark mode column styles */
+.email-preview-content.dark-mode .preview-column {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+.preview-button-block {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.preview-button {
+    display: inline-block;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.preview-divider-block {
+    margin: 32px 0;
+    text-align: center;
+}
+
+.preview-divider {
+    border: 0;
+    height: 2px;
+    background: #e5e7eb;
+    margin: 0 auto;
+    border-radius: 2px;
+}
+
+.preview-video-block {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.preview-video-placeholder {
+    background: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 40px 20px;
+    color: #6b7280;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.preview-social-block {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.preview-social-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.preview-social-link {
+    font-size: 32px;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.preview-social-link:hover {
+    transform: scale(1.1);
+}
+
         </style>
+
+        <!-- Email Preview Modal -->
+        <div id="email-preview-modal-{{ $getStatePath() }}" class="email-preview-modal" style="display: none;">
+            <div class="email-preview-overlay">
+                <div class="email-preview-container">
+                    <div class="email-preview-header">
+                        <div class="email-preview-title">
+                            <span class="email-preview-icon">👁️</span>
+                            <span>Email Preview</span>
+                        </div>
+                        <div class="email-preview-controls">
+                            <button type="button" id="preview-theme-toggle-{{ $getStatePath() }}" class="email-preview-btn" title="Toggle Light/Dark Mode">
+                                <span class="preview-theme-icon">☀️</span>
+                                <span class="preview-theme-text">Light Mode</span>
+                            </button>
+                            <button type="button" id="preview-close-btn-{{ $getStatePath() }}" class="email-preview-btn email-preview-close" title="Close Preview">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    <div class="email-preview-content" id="email-preview-content-{{ $getStatePath() }}">
+                        <!-- Preview content will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </x-dynamic-component>
