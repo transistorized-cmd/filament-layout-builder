@@ -405,6 +405,85 @@
                     </div>
                 </div>
 
+                <!-- Video Properties Panel -->
+                <div id="video-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Video Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Video URL -->
+                        <div class="property-group">
+                            <label class="property-label" for="video-url-{{ $getStatePath() }}">Video URL</label>
+                            <input
+                                type="url"
+                                id="video-url-{{ $getStatePath() }}"
+                                class="property-input"
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                title="Enter YouTube, Vimeo, or direct video URL"
+                            >
+                        </div>
+
+                        <!-- Video Size -->
+                        <div class="property-group">
+                            <label class="property-label" for="video-size-{{ $getStatePath() }}">Size</label>
+                            <select
+                                id="video-size-{{ $getStatePath() }}"
+                                class="property-input"
+                                title="Scale video proportionally"
+                            >
+                                <option value="25">25% - Small</option>
+                                <option value="50">50% - Medium</option>
+                                <option value="75">75% - Large</option>
+                                <option value="100" selected>100% - Full Width</option>
+                            </select>
+                        </div>
+
+                        <!-- Video Options -->
+                        <div class="property-group">
+                            <label class="property-label">
+                                <input type="checkbox" id="video-autoplay-{{ $getStatePath() }}">
+                                Auto-play video
+                            </label>
+                        </div>
+
+                        <div class="property-group">
+                            <label class="property-label">
+                                <input type="checkbox" id="video-loop-{{ $getStatePath() }}">
+                                Loop video
+                            </label>
+                        </div>
+
+                        <div class="property-group">
+                            <label class="property-label">
+                                <input type="checkbox" id="video-controls-{{ $getStatePath() }}" checked>
+                                Show controls
+                            </label>
+                        </div>
+
+                        <!-- Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn active" data-align="center" title="Center">
+                                    ↔️
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="left" title="Left">
+                                    ⬅️
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="right" title="Right">
+                                    ➡️
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-video-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Columns Properties Panel -->
                 <div id="columns-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
                     <h4>Column Properties</h4>
@@ -964,6 +1043,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 createButtonBlockAtPosition(insertPosition);
             } else if (blockType === 'divider') {
                 createDividerBlockAtPosition(insertPosition);
+            } else if (blockType === 'video') {
+                createVideoBlockAtPosition(insertPosition);
             } else if (blockType === 'columns-2') {
                 createColumnsBlockAtPosition(insertPosition, 2);
             } else if (blockType === 'columns-3') {
@@ -1118,6 +1199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
     const buttonPropertiesPanel = document.getElementById('button-properties-' + statePath);
     const dividerPropertiesPanel = document.getElementById('divider-properties-' + statePath);
+    const videoPropertiesPanel = document.getElementById('video-properties-' + statePath);
     const columnsPropertiesPanel = document.getElementById('columns-properties-' + statePath);
 
     // Function to dynamically update canvas height based on content
@@ -1600,6 +1682,138 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Divider block created and appended to canvas:', dividerBlock.dataset.blockId);
     }
 
+    function createVideoBlockAtPosition(insertPosition) {
+        blockCounter++;
+        console.log('Creating video block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create video block element
+        const videoBlock = document.createElement('div');
+        videoBlock.className = 'email-block video-block';
+        videoBlock.dataset.blockId = 'video-' + blockCounter;
+        videoBlock.dataset.blockType = 'video';
+        videoBlock.dataset.url = '';
+        videoBlock.dataset.size = '100'; // Percentage size for proportional scaling
+        videoBlock.dataset.autoplay = 'false';
+        videoBlock.dataset.loop = 'false';
+        videoBlock.dataset.controls = 'true';
+        videoBlock.dataset.alignment = 'center';
+
+        // Set up video block for alignment
+        videoBlock.style.display = 'flex';
+        videoBlock.style.justifyContent = 'center'; // Default center alignment
+
+        // Create video container
+        const videoContainer = document.createElement('div');
+        videoContainer.className = 'video-container';
+        videoContainer.style.textAlign = 'center';
+        videoContainer.style.width = '100%'; // Full width within flex container
+        videoContainer.style.aspectRatio = '16 / 9'; // Modern CSS aspect-ratio property
+        videoContainer.style.height = 'auto'; // Let aspect-ratio handle height
+        videoContainer.style.backgroundColor = '#f3f4f6';
+        videoContainer.style.border = '2px dashed #d1d5db';
+        videoContainer.style.borderRadius = '8px';
+        videoContainer.style.display = 'flex';
+        videoContainer.style.alignItems = 'center';
+        videoContainer.style.justifyContent = 'center';
+        videoContainer.style.flexDirection = 'column';
+        videoContainer.style.cursor = 'pointer';
+        videoContainer.style.position = 'relative'; // For absolutely positioned videos
+
+        // Create placeholder content
+        const videoPlaceholder = document.createElement('div');
+        videoPlaceholder.className = 'video-placeholder';
+        videoPlaceholder.innerHTML = `
+            <div style="font-size: 48px; margin-bottom: 10px;">🎥</div>
+            <div style="font-size: 16px; color: #6b7280; font-weight: 500;">Click to add video</div>
+            <div style="font-size: 14px; color: #9ca3af; margin-top: 5px;">YouTube, Vimeo, or direct video URL</div>
+        `;
+
+        videoContainer.appendChild(videoPlaceholder);
+        videoBlock.appendChild(videoContainer);
+
+        // Add click handler to placeholder for easy URL input
+        videoContainer.addEventListener('click', function() {
+            const url = prompt('Enter video URL (YouTube, Vimeo, or direct video link):');
+            if (url) {
+                const trimmedUrl = url.trim();
+                videoBlock.dataset.url = trimmedUrl;
+
+                // Detect and store aspect ratio
+                const detectedRatio = detectVideoAspectRatio(trimmedUrl);
+                if (detectedRatio) {
+                    videoBlock.dataset.aspectRatio = detectedRatio;
+                }
+
+                updateVideoDisplay(videoBlock, trimmedUrl);
+
+                // Update URL input in properties panel if it exists
+                const urlInput = document.getElementById('video-url-' + statePath);
+                if (urlInput) urlInput.value = trimmedUrl;
+            }
+        });
+
+        // Position the video block
+        videoBlock.style.position = 'absolute';
+        videoBlock.style.left = '0px';
+        videoBlock.style.top = insertPosition.y + 'px';
+        videoBlock.style.width = '100%';
+
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 10);
+        }
+
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(videoBlock, nextSibling);
+                console.log('Inserted videoBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(videoBlock);
+                console.log('Appended videoBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(videoBlock, insertPosition.insertBefore);
+            console.log('Inserted videoBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(videoBlock);
+            console.log('Appended videoBlock at end');
+        }
+
+        // Add selection functionality
+        videoBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(videoBlock);
+        });
+
+        // Prevent drag/drop on video block itself
+        videoBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        videoBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
+        });
+
+        // Auto-select the new block
+        selectBlock(videoBlock);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Video block created and appended to canvas:', videoBlock.dataset.blockId);
+    }
+
     function createColumnsBlockAtPosition(insertPosition, columnType) {
         blockCounter++;
         console.log('Creating columns block #', blockCounter, 'type:', columnType);
@@ -2068,6 +2282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
         if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
         if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
+        if (videoPropertiesPanel) videoPropertiesPanel.style.display = 'none';
         if (columnsPropertiesPanel) columnsPropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
@@ -2083,6 +2298,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (block.dataset.blockType === 'divider' && dividerPropertiesPanel) {
             dividerPropertiesPanel.style.display = 'block';
             addDividerPropertyListeners(block);
+        } else if (block.dataset.blockType === 'video' && videoPropertiesPanel) {
+            videoPropertiesPanel.style.display = 'block';
+            addVideoPropertyListeners(block);
         } else if (block.dataset.blockType === 'columns' && columnsPropertiesPanel) {
             columnsPropertiesPanel.style.display = 'block';
             addColumnsPropertyListeners(block);
@@ -2740,6 +2958,328 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (noSelectionPanel) noSelectionPanel.style.display = 'block';
             };
         }
+    }
+
+    function addVideoPropertyListeners(block) {
+        const videoContainer = block.querySelector('.video-container');
+
+        // Get video property controls
+        const urlInput = document.getElementById('video-url-' + statePath);
+        const sizeDropdown = document.getElementById('video-size-' + statePath);
+        const autoplayCheckbox = document.getElementById('video-autoplay-' + statePath);
+        const loopCheckbox = document.getElementById('video-loop-' + statePath);
+        const controlsCheckbox = document.getElementById('video-controls-' + statePath);
+        const alignmentBtns = videoPropertiesPanel?.querySelectorAll('.alignment-btn');
+        const deleteBtn = document.getElementById('delete-video-block-' + statePath);
+
+        // Load current values into form
+        if (urlInput) urlInput.value = block.dataset.url || '';
+        if (sizeDropdown) sizeDropdown.value = block.dataset.size || '100';
+        if (autoplayCheckbox) autoplayCheckbox.checked = block.dataset.autoplay === 'true';
+        if (loopCheckbox) loopCheckbox.checked = block.dataset.loop === 'true';
+        if (controlsCheckbox) controlsCheckbox.checked = block.dataset.controls === 'true';
+
+        // Set active alignment
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.align === (block.dataset.alignment || 'center'));
+            });
+        }
+
+        // Video URL input
+        if (urlInput) {
+            urlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+                block.dataset.url = url;
+
+                if (url) {
+                    updateVideoDisplay(block, url);
+                } else {
+                    showVideoPlaceholder(block);
+                }
+
+                console.log('Video URL updated to:', url);
+            });
+        }
+
+        // Video size dropdown
+        if (sizeDropdown) {
+            sizeDropdown.addEventListener('change', function() {
+                const size = this.value;
+                block.dataset.size = size;
+
+                // Apply proportional scaling to video block
+                const videoBlock = block;
+                if (videoContainer && videoBlock) {
+                    // Set the video block width based on size percentage
+                    videoBlock.style.width = '100%'; // Full width container
+
+                    // Set the video container width based on size percentage
+                    videoContainer.style.width = size + '%';
+                    videoContainer.style.maxWidth = size + '%';
+
+                    // Maintain aspect ratio
+                    videoContainer.style.aspectRatio = '16 / 9';
+                    videoContainer.style.height = 'auto';
+
+                    // Ensure the video iframe fills the container properly
+                    const iframe = videoContainer.querySelector('iframe');
+                    if (iframe) {
+                        iframe.style.width = '100%';
+                        iframe.style.height = '100%';
+                        iframe.style.position = 'absolute';
+                        iframe.style.top = '0';
+                        iframe.style.left = '0';
+                    }
+
+                    // Make container relative for absolute positioned iframe
+                    videoContainer.style.position = 'relative';
+                }
+
+                console.log('Video size updated to:', size + '%');
+            });
+        }
+
+
+        // Video options
+        if (autoplayCheckbox) {
+            autoplayCheckbox.addEventListener('change', function() {
+                block.dataset.autoplay = this.checked;
+                updateVideoEmbedParameters(block);
+                console.log('Video autoplay updated to:', this.checked);
+            });
+        }
+
+        if (loopCheckbox) {
+            loopCheckbox.addEventListener('change', function() {
+                block.dataset.loop = this.checked;
+                updateVideoEmbedParameters(block);
+                console.log('Video loop updated to:', this.checked);
+            });
+        }
+
+        if (controlsCheckbox) {
+            controlsCheckbox.addEventListener('change', function() {
+                block.dataset.controls = this.checked;
+                updateVideoEmbedParameters(block);
+                console.log('Video controls updated to:', this.checked);
+            });
+        }
+
+        // Alignment controls
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newAlign = this.dataset.align;
+                    block.dataset.alignment = newAlign;
+
+                    // Remove active from all buttons
+                    alignmentBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+
+                    // Update video block alignment
+                    const videoBlock = block;
+                    if (videoBlock) {
+                        const alignStyles = {
+                            'left': 'flex-start',
+                            'center': 'center',
+                            'right': 'flex-end'
+                        };
+                        videoBlock.style.justifyContent = alignStyles[newAlign] || 'center';
+                    }
+
+                    console.log('Video alignment updated to:', newAlign);
+                });
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting video block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
+
+                // Show no selection panel
+                if (videoPropertiesPanel) videoPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+
+    }
+
+    // Helper functions for video block
+    function updateVideoDisplay(block, url) {
+        const videoContainer = block.querySelector('.video-container');
+        if (!videoContainer) return;
+
+        const embedUrl = convertToEmbedUrl(url);
+        if (embedUrl) {
+            // Create video iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.position = 'absolute';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.border = 'none';
+            iframe.style.borderRadius = '8px';
+            iframe.setAttribute('frameborder', '0');
+            iframe.setAttribute('allowfullscreen', 'true');
+
+            // Clear container and add iframe
+            videoContainer.innerHTML = '';
+            videoContainer.appendChild(iframe);
+
+            // Update container styling for video display
+            videoContainer.style.backgroundColor = 'transparent';
+            videoContainer.style.border = 'none';
+            videoContainer.style.cursor = 'default';
+        } else {
+            // Invalid URL, show error placeholder
+            showVideoErrorPlaceholder(block, url);
+        }
+    }
+
+    function showVideoPlaceholder(block) {
+        const videoContainer = block.querySelector('.video-container');
+        if (!videoContainer) return;
+
+        videoContainer.innerHTML = `
+            <div class="video-placeholder">
+                <div style="font-size: 48px; margin-bottom: 10px;">🎥</div>
+                <div style="font-size: 16px; color: #6b7280; font-weight: 500;">Click to add video</div>
+                <div style="font-size: 14px; color: #9ca3af; margin-top: 5px;">YouTube, Vimeo, or direct video URL</div>
+            </div>
+        `;
+
+        // Restore placeholder styling
+        videoContainer.style.backgroundColor = '#f3f4f6';
+        videoContainer.style.border = '2px dashed #d1d5db';
+        videoContainer.style.cursor = 'pointer';
+    }
+
+    function showVideoErrorPlaceholder(block, invalidUrl) {
+        const videoContainer = block.querySelector('.video-container');
+        if (!videoContainer) return;
+
+        videoContainer.innerHTML = `
+            <div class="video-placeholder">
+                <div style="font-size: 48px; margin-bottom: 10px; color: #ef4444;">⚠️</div>
+                <div style="font-size: 16px; color: #dc2626; font-weight: 500;">Invalid video URL</div>
+                <div style="font-size: 14px; color: #9ca3af; margin-top: 5px;">${invalidUrl}</div>
+                <div style="font-size: 12px; color: #9ca3af; margin-top: 10px;">Supported: YouTube, Vimeo, direct video links</div>
+            </div>
+        `;
+
+        // Error styling
+        videoContainer.style.backgroundColor = '#fef2f2';
+        videoContainer.style.border = '2px dashed #fecaca';
+        videoContainer.style.cursor = 'pointer';
+    }
+
+    function convertToEmbedUrl(url) {
+        if (!url) return null;
+
+        // YouTube patterns
+        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        const youtubeMatch = url.match(youtubeRegex);
+        if (youtubeMatch) {
+            return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+        }
+
+        // Vimeo patterns
+        const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/i;
+        const vimeoMatch = url.match(vimeoRegex);
+        if (vimeoMatch) {
+            return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+        }
+
+        // Direct video links (mp4, webm, ogg)
+        if (/\.(mp4|webm|ogg)(\?.*)?$/i.test(url)) {
+            return url; // Return as-is for direct video links
+        }
+
+        // If already an embed URL, return as-is
+        if (url.includes('youtube.com/embed/') || url.includes('player.vimeo.com/video/')) {
+            return url;
+        }
+
+        return null; // Invalid URL
+    }
+
+    function updateVideoEmbedParameters(block) {
+        const iframe = block.querySelector('iframe');
+        if (!iframe) return;
+
+        const currentSrc = iframe.src;
+        const autoplay = block.dataset.autoplay === 'true';
+        const loop = block.dataset.loop === 'true';
+        const controls = block.dataset.controls === 'true';
+
+        let newSrc = currentSrc;
+
+        // YouTube parameter updates
+        if (currentSrc.includes('youtube.com/embed/')) {
+            newSrc = updateYouTubeParameters(currentSrc, autoplay, loop, controls);
+        }
+        // Vimeo parameter updates
+        else if (currentSrc.includes('player.vimeo.com/video/')) {
+            newSrc = updateVimeoParameters(currentSrc, autoplay, loop, controls);
+        }
+
+        if (newSrc !== currentSrc) {
+            iframe.src = newSrc;
+        }
+    }
+
+    function updateYouTubeParameters(url, autoplay, loop, controls) {
+        const urlObj = new URL(url);
+        const params = urlObj.searchParams;
+
+        // Set autoplay
+        if (autoplay) params.set('autoplay', '1');
+        else params.delete('autoplay');
+
+        // Set loop (requires playlist parameter for YouTube)
+        if (loop) {
+            params.set('loop', '1');
+            const videoId = url.match(/\/embed\/([^?]+)/)?.[1];
+            if (videoId) params.set('playlist', videoId);
+        } else {
+            params.delete('loop');
+            params.delete('playlist');
+        }
+
+        // Set controls
+        if (!controls) params.set('controls', '0');
+        else params.delete('controls');
+
+        return urlObj.toString();
+    }
+
+    function updateVimeoParameters(url, autoplay, loop, controls) {
+        const urlObj = new URL(url);
+        const params = urlObj.searchParams;
+
+        // Set autoplay
+        if (autoplay) params.set('autoplay', '1');
+        else params.delete('autoplay');
+
+        // Set loop
+        if (loop) params.set('loop', '1');
+        else params.delete('loop');
+
+        // Set controls (Vimeo uses 'controls' parameter)
+        if (!controls) params.set('controls', '0');
+        else params.delete('controls');
+
+        return urlObj.toString();
     }
 
     function addColumnsPropertyListeners(block) {
@@ -3856,6 +4396,46 @@ document.addEventListener('DOMContentLoaded', function() {
     margin: 0 auto;
     padding: 0;
     height: 0;
+}
+
+/* Video blocks */
+.email-block.video-block {
+    background: transparent !important;
+    padding: 10px;
+    border: 2px dashed transparent;
+    border-radius: 6px;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.email-block.video-block:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05) !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.email-block.video-block.selected {
+    border-color: #3b82f6 !important;
+    background: rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.video-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
 }
 
 /* Column blocks */
