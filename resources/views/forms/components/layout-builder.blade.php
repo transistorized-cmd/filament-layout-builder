@@ -684,6 +684,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const noSelectionPanel = document.getElementById('no-selection-' + statePath);
     const textPropertiesPanel = document.getElementById('text-properties-' + statePath);
 
+    // Function to dynamically update canvas height based on content
+    function updateCanvasHeight() {
+        if (!canvas) return;
+
+        // Find all blocks in the canvas
+        const blocks = canvas.querySelectorAll('.email-block');
+
+        if (blocks.length === 0) {
+            // No blocks, set to minimum height
+            canvas.style.height = '400px';
+            return;
+        }
+
+        let maxBottom = 0;
+
+        blocks.forEach(block => {
+            const blockTop = block.offsetTop;
+            const blockHeight = block.offsetHeight;
+            const blockBottom = blockTop + blockHeight;
+
+            if (blockBottom > maxBottom) {
+                maxBottom = blockBottom;
+            }
+        });
+
+        // Add padding at the bottom
+        const paddingBottom = 40;
+        const requiredHeight = Math.max(400, maxBottom + paddingBottom); // Minimum 400px
+
+        // Set canvas height
+        canvas.style.height = requiredHeight + 'px';
+
+        console.log('Canvas height updated to:', requiredHeight + 'px', 'based on', blocks.length, 'blocks');
+    }
+
     function createTextBlock(e) {
         blockCounter++;
         console.log('Creating text block #', blockCounter);
@@ -705,16 +740,67 @@ document.addEventListener('DOMContentLoaded', function() {
         textContent.contentEditable = true;
         textContent.innerHTML = 'Click to edit this text...';
 
+        // Force text block to match content height
+        function autoResize() {
+            // Reset heights
+            textContent.style.removeProperty('height');
+            textBlock.style.removeProperty('height');
+
+            // Force reflow to get accurate measurements
+            setTimeout(() => {
+                const contentHeight = textContent.offsetHeight;
+                const fullHeight = contentHeight + 32; // padding
+
+                // Use setProperty with important to force height
+                textBlock.style.setProperty('height', fullHeight + 'px', 'important');
+                textBlock.style.setProperty('min-height', fullHeight + 'px', 'important');
+
+                // Update canvas height when text content changes
+                updateCanvasHeight();
+            }, 1);
+        }
+
+        textContent.addEventListener('input', autoResize);
+        textContent.addEventListener('paste', function() {
+            setTimeout(autoResize, 10);
+        });
+        textContent.addEventListener('keyup', autoResize);
+
+        // Initial auto-resize
+        setTimeout(autoResize, 10);
+
         textBlock.appendChild(textContent);
 
-        // Calculate position relative to canvas
+        // Calculate position relative to canvas with proper bounds checking
         const canvasRect = canvas.getBoundingClientRect();
-        const x = e.clientX - canvasRect.left - 10;
-        const y = e.clientY - canvasRect.top - 10;
+
+        // Account for canvas padding - minimal padding for closer positioning
+        const leftPadding = 10; // Minimal left padding for close edge alignment
+        const topPadding = 20; // Small top padding
+        const rightPadding = 40; // Keep some right padding
+        const bottomPadding = 40; // Keep some bottom padding
+        const blockWidth = 250; // Estimated text block width
+        const blockHeight = 60; // Estimated text block height
+
+        let x = e.clientX - canvasRect.left - (blockWidth / 2);
+        let y = e.clientY - canvasRect.top - (blockHeight / 2);
+
+        // Ensure the block stays within canvas bounds with minimal padding
+        const maxX = canvas.clientWidth - blockWidth - rightPadding;
+        const maxY = canvas.clientHeight - blockHeight - bottomPadding;
+
+        x = Math.max(leftPadding, Math.min(x, maxX));
+        y = Math.max(topPadding, Math.min(y, maxY));
+
+        // If coordinates are invalid or outside reasonable bounds, position close to top-left
+        if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
+            x = leftPadding; // Position close to left edge
+            y = topPadding; // Position close to top edge
+        }
 
         textBlock.style.position = 'absolute';
-        textBlock.style.left = Math.max(0, x) + 'px';
-        textBlock.style.top = Math.max(0, y) + 'px';
+        textBlock.style.left = x + 'px';
+        textBlock.style.top = y + 'px';
 
         // Add to canvas
         canvas.appendChild(textBlock);
@@ -727,6 +813,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Auto-select the new block
         selectBlock(textBlock);
+
+        // Update canvas height to accommodate new content
+        updateCanvasHeight();
 
         console.log('Text block created and appended to canvas:', textBlock.dataset.blockId);
     }
@@ -765,6 +854,39 @@ document.addEventListener('DOMContentLoaded', function() {
     function addPropertyListeners(block) {
         const textContent = block.querySelector('.text-block-content');
 
+        // Force existing block to match content height
+        function autoResizeExisting() {
+            // Reset heights
+            textContent.style.removeProperty('height');
+            block.style.removeProperty('height');
+
+            // Force reflow to get accurate measurements
+            setTimeout(() => {
+                const contentHeight = textContent.offsetHeight;
+                const fullHeight = contentHeight + 32; // padding
+
+                // Use setProperty with important to force height
+                block.style.setProperty('height', fullHeight + 'px', 'important');
+                block.style.setProperty('min-height', fullHeight + 'px', 'important');
+            }, 1);
+        }
+
+        if (textContent) {
+            // Remove any existing event listeners to prevent duplicates
+            textContent.removeEventListener('input', autoResizeExisting);
+            textContent.removeEventListener('keyup', autoResizeExisting);
+
+            // Add resize event listeners
+            textContent.addEventListener('input', autoResizeExisting);
+            textContent.addEventListener('keyup', autoResizeExisting);
+            textContent.addEventListener('paste', function() {
+                setTimeout(autoResizeExisting, 10);
+            });
+
+            // Initial resize when selected
+            setTimeout(autoResizeExisting, 10);
+        }
+
         // Get static elements by unique IDs
         const fontFamilySelect = document.getElementById('text-font-family-' + statePath);
         const fontSizeSelect = document.getElementById('text-font-size-' + statePath);
@@ -776,6 +898,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fontFamilySelect) {
             fontFamilySelect.onchange = function() {
                 textContent.style.fontFamily = this.value;
+                setTimeout(autoResizeExisting, 10); // Resize after font change
             };
         }
 
@@ -783,6 +906,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (fontSizeSelect) {
             fontSizeSelect.onchange = function() {
                 textContent.style.fontSize = this.value;
+                setTimeout(autoResizeExisting, 10); // Resize after font size change
             };
         }
 
@@ -826,6 +950,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Deleting block:', block.dataset.blockId);
                 block.remove();
                 selectedBlock = null;
+
+                // Update canvas height after deleting block
+                updateCanvasHeight();
 
                 // Show no selection panel - NO innerHTML!
                 if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
@@ -883,6 +1010,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Apply the reset background
         applyBackgroundToCanvas();
+
+        // Update canvas height after clearing
+        updateCanvasHeight();
 
         // Reset properties panel to no selection
         if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
@@ -1217,8 +1347,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Email content theme styles - separate from editor theme */
 .layout-builder-canvas[data-email-theme="dark"] {
-    background: #1f2937 !important;
+    /* Background is controlled by JavaScript - no forced override */
     color: #f9fafb;
+}
+
+/* Default dark background only when no custom background is set */
+.layout-builder-canvas[data-email-theme="dark"]:not([style*="background"]) {
+    background: #1f2937;
 }
 
 .layout-builder-canvas[data-email-theme="dark"] .layout-builder-canvas-placeholder {
@@ -1670,13 +1805,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Email blocks */
 .email-block {
-    min-width: 100px;
+    min-width: 150px;
     min-height: 40px;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    border: 2px solid transparent;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
+    display: block;
+    box-sizing: border-box;
+    overflow: visible;
 }
 
 .email-block:hover {
@@ -1689,12 +1827,21 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Text blocks */
-.text-block {
-    background: transparent;
-    padding: 8px;
+/* Text blocks - Higher specificity to override email-block */
+.email-block.text-block {
+    background: transparent !important; /* Transparent background */
+    padding: 16px;
     max-width: 500px;
-    min-width: 100px;
+    min-width: 150px;
+    width: auto;
+    display: block;
+    min-height: 40px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: none; /* Remove shadow for transparent look */
+    border: none; /* Remove border for cleaner look */
+    /* JavaScript controls height dynamically */
 }
 
 .text-block-content {
@@ -1703,12 +1850,18 @@ document.addEventListener('DOMContentLoaded', function() {
     background: transparent;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
-    line-height: 1.4;
+    line-height: 1.5;
     color: #374151;
     white-space: pre-wrap;
     word-wrap: break-word;
+    word-break: break-word;
     min-height: 20px;
-    text-align: center;
+    text-align: left; /* Default to left alignment */
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    resize: none;
+    display: block;
 }
 
 .text-block-content:focus {
@@ -1916,13 +2069,22 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #f9fafb;
 }
 
-/* Email theme specific styles */
+/* Email theme specific styles - Higher specificity */
+.layout-builder-canvas[data-email-theme="dark"] .email-block.text-block {
+    background: transparent !important; /* Transparent background */
+}
+
 .layout-builder-canvas[data-email-theme="dark"] .text-block-content {
     color: #f9fafb;
 }
 
 .layout-builder-canvas[data-email-theme="light"] .text-block-content {
     color: #374151;
+}
+
+/* Editor dark mode - Higher specificity */
+.dark .email-block.text-block {
+    background: transparent !important; /* Transparent background */
 }
 
 /* Responsive design for properties panel */
