@@ -39,7 +39,7 @@
                             <span class="layout-builder-block-icon">🖼️</span>
                             <span class="layout-builder-block-label">Image</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="button">
+                        <div class="layout-builder-block-item" data-block-type="button" draggable="true">
                             <span class="layout-builder-block-icon">🔘</span>
                             <span class="layout-builder-block-label">Button</span>
                         </div>
@@ -222,6 +222,75 @@
                         <!-- Delete Block -->
                         <div class="property-group">
                             <button type="button" id="delete-image-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button Properties Panel -->
+                <div id="button-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Button Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Button Text -->
+                        <div class="property-group">
+                            <label class="property-label" for="button-text-{{ $getStatePath() }}">Button Text</label>
+                            <input type="text" id="button-text-{{ $getStatePath() }}" class="property-input" placeholder="Click here" value="Click here">
+                        </div>
+
+                        <!-- Button URL -->
+                        <div class="property-group">
+                            <label class="property-label" for="button-url-{{ $getStatePath() }}">Link URL</label>
+                            <input type="url" id="button-url-{{ $getStatePath() }}" class="property-input" placeholder="https://example.com">
+                            <small class="property-help">Where the button links to</small>
+                        </div>
+
+                        <!-- Button Style -->
+                        <div class="property-group">
+                            <label class="property-label">Button Style</label>
+                            <div class="button-style-grid">
+                                <button type="button" class="button-style-option active" data-style="primary">
+                                    <div class="button-preview" style="background: #3b82f6; color: white;">Primary</div>
+                                </button>
+                                <button type="button" class="button-style-option" data-style="secondary">
+                                    <div class="button-preview" style="background: #6b7280; color: white;">Secondary</div>
+                                </button>
+                                <button type="button" class="button-style-option" data-style="outline">
+                                    <div class="button-preview" style="background: transparent; color: #3b82f6; border: 2px solid #3b82f6;">Outline</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Button Size -->
+                        <div class="property-group">
+                            <label class="property-label" for="button-size-{{ $getStatePath() }}">Size</label>
+                            <select id="button-size-{{ $getStatePath() }}" class="property-select">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+
+                        <!-- Button Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn" data-align="left" title="Left">
+                                    ⬅️
+                                </button>
+                                <button type="button" class="alignment-btn active" data-align="center" title="Center">
+                                    ↔️
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="right" title="Right">
+                                    ➡️
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-button-block-{{ $getStatePath() }}" class="delete-block-btn">
                                 🗑️ Delete Block
                             </button>
                         </div>
@@ -721,6 +790,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 createTextBlock(e);
             } else if (blockType === 'image') {
                 createImageBlock(e);
+            } else if (blockType === 'button') {
+                createButtonBlock(e);
             }
         });
     }
@@ -733,6 +804,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const noSelectionPanel = document.getElementById('no-selection-' + statePath);
     const textPropertiesPanel = document.getElementById('text-properties-' + statePath);
     const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
+    const buttonPropertiesPanel = document.getElementById('button-properties-' + statePath);
 
     // Function to dynamically update canvas height based on content
     function updateCanvasHeight() {
@@ -946,6 +1018,80 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Image block created and appended to canvas:', imageBlock.dataset.blockId);
     }
 
+    function createButtonBlock(e) {
+        blockCounter++;
+        console.log('Creating button block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create button block element
+        const buttonBlock = document.createElement('div');
+        buttonBlock.className = 'email-block button-block';
+        buttonBlock.dataset.blockId = 'button-' + blockCounter;
+        buttonBlock.dataset.blockType = 'button';
+        buttonBlock.dataset.style = 'primary';
+        buttonBlock.dataset.size = 'medium';
+        buttonBlock.dataset.align = 'center';
+
+        // Button wrapper for alignment
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.className = 'button-wrapper';
+        buttonWrapper.style.textAlign = 'center';
+
+        // Create the actual button
+        const button = document.createElement('a');
+        button.href = '#';
+        button.className = 'email-button email-button-primary email-button-medium';
+        button.textContent = 'Click here';
+        button.style.display = 'inline-block';
+        button.style.textDecoration = 'none';
+
+        buttonWrapper.appendChild(button);
+        buttonBlock.appendChild(buttonWrapper);
+
+        // Calculate position for full-width button row
+        const canvasRect = canvas.getBoundingClientRect();
+        const topPadding = 20;
+
+        // For buttons, we want full width positioning
+        let y = e.clientY - canvasRect.top - 30; // Center vertically around drop point
+
+        // Ensure it's not too close to top
+        y = Math.max(topPadding, y);
+
+        // If coordinates are invalid, position at a reasonable location
+        if (y < 0 || isNaN(y)) {
+            y = topPadding;
+        }
+
+        buttonBlock.style.position = 'absolute';
+        buttonBlock.style.left = '0px'; // Full width - start at left edge
+        buttonBlock.style.top = y + 'px';
+        buttonBlock.style.width = '100%'; // Full width of canvas
+
+        // Add to canvas
+        canvas.appendChild(buttonBlock);
+
+        // Add selection functionality
+        buttonBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault(); // Prevent button click
+            selectBlock(buttonBlock);
+        });
+
+        // Auto-select the new block
+        selectBlock(buttonBlock);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Button block created and appended to canvas:', buttonBlock.dataset.blockId);
+    }
+
     // Phase 4: SELECTION AND PROPERTIES PANEL FUNCTIONALITY
     function selectBlock(block) {
         console.log('Selecting block:', block.dataset.blockId);
@@ -970,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (noSelectionPanel) noSelectionPanel.style.display = 'none';
         if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
         if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
+        if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
         if (block.dataset.blockType === 'text' && textPropertiesPanel) {
@@ -978,6 +1125,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (block.dataset.blockType === 'image' && imagePropertiesPanel) {
             imagePropertiesPanel.style.display = 'block';
             addImagePropertyListeners(block);
+        } else if (block.dataset.blockType === 'button' && buttonPropertiesPanel) {
+            buttonPropertiesPanel.style.display = 'block';
+            addButtonPropertyListeners(block);
         }
     }
 
@@ -1209,6 +1359,143 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show no selection panel
                 if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    function addButtonPropertyListeners(block) {
+        const button = block.querySelector('.email-button');
+        const buttonWrapper = block.querySelector('.button-wrapper');
+
+        // Get button property controls
+        const textInput = document.getElementById('button-text-' + statePath);
+        const urlInput = document.getElementById('button-url-' + statePath);
+        const sizeSelect = document.getElementById('button-size-' + statePath);
+        const deleteBtn = document.getElementById('delete-button-block-' + statePath);
+        const styleOptions = buttonPropertiesPanel?.querySelectorAll('.button-style-option');
+        const alignmentBtns = buttonPropertiesPanel?.querySelectorAll('.alignment-btn');
+
+        // Load current values into form
+        if (button && textInput) textInput.value = button.textContent || 'Click here';
+        if (button && urlInput) urlInput.value = button.href === location.href + '#' ? '' : button.href;
+        if (sizeSelect) sizeSelect.value = block.dataset.size || 'medium';
+
+        // Set active style option
+        if (styleOptions) {
+            styleOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.style === block.dataset.style) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // Set active alignment
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.align === block.dataset.align) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Button text control
+        if (textInput) {
+            textInput.addEventListener('input', function() {
+                if (button) {
+                    button.textContent = this.value || 'Click here';
+                }
+                console.log('Button text updated to:', this.value);
+            });
+        }
+
+        // URL control
+        if (urlInput) {
+            urlInput.addEventListener('input', function() {
+                if (button) {
+                    button.href = this.value || '#';
+                }
+                console.log('Button URL updated to:', this.value);
+            });
+        }
+
+        // Size control
+        if (sizeSelect) {
+            sizeSelect.addEventListener('change', function() {
+                const newSize = this.value;
+                block.dataset.size = newSize;
+
+                if (button) {
+                    // Remove old size classes
+                    button.classList.remove('email-button-small', 'email-button-medium', 'email-button-large');
+                    // Add new size class
+                    button.classList.add('email-button-' + newSize);
+                }
+
+                console.log('Button size updated to:', newSize);
+            });
+        }
+
+        // Style options
+        if (styleOptions) {
+            styleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const newStyle = this.dataset.style;
+                    block.dataset.style = newStyle;
+
+                    // Remove active from all options
+                    styleOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active to clicked option
+                    this.classList.add('active');
+
+                    if (button) {
+                        // Remove old style classes
+                        button.classList.remove('email-button-primary', 'email-button-secondary', 'email-button-outline');
+                        // Add new style class
+                        button.classList.add('email-button-' + newStyle);
+                    }
+
+                    console.log('Button style updated to:', newStyle);
+                });
+            });
+        }
+
+        // Alignment controls
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newAlign = this.dataset.align;
+                    block.dataset.align = newAlign;
+
+                    // Remove active from all buttons
+                    alignmentBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+
+                    // Apply alignment
+                    if (buttonWrapper) {
+                        buttonWrapper.style.textAlign = newAlign;
+                    }
+
+                    console.log('Button alignment updated to:', newAlign);
+                });
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting button block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Update canvas height after deleting block
+                updateCanvasHeight();
+
+                // Show no selection panel
+                if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
                 if (noSelectionPanel) noSelectionPanel.style.display = 'block';
             };
         }
@@ -2127,6 +2414,86 @@ document.addEventListener('DOMContentLoaded', function() {
     text-decoration: none;
 }
 
+/* Button blocks */
+.email-block.button-block {
+    background: transparent !important;
+    padding: 16px 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 600px; /* Match email layout width */
+}
+
+.button-wrapper {
+    display: block;
+    width: 100%;
+}
+
+/* Email button styles */
+.email-button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+    box-sizing: border-box;
+}
+
+/* Button sizes */
+.email-button-small {
+    padding: 8px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.email-button-medium {
+    padding: 12px 24px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.email-button-large {
+    padding: 16px 32px;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+/* Button styles */
+.email-button-primary {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.email-button-primary:hover {
+    background: #2563eb;
+}
+
+.email-button-secondary {
+    background: #6b7280;
+    color: #ffffff;
+}
+
+.email-button-secondary:hover {
+    background: #4b5563;
+}
+
+.email-button-outline {
+    background: transparent;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+}
+
+.email-button-outline:hover {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
 .text-block-content {
     outline: none;
     border: none;
@@ -2424,6 +2791,58 @@ document.addEventListener('DOMContentLoaded', function() {
 .dark .image-preview {
     background: #374151;
     border-color: #4b5563;
+}
+
+/* Button style grid */
+.button-style-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.button-style-option {
+    padding: 8px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button-style-option:hover {
+    border-color: #d1d5db;
+    background: #f3f4f6;
+}
+
+.button-style-option.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.button-preview {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Dark mode for button properties */
+.dark .button-style-option {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.dark .button-style-option:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+}
+
+.dark .button-style-option.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
 }
 
 .dark .alignment-buttons {
