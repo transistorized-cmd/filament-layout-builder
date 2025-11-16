@@ -35,7 +35,7 @@
                             <span class="layout-builder-block-icon">📝</span>
                             <span class="layout-builder-block-label">Text</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="image">
+                        <div class="layout-builder-block-item" data-block-type="image" draggable="true">
                             <span class="layout-builder-block-icon">🖼️</span>
                             <span class="layout-builder-block-label">Image</span>
                         </div>
@@ -175,6 +175,53 @@
                         <!-- Delete Block -->
                         <div class="property-group">
                             <button type="button" id="delete-text-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Properties Panel -->
+                <div id="image-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Image Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Image Upload -->
+                        <div class="property-group">
+                            <label class="property-label">Image</label>
+                            <input type="file" id="image-upload-{{ $getStatePath() }}" accept="image/*" style="display: none;">
+                            <button type="button" id="image-upload-btn-{{ $getStatePath() }}" class="upload-btn">
+                                📁 Change Image
+                            </button>
+                            <div class="image-preview" id="image-preview-{{ $getStatePath() }}">
+                                <img id="image-preview-img-{{ $getStatePath() }}" src="https://placehold.co/600x400.png" alt="Preview" style="max-width: 100%; height: auto; border-radius: 4px; display: block;">
+                            </div>
+                        </div>
+
+                        <!-- Width Control -->
+                        <div class="property-group">
+                            <label class="property-label" for="image-width-{{ $getStatePath() }}">Width</label>
+                            <input type="text" id="image-width-{{ $getStatePath() }}" class="property-input" placeholder="100%" value="100%">
+                            <small class="property-help">Examples: 100%, 300px, 50vw</small>
+                        </div>
+
+                        <!-- Title/Alt Text -->
+                        <div class="property-group">
+                            <label class="property-label" for="image-title-{{ $getStatePath() }}">Title (Alt Text)</label>
+                            <input type="text" id="image-title-{{ $getStatePath() }}" class="property-input" placeholder="Optional description...">
+                            <small class="property-help">For accessibility and email clients</small>
+                        </div>
+
+                        <!-- Link URL -->
+                        <div class="property-group">
+                            <label class="property-label" for="image-url-{{ $getStatePath() }}">Link URL</label>
+                            <input type="url" id="image-url-{{ $getStatePath() }}" class="property-input" placeholder="https://example.com (optional)">
+                            <small class="property-help">Make image clickable</small>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-image-block-{{ $getStatePath() }}" class="delete-block-btn">
                                 🗑️ Delete Block
                             </button>
                         </div>
@@ -672,6 +719,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Phase 3: DOM CREATION TEST
             if (blockType === 'text') {
                 createTextBlock(e);
+            } else if (blockType === 'image') {
+                createImageBlock(e);
             }
         });
     }
@@ -683,6 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Get static properties panel elements (unique per instance)
     const noSelectionPanel = document.getElementById('no-selection-' + statePath);
     const textPropertiesPanel = document.getElementById('text-properties-' + statePath);
+    const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
 
     // Function to dynamically update canvas height based on content
     function updateCanvasHeight() {
@@ -820,6 +870,82 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Text block created and appended to canvas:', textBlock.dataset.blockId);
     }
 
+    function createImageBlock(e) {
+        blockCounter++;
+        console.log('Creating image block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create image block element
+        const imageBlock = document.createElement('div');
+        imageBlock.className = 'email-block image-block';
+        imageBlock.dataset.blockId = 'image-' + blockCounter;
+        imageBlock.dataset.blockType = 'image';
+
+        // Image container with wrapper for link support
+        const imageWrapper = document.createElement('div');
+        imageWrapper.className = 'image-wrapper';
+
+        const img = document.createElement('img');
+        img.src = 'https://placehold.co/600x400.png';
+        img.alt = '';
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
+        img.style.maxWidth = '100%';
+
+        imageWrapper.appendChild(img);
+        imageBlock.appendChild(imageWrapper);
+
+        // Calculate position with minimal padding like text blocks
+        const canvasRect = canvas.getBoundingClientRect();
+        const leftPadding = 10;
+        const topPadding = 20;
+        const rightPadding = 40;
+        const bottomPadding = 40;
+        const blockWidth = 250;
+        const blockHeight = 150;
+
+        let x = e.clientX - canvasRect.left - (blockWidth / 2);
+        let y = e.clientY - canvasRect.top - (blockHeight / 2);
+
+        const maxX = canvas.clientWidth - blockWidth - rightPadding;
+        const maxY = canvas.clientHeight - blockHeight - bottomPadding;
+
+        x = Math.max(leftPadding, Math.min(x, maxX));
+        y = Math.max(topPadding, Math.min(y, maxY));
+
+        if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
+            x = leftPadding;
+            y = topPadding;
+        }
+
+        imageBlock.style.position = 'absolute';
+        imageBlock.style.left = x + 'px';
+        imageBlock.style.top = y + 'px';
+
+        // Add to canvas
+        canvas.appendChild(imageBlock);
+
+        // Add selection functionality
+        imageBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(imageBlock);
+        });
+
+        // Auto-select the new block
+        selectBlock(imageBlock);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Image block created and appended to canvas:', imageBlock.dataset.blockId);
+    }
+
     // Phase 4: SELECTION AND PROPERTIES PANEL FUNCTIONALITY
     function selectBlock(block) {
         console.log('Selecting block:', block.dataset.blockId);
@@ -843,11 +969,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide all panels first
         if (noSelectionPanel) noSelectionPanel.style.display = 'none';
         if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+        if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
         if (block.dataset.blockType === 'text' && textPropertiesPanel) {
             textPropertiesPanel.style.display = 'block';
             addPropertyListeners(block);
+        } else if (block.dataset.blockType === 'image' && imagePropertiesPanel) {
+            imagePropertiesPanel.style.display = 'block';
+            addImagePropertyListeners(block);
         }
     }
 
@@ -956,6 +1086,129 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show no selection panel - NO innerHTML!
                 if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    function addImagePropertyListeners(block) {
+        const img = block.querySelector('img');
+        const imageWrapper = block.querySelector('.image-wrapper');
+
+        // Get image property controls
+        const imageUpload = document.getElementById('image-upload-' + statePath);
+        const imageUploadBtn = document.getElementById('image-upload-btn-' + statePath);
+        const imagePreviewImg = document.getElementById('image-preview-img-' + statePath);
+        const widthInput = document.getElementById('image-width-' + statePath);
+        const titleInput = document.getElementById('image-title-' + statePath);
+        const urlInput = document.getElementById('image-url-' + statePath);
+        const deleteBtn = document.getElementById('delete-image-block-' + statePath);
+
+        // Load current values into form
+        if (img && widthInput) widthInput.value = img.style.width || '100%';
+        if (img && titleInput) titleInput.value = img.alt || '';
+        if (imageWrapper && urlInput) {
+            const existingLink = imageWrapper.querySelector('a');
+            urlInput.value = existingLink ? existingLink.href : '';
+        }
+        if (img && imagePreviewImg) imagePreviewImg.src = img.src;
+
+        // Image upload functionality
+        if (imageUploadBtn && imageUpload) {
+            imageUploadBtn.onclick = () => imageUpload.click();
+
+            imageUpload.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Check file size (2MB limit)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Image must be under 2MB. Please choose a smaller image.');
+                    return;
+                }
+
+                // Convert to base64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+
+                    // Update image in block
+                    if (img) img.src = base64;
+                    if (imagePreviewImg) imagePreviewImg.src = base64;
+
+                    console.log('Image updated with base64 data');
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        // Width control
+        if (widthInput) {
+            widthInput.addEventListener('input', function() {
+                const width = this.value.trim();
+                if (img) {
+                    img.style.width = width || '100%';
+                    // Update canvas height in case image size changed
+                    setTimeout(updateCanvasHeight, 100);
+                }
+                console.log('Image width updated to:', width);
+            });
+        }
+
+        // Title/Alt text control
+        if (titleInput) {
+            titleInput.addEventListener('input', function() {
+                if (img) {
+                    img.alt = this.value;
+                    img.title = this.value;
+                }
+                console.log('Image alt text updated to:', this.value);
+            });
+        }
+
+        // URL/Link control
+        if (urlInput) {
+            urlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+
+                // Remove existing link
+                const existingLink = imageWrapper.querySelector('a');
+                if (existingLink) {
+                    imageWrapper.insertBefore(img, existingLink);
+                    existingLink.remove();
+                }
+
+                // Add new link if URL provided
+                if (url) {
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.style.display = 'block';
+
+                    imageWrapper.appendChild(link);
+                    link.appendChild(img);
+                } else {
+                    // No link, just append img directly
+                    imageWrapper.appendChild(img);
+                }
+
+                console.log('Image link updated to:', url || 'none');
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting image block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Update canvas height after deleting block
+                updateCanvasHeight();
+
+                // Show no selection panel
+                if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
                 if (noSelectionPanel) noSelectionPanel.style.display = 'block';
             };
         }
@@ -1844,6 +2097,36 @@ document.addEventListener('DOMContentLoaded', function() {
     /* JavaScript controls height dynamically */
 }
 
+/* Image blocks */
+.email-block.image-block {
+    background: transparent !important;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    display: block;
+    width: auto;
+    height: auto;
+    /* JavaScript controls width dynamically */
+}
+
+.image-wrapper {
+    display: block;
+    width: 100%;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+}
+
+.image-wrapper a {
+    display: block;
+    text-decoration: none;
+}
+
 .text-block-content {
     outline: none;
     border: none;
@@ -1918,6 +2201,74 @@ document.addEventListener('DOMContentLoaded', function() {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Property input fields */
+.property-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    transition: border-color 0.2s ease;
+}
+
+.property-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.property-help {
+    color: #6b7280;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}
+
+/* Image properties styling */
+.upload-btn {
+    background: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+    color: #374151;
+    font-weight: 500;
+    display: block;
+    box-sizing: border-box;
+}
+
+.upload-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.upload-btn:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.image-preview {
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    max-height: 200px;
+    object-fit: contain;
 }
 
 /* Alignment buttons */
@@ -2037,6 +2388,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .dark .property-select:focus {
     border-color: #3b82f6;
+}
+
+/* Dark mode for property inputs */
+.dark .property-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+.dark .property-input:focus {
+    border-color: #3b82f6;
+}
+
+.dark .property-help {
+    color: #9ca3af;
+}
+
+/* Dark mode for image properties */
+.dark .upload-btn {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+.dark .upload-btn:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+}
+
+.dark .upload-btn:focus {
+    border-color: #3b82f6;
+}
+
+.dark .image-preview {
+    background: #374151;
+    border-color: #4b5563;
 }
 
 .dark .alignment-buttons {
