@@ -32,19 +32,35 @@
                     <div class="layout-builder-block-category">
                         <h4>Basic</h4>
                         <div class="layout-builder-block-item" data-block-type="text" draggable="true">
-                            <span class="layout-builder-block-icon">📝</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Text</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="image" draggable="true">
-                            <span class="layout-builder-block-icon">🖼️</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Image</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="button" draggable="true">
-                            <span class="layout-builder-block-icon">🔘</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Button</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="divider" draggable="true">
-                            <span class="layout-builder-block-icon">➖</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Spacer</span>
                         </div>
                     </div>
@@ -53,19 +69,40 @@
                     <div class="layout-builder-block-category">
                         <h4>Layout</h4>
                         <div class="layout-builder-block-item" data-block-type="columns-2" draggable="true">
-                            <span class="layout-builder-block-icon">⬜⬜</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="5" width="8" height="14" stroke-width="2" rx="1"/>
+                                    <rect x="13" y="5" width="8" height="14" stroke-width="2" rx="1"/>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">2 Columns</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="columns-3" draggable="true">
-                            <span class="layout-builder-block-icon">⬜⬜⬜</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="2" y="5" width="5.5" height="14" stroke-width="2" rx="1"/>
+                                    <rect x="9.25" y="5" width="5.5" height="14" stroke-width="2" rx="1"/>
+                                    <rect x="16.5" y="5" width="5.5" height="14" stroke-width="2" rx="1"/>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">3 Columns</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="columns-1-2" draggable="true">
-                            <span class="layout-builder-block-icon">⬜⬜⬜</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="5" width="6" height="14" stroke-width="2" rx="1"/>
+                                    <rect x="11" y="5" width="10" height="14" stroke-width="2" rx="1"/>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">1/3 + 2/3</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="columns-2-1" draggable="true">
-                            <span class="layout-builder-block-icon">⬜⬜⬜</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="5" width="10" height="14" stroke-width="2" rx="1"/>
+                                    <rect x="15" y="5" width="6" height="14" stroke-width="2" rx="1"/>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">2/3 + 1/3</span>
                         </div>
                     </div>
@@ -74,11 +111,19 @@
                     <div class="layout-builder-block-category">
                         <h4>Media</h4>
                         <div class="layout-builder-block-item" data-block-type="video" draggable="true">
-                            <span class="layout-builder-block-icon">🎥</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Video</span>
                         </div>
                         <div class="layout-builder-block-item" data-block-type="social" draggable="true">
-                            <span class="layout-builder-block-icon">🔗</span>
+                            <span class="layout-builder-block-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                                </svg>
+                            </span>
                             <span class="layout-builder-block-label">Social</span>
                         </div>
                     </div>
@@ -149,13 +194,19 @@
                             <label class="property-label">Text Alignment</label>
                             <div class="alignment-buttons">
                                 <button type="button" class="alignment-btn" data-align="left" title="Align Left">
-                                    📄
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h8M4 12h8m-8 6h8"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn active" data-align="center" title="Align Center">
-                                    📄
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h8M6 12h12M8 18h8"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn" data-align="right" title="Align Right">
-                                    📄
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6h8M12 12h8m-8 6h8"></path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -228,13 +279,19 @@
                             <label class="property-label">Alignment</label>
                             <div class="alignment-buttons">
                                 <button type="button" class="alignment-btn" data-align="left" title="Left">
-                                    ⬅️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn active" data-align="center" title="Center">
-                                    ↔️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 16h10M9 12h6"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn" data-align="right" title="Right">
-                                    ➡️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -297,13 +354,19 @@
                             <label class="property-label">Alignment</label>
                             <div class="alignment-buttons">
                                 <button type="button" class="alignment-btn" data-align="left" title="Left">
-                                    ⬅️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn active" data-align="center" title="Center">
-                                    ↔️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 16h10M9 12h6"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn" data-align="right" title="Right">
-                                    ➡️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -464,13 +527,19 @@
                             <label class="property-label">Alignment</label>
                             <div class="alignment-buttons">
                                 <button type="button" class="alignment-btn active" data-align="center" title="Center">
-                                    ↔️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 16h10M9 12h6"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn" data-align="left" title="Left">
-                                    ⬅️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </button>
                                 <button type="button" class="alignment-btn" data-align="right" title="Right">
-                                    ➡️
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -479,6 +548,238 @@
                         <div class="property-group">
                             <button type="button" id="delete-video-block-{{ $getStatePath() }}" class="delete-block-btn">
                                 🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Properties Panel -->
+                <div id="social-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Social Media Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Social Platforms -->
+                        <div class="property-group">
+                            <label class="property-label">Social Platforms</label>
+                            <div class="social-platforms-list">
+                                <!-- Facebook -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-facebook-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                                            </svg>
+                                        </span>
+                                        Facebook
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-facebook-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://facebook.com/yourpage"
+                                        value="https://facebook.com/"
+                                    >
+                                </div>
+
+                                <!-- X (Twitter) -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-x-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                                            </svg>
+                                        </span>
+                                        X (Twitter)
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-x-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://x.com/yourusername"
+                                        value="https://x.com/"
+                                    >
+                                </div>
+
+                                <!-- LinkedIn -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-linkedin-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path>
+                                            </svg>
+                                        </span>
+                                        LinkedIn
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-linkedin-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://linkedin.com/in/yourprofile"
+                                        value="https://linkedin.com/"
+                                    >
+                                </div>
+
+                                <!-- YouTube -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-youtube-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path>
+                                            </svg>
+                                        </span>
+                                        YouTube
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-youtube-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://youtube.com/@yourchannel"
+                                        value="https://youtube.com/"
+                                    >
+                                </div>
+
+                                <!-- Instagram -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-instagram-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">📸</span>
+                                        Instagram
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-instagram-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://instagram.com/yourusername"
+                                        value="https://instagram.com/"
+                                    >
+                                </div>
+
+                                <!-- TikTok -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-tiktok-{{ $getStatePath() }}" checked>
+                                        <span class="social-icon">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path>
+                                            </svg>
+                                        </span>
+                                        TikTok
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-tiktok-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://tiktok.com/@yourusername"
+                                        value="https://tiktok.com/"
+                                    >
+                                </div>
+
+                                <!-- WhatsApp -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-whatsapp-{{ $getStatePath() }}">
+                                        <span class="social-icon">💬</span>
+                                        WhatsApp
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-whatsapp-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://wa.me/1234567890"
+                                        value=""
+                                    >
+                                </div>
+
+                                <!-- Threads -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-threads-{{ $getStatePath() }}">
+                                        <span class="social-icon">🧵</span>
+                                        Threads
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-threads-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://threads.net/@yourusername"
+                                        value=""
+                                    >
+                                </div>
+
+                                <!-- Bluesky -->
+                                <div class="social-platform-item">
+                                    <label class="social-platform-header">
+                                        <input type="checkbox" id="social-bluesky-{{ $getStatePath() }}">
+                                        <span class="social-icon">☁️</span>
+                                        Bluesky
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="social-bluesky-url-{{ $getStatePath() }}"
+                                        class="social-url-input"
+                                        placeholder="https://bsky.app/profile/yourusername"
+                                        value=""
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Display Options -->
+                        <div class="property-group">
+                            <label class="property-label">Display Options</label>
+                            <label class="property-label">
+                                <input type="checkbox" id="social-grayscale-{{ $getStatePath() }}">
+                                Show icons in grayscale
+                            </label>
+                        </div>
+
+                        <!-- Size -->
+                        <div class="property-group">
+                            <label class="property-label" for="social-size-{{ $getStatePath() }}">Size</label>
+                            <select
+                                id="social-size-{{ $getStatePath() }}"
+                                class="property-input"
+                                title="Scale social icons proportionally"
+                            >
+                                <option value="small">Small - 24px icons</option>
+                                <option value="medium" selected>Medium - 32px icons</option>
+                                <option value="large">Large - 48px icons</option>
+                            </select>
+                        </div>
+
+                        <!-- Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn active" data-align="center" title="Center">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 16h10M9 12h6"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="left" title="Left">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="right" title="Right">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-social-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete Block
                             </button>
                         </div>
                     </div>
@@ -514,9 +815,21 @@
                         <div class="property-group">
                             <label class="property-label">Vertical Alignment</label>
                             <div class="alignment-buttons">
-                                <button type="button" class="alignment-btn" data-valign="flex-start" title="Top">⬆️</button>
-                                <button type="button" class="alignment-btn active" data-valign="center" title="Middle">↔️</button>
-                                <button type="button" class="alignment-btn" data-valign="flex-end" title="Bottom">⬇️</button>
+                                <button type="button" class="alignment-btn" data-valign="flex-start" title="Top">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="alignment-btn active" data-valign="center" title="Middle">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 16h10M9 12h6"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" class="alignment-btn" data-valign="flex-end" title="Bottom">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
@@ -1045,6 +1358,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 createDividerBlockAtPosition(insertPosition);
             } else if (blockType === 'video') {
                 createVideoBlockAtPosition(insertPosition);
+            } else if (blockType === 'social') {
+                createSocialBlockAtPosition(insertPosition);
             } else if (blockType === 'columns-2') {
                 createColumnsBlockAtPosition(insertPosition, 2);
             } else if (blockType === 'columns-3') {
@@ -1170,22 +1485,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         function reorderBlocks() {
-            // Get all blocks sorted by current position
-            const blocks = Array.from(canvas.querySelectorAll('.email-block')).sort((a, b) => {
-                return parseInt(a.style.top) - parseInt(b.style.top);
-            });
+            console.log('reorderBlocks called');
+            // Get all blocks in DOM order (don't sort by position - respect new DOM order)
+            const blocks = Array.from(canvas.querySelectorAll('.email-block'));
 
-            // Reposition blocks with proper spacing
+            console.log('Reordering', blocks.length, 'blocks');
+            console.log('Block order (DOM):', blocks.map(b => b.dataset.blockId));
+
+            // Reposition blocks with proper spacing based on DOM order
             let currentY = 20;
             const spacing = 20;
 
-            blocks.forEach(block => {
+            blocks.forEach((block, index) => {
+                const oldTop = block.style.top;
                 block.style.top = currentY + 'px';
+                console.log(`Block ${index + 1} (${block.dataset.blockId}): ${oldTop} -> ${currentY}px`);
                 currentY += block.offsetHeight + spacing;
             });
 
             // Update canvas height
             updateCanvasHeight();
+            console.log('reorderBlocks completed');
         }
     }
 
@@ -1200,7 +1520,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const buttonPropertiesPanel = document.getElementById('button-properties-' + statePath);
     const dividerPropertiesPanel = document.getElementById('divider-properties-' + statePath);
     const videoPropertiesPanel = document.getElementById('video-properties-' + statePath);
+    const socialPropertiesPanel = document.getElementById('social-properties-' + statePath);
     const columnsPropertiesPanel = document.getElementById('columns-properties-' + statePath);
+
+    // Initialize properties panel to show "no selection" by default
+    if (noSelectionPanel) {
+        noSelectionPanel.style.display = 'block';
+        console.log('Initialized with no selection panel visible');
+    }
+
+    // Add canvas click handler to deselect blocks (after panel references are available)
+    if (canvas) {
+        canvas.addEventListener('click', function(e) {
+            // Only deselect if clicking directly on canvas (not on any blocks)
+            if (e.target === canvas) {
+                // Deselect all blocks and remove movement controls
+                document.querySelectorAll('.email-block.selected').forEach(block => {
+                    block.classList.remove('selected');
+                    const existingControls = block.querySelector('.block-move-controls');
+                    if (existingControls) {
+                        existingControls.remove();
+                    }
+                });
+                selectedBlock = null;
+
+                // Hide all properties panels and show no selection panel
+                if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
+                if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
+                if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
+                if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
+                if (videoPropertiesPanel) videoPropertiesPanel.style.display = 'none';
+                if (socialPropertiesPanel) socialPropertiesPanel.style.display = 'none';
+                if (columnsPropertiesPanel) columnsPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+
+                console.log('Deselected all blocks - showing no selection panel');
+            }
+        });
+    }
 
     // Function to dynamically update canvas height based on content
     function updateCanvasHeight() {
@@ -1729,7 +2086,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const videoPlaceholder = document.createElement('div');
         videoPlaceholder.className = 'video-placeholder';
         videoPlaceholder.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 10px;">🎥</div>
+            <div style="margin-bottom: 10px;">
+                <svg style="width: 48px; height: 48px; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+            </div>
             <div style="font-size: 16px; color: #6b7280; font-weight: 500;">Click to add video</div>
             <div style="font-size: 14px; color: #9ca3af; margin-top: 5px;">YouTube, Vimeo, or direct video URL</div>
         `;
@@ -1812,6 +2173,211 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCanvasHeight();
 
         console.log('Video block created and appended to canvas:', videoBlock.dataset.blockId);
+    }
+
+    function createSocialBlockAtPosition(insertPosition) {
+        blockCounter++;
+        console.log('Creating social block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create social block element
+        const socialBlock = document.createElement('div');
+        socialBlock.className = 'email-block social-block';
+        socialBlock.dataset.blockId = 'social-' + blockCounter;
+        socialBlock.dataset.blockType = 'social';
+        socialBlock.dataset.size = 'medium'; // Small, medium, large
+        socialBlock.dataset.alignment = 'center';
+        socialBlock.dataset.grayscale = 'false';
+
+        // Set initial positioning to help with layout calculations
+        socialBlock.style.position = 'absolute';
+        socialBlock.style.left = '0';
+        socialBlock.style.width = '100%';
+        socialBlock.style.top = (insertPosition?.y || 20) + 'px'; // Use calculated position
+
+        // Social platform data (default enabled platforms)
+        socialBlock.dataset.platforms = JSON.stringify({
+            facebook: { enabled: true, url: 'https://facebook.com/' },
+            x: { enabled: true, url: 'https://x.com/' },
+            linkedin: { enabled: true, url: 'https://linkedin.com/' },
+            youtube: { enabled: true, url: 'https://youtube.com/' },
+            instagram: { enabled: true, url: 'https://instagram.com/' },
+            tiktok: { enabled: true, url: 'https://tiktok.com/' },
+            whatsapp: { enabled: false, url: '' },
+            threads: { enabled: false, url: '' },
+            bluesky: { enabled: false, url: '' }
+        });
+
+        // Set up social block for alignment
+        socialBlock.style.display = 'flex';
+        socialBlock.style.justifyContent = 'center'; // Default center alignment
+
+        // Create social container
+        const socialContainer = document.createElement('div');
+        socialContainer.className = 'social-container';
+        socialContainer.style.display = 'flex';
+        socialContainer.style.flexWrap = 'wrap';
+        socialContainer.style.gap = '12px';
+        socialContainer.style.alignItems = 'center';
+        socialContainer.style.justifyContent = 'center';
+
+        // Create social icons
+        const platforms = JSON.parse(socialBlock.dataset.platforms);
+        const platformIcons = {
+            facebook: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>',
+                color: '#1877f2',
+                name: 'Facebook'
+            },
+            x: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>',
+                color: '#000000',
+                name: 'X'
+            },
+            linkedin: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>',
+                color: '#0077b5',
+                name: 'LinkedIn'
+            },
+            youtube: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>',
+                color: '#ff0000',
+                name: 'YouTube'
+            },
+            instagram: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>',
+                color: '#e4405f',
+                name: 'Instagram'
+            },
+            tiktok: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path></svg>',
+                color: '#000000',
+                name: 'TikTok'
+            },
+            whatsapp: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"></path></svg>',
+                color: '#25d366',
+                name: 'WhatsApp'
+            },
+            threads: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.781 3.632 2.695 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.7-1.811-.648-1.093-1.791-1.644-3.4-1.634-1.155.006-2.046.23-2.65.665l-.544-1.934c.811-.58 2.015-.861 3.579-.875 2.301-.021 4.007.739 5.072 2.256.758 1.077 1.122 2.405 1.282 3.816a8.493 8.493 0 0 1 2.517 1.54c.016.016.031.031.046.047 1.117 1.244 1.336 2.543.649 3.862-.297.57-.735 1.074-1.302 1.497-1.5 1.414-3.513 2.113-5.98 2.076l-.014-.002Zm2.78-4.72c.007-.006.014-.006.021-.012.015-.011.031-.022.047-.032a3.573 3.573 0 0 0 1.066-.964c.876-1.134.915-3.087.845-4.845a6.13 6.13 0 0 0-2.326-.47c-1.085.063-2.007.36-2.582.83-.915.746-.78 1.657-.749 2.135.04.69.27 1.267.653 1.653.636.64 1.569.848 2.566.816.422-.014.652-.053.652-.053s.001 0 .007-.003l.007-.003s-.005-.004-.007-.004Z"></path></svg>',
+                color: '#000000',
+                name: 'Threads'
+            },
+            bluesky: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-2.67-.296-5.568.628-6.383 3.364C.378 17.703 0 22.052 0 22.052s.139 1.86.902 2.203C1.561 24.555 2.566 24.877 5.202 23.016c2.752-1.942 5.711-5.881 6.798-7.995 1.087 2.114 4.046 6.053 6.798 7.995 2.636 1.861 3.641 1.539 4.3 1.24.763-.343.902-1.515.902-2.203 0 0-.378-4.349-.624-5.179-.815-2.736-3.713-3.66-6.383-3.364-.139.016-.277.034-.415.056.138-.017.276-.036.415-.056 2.67.296 5.568-.628 6.383-3.364.246-.829.624-5.789.624-6.479 0-.688-.139-1.86-.902-2.203C21.439.734 20.434.412 17.798 2.273c-2.752 1.942-5.711 5.881-6.798 7.995z"></path></svg>',
+                color: '#00a8e8',
+                name: 'Bluesky'
+            }
+        };
+
+        Object.entries(platforms).forEach(([platform, data]) => {
+            if (data.enabled && data.url) {
+                const socialLink = document.createElement('a');
+                socialLink.href = data.url;
+                socialLink.target = '_blank';
+                socialLink.className = 'social-link';
+                socialLink.dataset.platform = platform;
+                socialLink.style.textDecoration = 'none';
+                socialLink.style.lineHeight = '1';
+                socialLink.style.display = 'inline-block';
+                socialLink.style.transition = 'all 0.2s ease';
+                socialLink.style.color = platformIcons[platform]?.color || '#666';
+                socialLink.title = platformIcons[platform]?.name || platform;
+
+                // Add hover effect
+                socialLink.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+                socialLink.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+
+                socialLink.innerHTML = platformIcons[platform]?.icon || '🔗';
+                socialContainer.appendChild(socialLink);
+            }
+        });
+
+        // Add placeholder if no enabled platforms
+        if (socialContainer.children.length === 0) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'social-placeholder';
+            placeholder.style.textAlign = 'center';
+            placeholder.style.color = '#6b7280';
+            placeholder.style.padding = '20px';
+            placeholder.style.border = '2px dashed #d1d5db';
+            placeholder.style.borderRadius = '8px';
+            placeholder.innerHTML = `
+                <div style="font-size: 32px; margin-bottom: 8px;">📱</div>
+                <div style="font-size: 14px;">Enable social platforms in properties</div>
+            `;
+            socialContainer.appendChild(placeholder);
+        }
+
+        socialBlock.appendChild(socialContainer);
+
+        // Add selection functionality
+        socialBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(socialBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        socialBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        socialBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
+        });
+
+        // After insertion, reorder all blocks if necessary (longer delay for social blocks)
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 100);
+        }
+
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(socialBlock, nextSibling);
+                console.log('Inserted socialBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(socialBlock);
+                console.log('Appended socialBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(socialBlock, insertPosition.insertBefore);
+            console.log('Inserted socialBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(socialBlock);
+            console.log('Appended socialBlock at end');
+        }
+
+        // Auto-select the new block
+        selectBlock(socialBlock);
+
+        // Apply proper icon sizing after a slight delay to ensure DOM is ready
+        setTimeout(() => {
+            updateSocialIconSizes(socialBlock, socialBlock.dataset.size || 'medium');
+            // Force another reorder after sizing to ensure correct positioning
+            if (insertPosition.insertAfter || insertPosition.insertBefore) {
+                setTimeout(() => reorderBlocks(), 50);
+            }
+        }, 10);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Social block created and appended to canvas:', socialBlock.dataset.blockId);
     }
 
     function createColumnsBlockAtPosition(insertPosition, columnType) {
@@ -2260,17 +2826,157 @@ document.addEventListener('DOMContentLoaded', function() {
     function selectBlock(block) {
         console.log('Selecting block:', block.dataset.blockId);
 
-        // Remove previous selection
+        // Remove previous selection and move controls
         document.querySelectorAll('.email-block.selected').forEach(b => {
             b.classList.remove('selected');
+            const existingControls = b.querySelector('.block-move-controls');
+            if (existingControls) {
+                existingControls.remove();
+            }
         });
 
         // Select new block
         block.classList.add('selected');
         selectedBlock = block;
 
-        // Update properties panel - THIS MIGHT BE THE CULPRIT
+        // Add movement controls
+        addMovementControls(block);
+
+        // Update properties panel
         updatePropertiesPanel(block);
+    }
+
+    function addMovementControls(block) {
+        // Don't add controls if already exist
+        if (block.querySelector('.block-move-controls')) {
+            return;
+        }
+
+        // Get all blocks in DOM order
+        const allBlocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+        const currentIndex = allBlocks.indexOf(block);
+        const isFirst = currentIndex === 0;
+        const isLast = currentIndex === allBlocks.length - 1;
+
+        // Create controls container
+        const controls = document.createElement('div');
+        controls.className = 'block-move-controls';
+
+        // Move Up button
+        const moveUpBtn = document.createElement('button');
+        moveUpBtn.type = 'button'; // Prevent form submission
+        moveUpBtn.className = 'move-btn';
+        moveUpBtn.innerHTML = '↑';
+        moveUpBtn.title = 'Move Up';
+        moveUpBtn.disabled = isFirst;
+        moveUpBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Move up clicked for block:', block.dataset.blockId);
+            moveBlockUp(block);
+        });
+
+        // Move Down button
+        const moveDownBtn = document.createElement('button');
+        moveDownBtn.type = 'button'; // Prevent form submission
+        moveDownBtn.className = 'move-btn';
+        moveDownBtn.innerHTML = '↓';
+        moveDownBtn.title = 'Move Down';
+        moveDownBtn.disabled = isLast;
+        moveDownBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Move down clicked for block:', block.dataset.blockId);
+            moveBlockDown(block);
+        });
+
+        controls.appendChild(moveUpBtn);
+        controls.appendChild(moveDownBtn);
+        block.appendChild(controls);
+    }
+
+    function moveBlockUp(block) {
+        console.log('moveBlockUp called for:', block.dataset.blockId);
+
+        // Use DOM order instead of position-based sorting
+        const allBlocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+        console.log('All blocks found:', allBlocks.length);
+        console.log('Block IDs in DOM order:', allBlocks.map(b => b.dataset.blockId));
+
+        const currentIndex = allBlocks.indexOf(block);
+        console.log('Current block index:', currentIndex);
+
+        if (currentIndex > 0) {
+            const previousBlock = allBlocks[currentIndex - 1];
+            console.log('Moving before block:', previousBlock.dataset.blockId);
+
+            // Swap DOM positions
+            canvas.insertBefore(block, previousBlock);
+            console.log('DOM position swapped');
+
+            // Reorder all blocks
+            setTimeout(() => {
+                console.log('Reordering blocks...');
+                reorderBlocks();
+            }, 10);
+
+            // Update movement controls
+            setTimeout(() => {
+                if (selectedBlock === block) {
+                    console.log('Updating movement controls...');
+                    const existingControls = block.querySelector('.block-move-controls');
+                    if (existingControls) {
+                        existingControls.remove();
+                    }
+                    addMovementControls(block);
+                }
+            }, 50);
+        } else {
+            console.log('Cannot move up - already at top');
+        }
+    }
+
+    function moveBlockDown(block) {
+        console.log('moveBlockDown called for:', block.dataset.blockId);
+
+        // Use DOM order instead of position-based sorting
+        const allBlocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+        console.log('All blocks found:', allBlocks.length);
+        console.log('Block IDs in DOM order:', allBlocks.map(b => b.dataset.blockId));
+        const currentIndex = allBlocks.indexOf(block);
+        console.log('Current block index:', currentIndex);
+
+        if (currentIndex < allBlocks.length - 1) {
+            const nextBlock = allBlocks[currentIndex + 1];
+            console.log('Moving after block:', nextBlock.dataset.blockId);
+
+            // Swap DOM positions
+            canvas.insertBefore(nextBlock, block);
+            console.log('DOM position swapped');
+
+            // Reorder all blocks
+            setTimeout(() => {
+                console.log('Reordering blocks...');
+                reorderBlocks();
+            }, 10);
+
+            // Update movement controls
+            setTimeout(() => {
+                if (selectedBlock === block) {
+                    console.log('Updating movement controls...');
+                    const existingControls = block.querySelector('.block-move-controls');
+                    if (existingControls) {
+                        existingControls.remove();
+                    }
+                    addMovementControls(block);
+                }
+            }, 50);
+        } else {
+            console.log('Cannot move down - already at bottom');
+        }
     }
 
     function updatePropertiesPanel(block) {
@@ -2283,6 +2989,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
         if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
         if (videoPropertiesPanel) videoPropertiesPanel.style.display = 'none';
+        if (socialPropertiesPanel) socialPropertiesPanel.style.display = 'none';
         if (columnsPropertiesPanel) columnsPropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
@@ -2301,6 +3008,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (block.dataset.blockType === 'video' && videoPropertiesPanel) {
             videoPropertiesPanel.style.display = 'block';
             addVideoPropertyListeners(block);
+        } else if (block.dataset.blockType === 'social' && socialPropertiesPanel) {
+            socialPropertiesPanel.style.display = 'block';
+            addSocialPropertyListeners(block);
         } else if (block.dataset.blockType === 'columns' && columnsPropertiesPanel) {
             columnsPropertiesPanel.style.display = 'block';
             addColumnsPropertyListeners(block);
@@ -3110,6 +3820,328 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
 
+    }
+
+    function addSocialPropertyListeners(block) {
+        const socialContainer = block.querySelector('.social-container');
+
+        // Get all social platform controls
+        const platforms = ['facebook', 'x', 'linkedin', 'youtube', 'instagram', 'tiktok', 'whatsapp', 'threads', 'bluesky'];
+        const platformCheckboxes = {};
+        const platformUrlInputs = {};
+
+        platforms.forEach(platform => {
+            platformCheckboxes[platform] = document.getElementById(`social-${platform}-` + statePath);
+            platformUrlInputs[platform] = document.getElementById(`social-${platform}-url-` + statePath);
+        });
+
+        const grayscaleCheckbox = document.getElementById('social-grayscale-' + statePath);
+        const sizeDropdown = document.getElementById('social-size-' + statePath);
+        const alignmentBtns = document.querySelectorAll('#social-properties-' + statePath + ' .alignment-btn');
+        const deleteBtn = document.getElementById('delete-social-block-' + statePath);
+
+        // Load current values into form
+        const platformsData = JSON.parse(block.dataset.platforms || '{}');
+        platforms.forEach(platform => {
+            if (platformCheckboxes[platform]) {
+                platformCheckboxes[platform].checked = platformsData[platform]?.enabled || false;
+            }
+            if (platformUrlInputs[platform]) {
+                platformUrlInputs[platform].value = platformsData[platform]?.url || '';
+            }
+        });
+
+        if (grayscaleCheckbox) grayscaleCheckbox.checked = block.dataset.grayscale === 'true';
+        if (sizeDropdown) sizeDropdown.value = block.dataset.size || 'medium';
+
+        // Set active alignment
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.align === (block.dataset.alignment || 'center'));
+            });
+        }
+
+        // Platform toggle and URL handlers
+        platforms.forEach(platform => {
+            // Checkbox toggle handler
+            if (platformCheckboxes[platform]) {
+                platformCheckboxes[platform].addEventListener('change', function() {
+                    updateSocialPlatform(block, platform, 'enabled', this.checked);
+
+                    // Set default URL when platform is first enabled and has no URL
+                    if (this.checked) {
+                        const platformsData = JSON.parse(block.dataset.platforms || '{}');
+                        if (!platformsData[platform] || !platformsData[platform].url) {
+                            const defaultUrls = {
+                                facebook: 'https://facebook.com/',
+                                x: 'https://x.com/',
+                                linkedin: 'https://linkedin.com/',
+                                youtube: 'https://youtube.com/',
+                                instagram: 'https://instagram.com/',
+                                tiktok: 'https://tiktok.com/',
+                                whatsapp: 'https://wa.me/1234567890',
+                                threads: 'https://threads.net/',
+                                bluesky: 'https://bsky.app/'
+                            };
+
+                            if (defaultUrls[platform]) {
+                                updateSocialPlatform(block, platform, 'url', defaultUrls[platform]);
+
+                                // Update the URL input field
+                                const urlInput = platformUrlInputs[platform];
+                                if (urlInput) {
+                                    urlInput.value = defaultUrls[platform];
+                                }
+                            }
+                        }
+                    }
+
+                    updateSocialIcons(block);
+                });
+            }
+
+            // URL input handler
+            if (platformUrlInputs[platform]) {
+                platformUrlInputs[platform].addEventListener('input', function() {
+                    const url = this.value.trim();
+                    updateSocialPlatform(block, platform, 'url', url);
+                    updateSocialIcons(block);
+                });
+            }
+        });
+
+        // Grayscale option
+        if (grayscaleCheckbox) {
+            grayscaleCheckbox.addEventListener('change', function() {
+                block.dataset.grayscale = this.checked;
+                updateSocialIconStyles(block);
+                console.log('Social grayscale updated to:', this.checked);
+            });
+        }
+
+        // Size dropdown
+        if (sizeDropdown) {
+            sizeDropdown.addEventListener('change', function() {
+                const size = this.value;
+                block.dataset.size = size;
+                updateSocialIconSizes(block, size);
+                console.log('Social size updated to:', size);
+            });
+        }
+
+        // Alignment controls
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newAlign = this.dataset.align;
+                    block.dataset.alignment = newAlign;
+
+                    // Remove active from all buttons
+                    alignmentBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+
+                    // Update social container alignment
+                    const socialContainer = block.querySelector('.social-container');
+                    const alignStyles = {
+                        'left': 'flex-start',
+                        'center': 'center',
+                        'right': 'flex-end'
+                    };
+                    if (socialContainer) {
+                        socialContainer.style.justifyContent = alignStyles[newAlign] || 'center';
+                    }
+
+                    console.log('Social alignment updated to:', newAlign);
+                });
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting social block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
+
+                // Show no selection panel
+                const socialPropertiesPanel = document.getElementById('social-properties-' + statePath);
+                const noSelectionPanel = document.getElementById('no-selection-' + statePath);
+                if (socialPropertiesPanel) socialPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    // Helper functions for social block
+    function updateSocialPlatform(block, platform, property, value) {
+        const platformsData = JSON.parse(block.dataset.platforms || '{}');
+        if (!platformsData[platform]) {
+            platformsData[platform] = { enabled: false, url: '' };
+        }
+        platformsData[platform][property] = value;
+        block.dataset.platforms = JSON.stringify(platformsData);
+    }
+
+    function updateSocialIcons(block) {
+        const socialContainer = block.querySelector('.social-container');
+        if (!socialContainer) return;
+
+        // Clear current icons
+        socialContainer.innerHTML = '';
+
+        const platformsData = JSON.parse(block.dataset.platforms || '{}');
+        const platformIcons = {
+            facebook: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>',
+                color: '#1877f2',
+                name: 'Facebook'
+            },
+            x: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>',
+                color: '#000000',
+                name: 'X'
+            },
+            linkedin: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>',
+                color: '#0077b5',
+                name: 'LinkedIn'
+            },
+            youtube: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>',
+                color: '#ff0000',
+                name: 'YouTube'
+            },
+            instagram: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>',
+                color: '#e4405f',
+                name: 'Instagram'
+            },
+            tiktok: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path></svg>',
+                color: '#000000',
+                name: 'TikTok'
+            },
+            whatsapp: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"></path></svg>',
+                color: '#25d366',
+                name: 'WhatsApp'
+            },
+            threads: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.781 3.632 2.695 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.7-1.811-.648-1.093-1.791-1.644-3.4-1.634-1.155.006-2.046.23-2.65.665l-.544-1.934c.811-.58 2.015-.861 3.579-.875 2.301-.021 4.007.739 5.072 2.256.758 1.077 1.122 2.405 1.282 3.816a8.493 8.493 0 0 1 2.517 1.54c.016.016.031.031.046.047 1.117 1.244 1.336 2.543.649 3.862-.297.57-.735 1.074-1.302 1.497-1.5 1.414-3.513 2.113-5.98 2.076l-.014-.002Zm2.78-4.72c.007-.006.014-.006.021-.012.015-.011.031-.022.047-.032a3.573 3.573 0 0 0 1.066-.964c.876-1.134.915-3.087.845-4.845a6.13 6.13 0 0 0-2.326-.47c-1.085.063-2.007.36-2.582.83-.915.746-.78 1.657-.749 2.135.04.69.27 1.267.653 1.653.636.64 1.569.848 2.566.816.422-.014.652-.053.652-.053s.001 0 .007-.003l.007-.003s-.005-.004-.007-.004Z"></path></svg>',
+                color: '#000000',
+                name: 'Threads'
+            },
+            bluesky: {
+                icon: '<svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-2.67-.296-5.568.628-6.383 3.364C.378 17.703 0 22.052 0 22.052s.139 1.86.902 2.203C1.561 24.555 2.566 24.877 5.202 23.016c2.752-1.942 5.711-5.881 6.798-7.995 1.087 2.114 4.046 6.053 6.798 7.995 2.636 1.861 3.641 1.539 4.3 1.24.763-.343.902-1.515.902-2.203 0 0-.378-4.349-.624-5.179-.815-2.736-3.713-3.66-6.383-3.364-.139.016-.277.034-.415.056.138-.017.276-.036.415-.056 2.67.296 5.568-.628 6.383-3.364.246-.829.624-5.789.624-6.479 0-.688-.139-1.86-.902-2.203C21.439.734 20.434.412 17.798 2.273c-2.752 1.942-5.711 5.881-6.798 7.995z"></path></svg>',
+                color: '#00a8e8',
+                name: 'Bluesky'
+            }
+        };
+
+        let hasEnabledPlatforms = false;
+
+        Object.entries(platformsData).forEach(([platform, data]) => {
+            if (data.enabled && data.url) {
+                hasEnabledPlatforms = true;
+                const socialLink = document.createElement('a');
+                socialLink.href = data.url;
+                socialLink.target = '_blank';
+                socialLink.className = 'social-link';
+                socialLink.dataset.platform = platform;
+                socialLink.style.textDecoration = 'none';
+                socialLink.style.lineHeight = '1';
+                socialLink.style.display = 'inline-block';
+                socialLink.style.transition = 'all 0.2s ease';
+                socialLink.style.color = platformIcons[platform]?.color || '#666';
+                socialLink.title = platformIcons[platform]?.name || platform;
+
+                // Add hover effect
+                socialLink.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+                socialLink.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+
+                socialLink.innerHTML = platformIcons[platform]?.icon || '🔗';
+                socialContainer.appendChild(socialLink);
+            }
+        });
+
+        // Add placeholder if no enabled platforms
+        if (!hasEnabledPlatforms) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'social-placeholder';
+            placeholder.style.textAlign = 'center';
+            placeholder.style.color = '#6b7280';
+            placeholder.style.padding = '20px';
+            placeholder.style.border = '2px dashed #d1d5db';
+            placeholder.style.borderRadius = '8px';
+            placeholder.innerHTML = `
+                <div style="font-size: 32px; margin-bottom: 8px;">📱</div>
+                <div style="font-size: 14px;">Enable social platforms in properties</div>
+            `;
+            socialContainer.appendChild(placeholder);
+        }
+
+        // Apply current styling
+        updateSocialIconSizes(block, block.dataset.size || 'medium');
+        updateSocialIconStyles(block);
+
+        // Apply current alignment
+        const alignStyles = {
+            'left': 'flex-start',
+            'center': 'center',
+            'right': 'flex-end'
+        };
+        const currentAlignment = block.dataset.alignment || 'center';
+        if (socialContainer) {
+            socialContainer.style.justifyContent = alignStyles[currentAlignment] || 'center';
+        }
+    }
+
+    function updateSocialIconSizes(block, size) {
+        if (!block) {
+            console.warn('updateSocialIconSizes: block is null or undefined');
+            return;
+        }
+
+        const socialLinks = block.querySelectorAll('.social-link');
+        const sizes = {
+            small: '24px',
+            medium: '32px',
+            large: '48px'
+        };
+
+        if (socialLinks.length === 0) {
+            console.log('updateSocialIconSizes: No social links found yet, will apply on next icon update');
+            return;
+        }
+
+        socialLinks.forEach(link => {
+            if (link && link.style) {
+                link.style.fontSize = sizes[size] || sizes.medium;
+            }
+        });
+    }
+
+    function updateSocialIconStyles(block) {
+        const socialLinks = block.querySelectorAll('.social-link');
+        const grayscale = block.dataset.grayscale === 'true';
+
+        socialLinks.forEach(link => {
+            if (grayscale) {
+                link.style.filter = 'grayscale(100%)';
+                link.style.opacity = '0.7';
+            } else {
+                link.style.filter = 'none';
+                link.style.opacity = '1';
+            }
+        });
     }
 
     // Helper functions for video block
@@ -4240,6 +5272,51 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
+/* Block Movement Controls */
+.block-move-controls {
+    position: absolute;
+    top: -15px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.move-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    background: #f8fafc;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.move-btn:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.move-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.move-btn:disabled:hover {
+    background: #f8fafc;
+    color: #64748b;
+}
+
 /* Text blocks - Higher specificity to override email-block */
 .email-block.text-block {
     background: transparent !important; /* Transparent background */
@@ -5122,6 +6199,152 @@ document.addEventListener('DOMContentLoaded', function() {
         min-width: 36px;
     }
 }
+
+/* Social Media Block Styles */
+.social-platforms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 4px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+}
+
+.social-platform-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 8px;
+    transition: all 0.2s ease;
+}
+
+.social-platform-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.social-platform-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 6px;
+    cursor: pointer;
+}
+
+.social-platform-header input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: #3b82f6;
+}
+
+.social-icon {
+    font-size: 16px;
+    line-height: 1;
+    width: 20px;
+    text-align: center;
+}
+
+.social-url-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #fff;
+    color: #374151;
+    transition: border-color 0.2s ease;
+}
+
+.social-url-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.social-url-input:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Social Block Styles */
+.social-block {
+    min-height: 60px;
+    padding: 16px; /* Standard padding like other blocks */
+    position: relative; /* Ensure proper positioning context */
+    z-index: 1; /* Ensure it appears above other content */
+}
+
+.social-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.social-link {
+    text-decoration: none !important;
+    display: inline-block;
+    line-height: 1;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.social-link:hover {
+    transform: scale(1.1);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.social-placeholder {
+    text-align: center;
+    color: #6b7280;
+    padding: 20px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+/* Social block responsive */
+@media (max-width: 600px) {
+    .social-container {
+        gap: 8px;
+    }
+
+    .social-platforms-list {
+        max-height: 200px;
+    }
+
+    .social-platform-item {
+        padding: 6px;
+    }
+
+    .social-url-input {
+        font-size: 12px;
+        padding: 5px 6px;
+    }
+}
+
+/* Social platform item disabled state */
+.social-platform-item:has(input[type="checkbox"]:not(:checked)) {
+    opacity: 0.6;
+}
+
+.social-platform-item:has(input[type="checkbox"]:not(:checked)) .social-url-input {
+    background: #f3f4f6;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
         </style>
     </div>
 </x-dynamic-component>
