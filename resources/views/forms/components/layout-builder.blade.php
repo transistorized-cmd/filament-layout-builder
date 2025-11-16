@@ -43,7 +43,7 @@
                             <span class="layout-builder-block-icon">🔘</span>
                             <span class="layout-builder-block-label">Button</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="divider">
+                        <div class="layout-builder-block-item" data-block-type="divider" draggable="true">
                             <span class="layout-builder-block-icon">➖</span>
                             <span class="layout-builder-block-label">Divider</span>
                         </div>
@@ -219,6 +219,22 @@
                             <small class="property-help">Make image clickable</small>
                         </div>
 
+                        <!-- Image Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn" data-align="left" title="Left">
+                                    ⬅️
+                                </button>
+                                <button type="button" class="alignment-btn active" data-align="center" title="Center">
+                                    ↔️
+                                </button>
+                                <button type="button" class="alignment-btn" data-align="right" title="Right">
+                                    ➡️
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Delete Block -->
                         <div class="property-group">
                             <button type="button" id="delete-image-block-{{ $getStatePath() }}" class="delete-block-btn">
@@ -291,6 +307,81 @@
                         <!-- Delete Block -->
                         <div class="property-group">
                             <button type="button" id="delete-button-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Divider Properties Panel -->
+                <div id="divider-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Divider Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Line Style -->
+                        <div class="property-group">
+                            <label class="property-label">Line Style</label>
+                            <div class="divider-style-grid">
+                                <button type="button" class="divider-style-option active" data-style="solid">
+                                    <div class="divider-preview" style="border-top: 2px solid #d1d5db;"></div>
+                                    <span>Solid</span>
+                                </button>
+                                <button type="button" class="divider-style-option" data-style="dashed">
+                                    <div class="divider-preview" style="border-top: 2px dashed #d1d5db;"></div>
+                                    <span>Dashed</span>
+                                </button>
+                                <button type="button" class="divider-style-option" data-style="dotted">
+                                    <div class="divider-preview" style="border-top: 2px dotted #d1d5db;"></div>
+                                    <span>Dotted</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Line Color -->
+                        <div class="property-group">
+                            <label class="property-label" for="divider-color-{{ $getStatePath() }}">Line Color</label>
+                            <div class="color-input-group">
+                                <input type="color" id="divider-color-{{ $getStatePath() }}" class="background-color-picker" value="#d1d5db">
+                                <input type="text" id="divider-color-text-{{ $getStatePath() }}" class="background-color-text" value="#d1d5db" placeholder="#d1d5db">
+                            </div>
+                        </div>
+
+                        <!-- Line Thickness -->
+                        <div class="property-group">
+                            <label class="property-label" for="divider-thickness-{{ $getStatePath() }}">Thickness</label>
+                            <select id="divider-thickness-{{ $getStatePath() }}" class="property-select">
+                                <option value="1">1px</option>
+                                <option value="2" selected>2px</option>
+                                <option value="3">3px</option>
+                                <option value="4">4px</option>
+                                <option value="5">5px</option>
+                            </select>
+                        </div>
+
+                        <!-- Line Width -->
+                        <div class="property-group">
+                            <label class="property-label" for="divider-width-{{ $getStatePath() }}">Width</label>
+                            <select id="divider-width-{{ $getStatePath() }}" class="property-select">
+                                <option value="25">25%</option>
+                                <option value="50">50%</option>
+                                <option value="75">75%</option>
+                                <option value="100" selected>100%</option>
+                            </select>
+                        </div>
+
+                        <!-- Spacing -->
+                        <div class="property-group">
+                            <label class="property-label" for="divider-spacing-{{ $getStatePath() }}">Spacing</label>
+                            <select id="divider-spacing-{{ $getStatePath() }}" class="property-select">
+                                <option value="small">Small (10px)</option>
+                                <option value="medium" selected>Medium (20px)</option>
+                                <option value="large">Large (30px)</option>
+                            </select>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-divider-block-{{ $getStatePath() }}" class="delete-block-btn">
                                 🗑️ Delete Block
                             </button>
                         </div>
@@ -762,38 +853,189 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Phase 2: Canvas drop zone functionality - NO DOM CREATION
+    // Phase 2: Canvas drop zone functionality with smart block ordering
     if (canvas) {
+        let dropIndicator = null;
+
         canvas.addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             canvas.classList.add('drag-over-canvas');
-            console.log('Drag over canvas');
+
+            // Show drop indicator
+            showDropIndicator(e);
         });
 
         canvas.addEventListener('dragleave', function(e) {
             if (!canvas.contains(e.relatedTarget)) {
                 canvas.classList.remove('drag-over-canvas');
-                console.log('Drag left canvas');
+                hideDropIndicator();
             }
         });
 
         canvas.addEventListener('drop', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Ensure this event doesn't bubble further
             canvas.classList.remove('drag-over-canvas');
+            hideDropIndicator();
 
             const blockType = e.dataTransfer.getData('text/plain');
-            console.log('Dropped block type:', blockType, 'at position:', e.clientX, e.clientY);
+            console.log('Canvas drop event - block type:', blockType, 'at position:', e.clientX, e.clientY);
+            console.log('Drop target:', e.target, 'Canvas:', canvas);
 
-            // Phase 3: DOM CREATION TEST
+            // Ensure we're definitely working with the canvas
+            if (!blockType) {
+                console.warn('No block type found in drop data');
+                return;
+            }
+
+            // Calculate insertion position relative to canvas
+            const insertPosition = calculateInsertPosition(e);
+            console.log('Calculated insertion position:', insertPosition);
+
+            // Create block at calculated position - always append to canvas
             if (blockType === 'text') {
-                createTextBlock(e);
+                createTextBlockAtPosition(insertPosition);
             } else if (blockType === 'image') {
-                createImageBlock(e);
+                createImageBlockAtPosition(insertPosition);
             } else if (blockType === 'button') {
-                createButtonBlock(e);
+                createButtonBlockAtPosition(insertPosition);
+            } else if (blockType === 'divider') {
+                createDividerBlockAtPosition(insertPosition);
+            } else {
+                console.warn('Unknown block type:', blockType);
             }
         });
+
+        function showDropIndicator(e) {
+            const insertPosition = calculateInsertPosition(e);
+
+            // Remove existing indicator
+            hideDropIndicator();
+
+            // Create new indicator
+            dropIndicator = document.createElement('div');
+            dropIndicator.className = 'drop-indicator';
+            dropIndicator.style.position = 'absolute';
+            dropIndicator.style.left = '10px';
+            dropIndicator.style.right = '10px';
+            dropIndicator.style.height = '3px';
+            dropIndicator.style.background = 'linear-gradient(90deg, #3b82f6, #06b6d4)';
+            dropIndicator.style.top = (insertPosition.y - 1) + 'px';
+            dropIndicator.style.zIndex = '1000';
+            dropIndicator.style.pointerEvents = 'none';
+            dropIndicator.style.borderRadius = '2px';
+            dropIndicator.style.opacity = '0.8';
+
+            canvas.appendChild(dropIndicator);
+        }
+
+        function hideDropIndicator() {
+            if (dropIndicator) {
+                dropIndicator.remove();
+                dropIndicator = null;
+            }
+        }
+
+        function calculateInsertPosition(e) {
+            const canvasRect = canvas.getBoundingClientRect();
+            const dropY = e.clientY - canvasRect.top;
+
+            console.log('calculateInsertPosition - dropY:', dropY);
+
+            // Get all existing blocks sorted by position
+            const blocks = Array.from(canvas.querySelectorAll('.email-block')).sort((a, b) => {
+                return parseInt(a.style.top) - parseInt(b.style.top);
+            });
+
+            // If no blocks exist, insert at top
+            if (blocks.length === 0) {
+                console.log('No blocks exist, inserting at top');
+                return { y: 20, insertAfter: null };
+            }
+
+            // Special case: if dropping in the very top area (first 60px), always insert before first block
+            if (dropY <= 60) {
+                const firstBlock = blocks[0];
+                const firstBlockTop = parseInt(firstBlock.style.top) || 0;
+                console.log('Dropping in top area (<=60px) - forcing insert before first block');
+                return { y: Math.max(20, firstBlockTop - 60), insertAfter: null, insertBefore: firstBlock };
+            }
+
+            // Find the best insertion point by checking each block and the gaps between them
+            for (let i = 0; i < blocks.length; i++) {
+                const block = blocks[i];
+                const blockTop = parseInt(block.style.top) || 0;
+                const blockHeight = block.offsetHeight;
+                const blockBottom = blockTop + blockHeight;
+                const blockMiddle = blockTop + (blockHeight / 2);
+
+                console.log(`Block ${i}: top=${blockTop}, height=${blockHeight}, bottom=${blockBottom}, middle=${blockMiddle}`);
+
+                // If dropping above the first block
+                if (i === 0 && dropY < blockTop) {
+                    console.log('Dropping above first block - insertBefore');
+                    return { y: Math.max(20, blockTop - 60), insertAfter: null, insertBefore: block };
+                }
+
+                // If dropping on the first half of the first block
+                if (i === 0 && dropY >= blockTop && dropY < blockMiddle) {
+                    console.log('Dropping on upper half of first block - insertBefore');
+                    return { y: Math.max(20, blockTop - 60), insertAfter: null, insertBefore: block };
+                }
+
+                // Check if we're dropping in the gap between this block and the next block
+                if (i < blocks.length - 1) {
+                    const nextBlock = blocks[i + 1];
+                    const nextBlockTop = parseInt(nextBlock.style.top) || 0;
+
+                    // If dropping in the space between blocks
+                    if (dropY > blockBottom && dropY < nextBlockTop) {
+                        console.log(`Dropping between block ${i} and ${i + 1} - insertAfter block ${i}`);
+                        return { y: blockBottom + 20, insertAfter: block };
+                    }
+
+                    // If dropping on the lower half of this block
+                    if (dropY >= blockMiddle && dropY <= blockBottom) {
+                        console.log(`Dropping on lower half of block ${i} - insertAfter`);
+                        return { y: blockBottom + 20, insertAfter: block };
+                    }
+                }
+
+                // If this is the last block
+                if (i === blocks.length - 1) {
+                    // If dropping on the lower half of the last block or below it
+                    if (dropY >= blockMiddle) {
+                        console.log('Dropping on/below last block - append at end');
+                        return { y: blockBottom + 20, insertAfter: block };
+                    }
+                }
+            }
+
+            // Default: append at end
+            const lastBlock = blocks[blocks.length - 1];
+            const lastBlockBottom = parseInt(lastBlock.style.top) + lastBlock.offsetHeight;
+            return { y: lastBlockBottom + 20, insertAfter: lastBlock };
+        }
+
+        function reorderBlocks() {
+            // Get all blocks sorted by current position
+            const blocks = Array.from(canvas.querySelectorAll('.email-block')).sort((a, b) => {
+                return parseInt(a.style.top) - parseInt(b.style.top);
+            });
+
+            // Reposition blocks with proper spacing
+            let currentY = 20;
+            const spacing = 20;
+
+            blocks.forEach(block => {
+                block.style.top = currentY + 'px';
+                currentY += block.offsetHeight + spacing;
+            });
+
+            // Update canvas height
+            updateCanvasHeight();
+        }
     }
 
     // Phase 3: DOM Creation Function - TESTING IF THIS CAUSES LIVEWIRE ERROR
@@ -805,43 +1047,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const textPropertiesPanel = document.getElementById('text-properties-' + statePath);
     const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
     const buttonPropertiesPanel = document.getElementById('button-properties-' + statePath);
+    const dividerPropertiesPanel = document.getElementById('divider-properties-' + statePath);
 
     // Function to dynamically update canvas height based on content
     function updateCanvasHeight() {
         if (!canvas) return;
 
-        // Find all blocks in the canvas
-        const blocks = canvas.querySelectorAll('.email-block');
+        // Use setTimeout to ensure DOM has updated
+        setTimeout(() => {
+            // Find all blocks in the canvas
+            const blocks = canvas.querySelectorAll('.email-block');
 
-        if (blocks.length === 0) {
-            // No blocks, set to minimum height
-            canvas.style.height = '400px';
-            return;
-        }
-
-        let maxBottom = 0;
-
-        blocks.forEach(block => {
-            const blockTop = block.offsetTop;
-            const blockHeight = block.offsetHeight;
-            const blockBottom = blockTop + blockHeight;
-
-            if (blockBottom > maxBottom) {
-                maxBottom = blockBottom;
+            if (blocks.length === 0) {
+                // No blocks, set to minimum height
+                canvas.style.height = '400px';
+                canvas.style.minHeight = '400px';
+                return;
             }
-        });
 
-        // Add padding at the bottom
-        const paddingBottom = 40;
-        const requiredHeight = Math.max(400, maxBottom + paddingBottom); // Minimum 400px
+            let maxBottom = 0;
 
-        // Set canvas height
-        canvas.style.height = requiredHeight + 'px';
+            blocks.forEach(block => {
+                // For absolutely positioned elements, use style.top + offsetHeight
+                const blockTop = parseInt(block.style.top) || 0;
+                const blockHeight = block.offsetHeight || block.getBoundingClientRect().height;
+                const blockBottom = blockTop + blockHeight;
 
-        console.log('Canvas height updated to:', requiredHeight + 'px', 'based on', blocks.length, 'blocks');
+                if (blockBottom > maxBottom) {
+                    maxBottom = blockBottom;
+                }
+
+                console.log(`Block ${block.dataset.blockId}: top=${blockTop}px, height=${blockHeight}px, bottom=${blockBottom}px`);
+            });
+
+            // Add generous padding at the bottom for better UX
+            const paddingBottom = 60;
+            const requiredHeight = Math.max(400, maxBottom + paddingBottom); // Minimum 400px
+
+            // Set canvas height with !important to override any conflicting styles
+            canvas.style.setProperty('height', requiredHeight + 'px', 'important');
+            canvas.style.setProperty('min-height', requiredHeight + 'px', 'important');
+
+            console.log('Canvas height updated to:', requiredHeight + 'px', 'based on', blocks.length, 'blocks, maxBottom:', maxBottom);
+        }, 50); // Small delay to ensure DOM updates
     }
 
-    function createTextBlock(e) {
+    // Periodic height check to ensure canvas stays in sync with content
+    setInterval(() => {
+        if (canvas && canvas.querySelectorAll('.email-block').length > 0) {
+            updateCanvasHeight();
+        }
+    }, 2000); // Check every 2 seconds
+
+    // Also update on window resize
+    window.addEventListener('resize', () => {
+        setTimeout(updateCanvasHeight, 100);
+    });
+
+    function createTextBlockAtPosition(insertPosition) {
         blockCounter++;
         console.log('Creating text block #', blockCounter);
 
@@ -893,44 +1156,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
         textBlock.appendChild(textContent);
 
-        // Calculate position relative to canvas with proper bounds checking
-        const canvasRect = canvas.getBoundingClientRect();
+        // Position using calculated insertion point
+        textBlock.style.position = 'absolute';
+        textBlock.style.left = '10px'; // Close to left edge
+        textBlock.style.top = insertPosition.y + 'px';
 
-        // Account for canvas padding - minimal padding for closer positioning
-        const leftPadding = 10; // Minimal left padding for close edge alignment
-        const topPadding = 20; // Small top padding
-        const rightPadding = 40; // Keep some right padding
-        const bottomPadding = 40; // Keep some bottom padding
-        const blockWidth = 250; // Estimated text block width
-        const blockHeight = 60; // Estimated text block height
-
-        let x = e.clientX - canvasRect.left - (blockWidth / 2);
-        let y = e.clientY - canvasRect.top - (blockHeight / 2);
-
-        // Ensure the block stays within canvas bounds with minimal padding
-        const maxX = canvas.clientWidth - blockWidth - rightPadding;
-        const maxY = canvas.clientHeight - blockHeight - bottomPadding;
-
-        x = Math.max(leftPadding, Math.min(x, maxX));
-        y = Math.max(topPadding, Math.min(y, maxY));
-
-        // If coordinates are invalid or outside reasonable bounds, position close to top-left
-        if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
-            x = leftPadding; // Position close to left edge
-            y = topPadding; // Position close to top edge
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            // Insert after/before the specified block, then reorder
+            setTimeout(() => reorderBlocks(), 10);
         }
 
-        textBlock.style.position = 'absolute';
-        textBlock.style.left = x + 'px';
-        textBlock.style.top = y + 'px';
-
-        // Add to canvas
-        canvas.appendChild(textBlock);
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(textBlock, nextSibling);
+                console.log('Inserted textBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(textBlock);
+                console.log('Appended textBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(textBlock, insertPosition.insertBefore);
+            console.log('Inserted textBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(textBlock);
+            console.log('Appended textBlock at end');
+        }
 
         // Phase 4: ADD SELECTION FUNCTIONALITY
         textBlock.addEventListener('click', function(e) {
             e.stopPropagation();
             selectBlock(textBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        textBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        textBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
         });
 
         // Auto-select the new block
@@ -942,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Text block created and appended to canvas:', textBlock.dataset.blockId);
     }
 
-    function createImageBlock(e) {
+    function createImageBlockAtPosition(insertPosition) {
         blockCounter++;
         console.log('Creating image block #', blockCounter);
 
@@ -957,10 +1227,12 @@ document.addEventListener('DOMContentLoaded', function() {
         imageBlock.className = 'email-block image-block';
         imageBlock.dataset.blockId = 'image-' + blockCounter;
         imageBlock.dataset.blockType = 'image';
+        imageBlock.dataset.align = 'center'; // Default alignment
 
-        // Image container with wrapper for link support
+        // Image container with wrapper for alignment and link support
         const imageWrapper = document.createElement('div');
         imageWrapper.className = 'image-wrapper';
+        imageWrapper.style.textAlign = 'center'; // Default center alignment
 
         const img = document.createElement('img');
         img.src = 'https://placehold.co/600x400.png';
@@ -973,40 +1245,50 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.appendChild(img);
         imageBlock.appendChild(imageWrapper);
 
-        // Calculate position with minimal padding like text blocks
-        const canvasRect = canvas.getBoundingClientRect();
-        const leftPadding = 10;
-        const topPadding = 20;
-        const rightPadding = 40;
-        const bottomPadding = 40;
-        const blockWidth = 250;
-        const blockHeight = 150;
+        // Position using calculated insertion point
+        imageBlock.style.position = 'absolute';
+        imageBlock.style.left = '10px'; // Close to left edge
+        imageBlock.style.top = insertPosition.y + 'px';
 
-        let x = e.clientX - canvasRect.left - (blockWidth / 2);
-        let y = e.clientY - canvasRect.top - (blockHeight / 2);
-
-        const maxX = canvas.clientWidth - blockWidth - rightPadding;
-        const maxY = canvas.clientHeight - blockHeight - bottomPadding;
-
-        x = Math.max(leftPadding, Math.min(x, maxX));
-        y = Math.max(topPadding, Math.min(y, maxY));
-
-        if (x < 0 || y < 0 || isNaN(x) || isNaN(y)) {
-            x = leftPadding;
-            y = topPadding;
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 10);
         }
 
-        imageBlock.style.position = 'absolute';
-        imageBlock.style.left = x + 'px';
-        imageBlock.style.top = y + 'px';
-
-        // Add to canvas
-        canvas.appendChild(imageBlock);
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(imageBlock, nextSibling);
+                console.log('Inserted imageBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(imageBlock);
+                console.log('Appended imageBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(imageBlock, insertPosition.insertBefore);
+            console.log('Inserted imageBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(imageBlock);
+            console.log('Appended imageBlock at end');
+        }
 
         // Add selection functionality
         imageBlock.addEventListener('click', function(e) {
             e.stopPropagation();
             selectBlock(imageBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        imageBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        imageBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
         });
 
         // Auto-select the new block
@@ -1018,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Image block created and appended to canvas:', imageBlock.dataset.blockId);
     }
 
-    function createButtonBlock(e) {
+    function createButtonBlockAtPosition(insertPosition) {
         blockCounter++;
         console.log('Creating button block #', blockCounter);
 
@@ -1053,34 +1335,52 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonWrapper.appendChild(button);
         buttonBlock.appendChild(buttonWrapper);
 
-        // Calculate position for full-width button row
-        const canvasRect = canvas.getBoundingClientRect();
-        const topPadding = 20;
-
-        // For buttons, we want full width positioning
-        let y = e.clientY - canvasRect.top - 30; // Center vertically around drop point
-
-        // Ensure it's not too close to top
-        y = Math.max(topPadding, y);
-
-        // If coordinates are invalid, position at a reasonable location
-        if (y < 0 || isNaN(y)) {
-            y = topPadding;
-        }
-
+        // Position using calculated insertion point for full-width button
         buttonBlock.style.position = 'absolute';
         buttonBlock.style.left = '0px'; // Full width - start at left edge
-        buttonBlock.style.top = y + 'px';
+        buttonBlock.style.top = insertPosition.y + 'px';
         buttonBlock.style.width = '100%'; // Full width of canvas
 
-        // Add to canvas
-        canvas.appendChild(buttonBlock);
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 10);
+        }
+
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(buttonBlock, nextSibling);
+                console.log('Inserted buttonBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(buttonBlock);
+                console.log('Appended buttonBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(buttonBlock, insertPosition.insertBefore);
+            console.log('Inserted buttonBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(buttonBlock);
+            console.log('Appended buttonBlock at end');
+        }
 
         // Add selection functionality
         buttonBlock.addEventListener('click', function(e) {
             e.stopPropagation();
             e.preventDefault(); // Prevent button click
             selectBlock(buttonBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        buttonBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        buttonBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
         });
 
         // Auto-select the new block
@@ -1090,6 +1390,98 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCanvasHeight();
 
         console.log('Button block created and appended to canvas:', buttonBlock.dataset.blockId);
+    }
+
+    function createDividerBlockAtPosition(insertPosition) {
+        blockCounter++;
+        console.log('Creating divider block #', blockCounter);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create divider block element
+        const dividerBlock = document.createElement('div');
+        dividerBlock.className = 'email-block divider-block';
+        dividerBlock.dataset.blockId = 'divider-' + blockCounter;
+        dividerBlock.dataset.blockType = 'divider';
+        dividerBlock.dataset.style = 'solid';
+        dividerBlock.dataset.color = '#d1d5db';
+        dividerBlock.dataset.thickness = '2';
+        dividerBlock.dataset.width = '100';
+        dividerBlock.dataset.spacing = 'medium';
+
+        // Divider wrapper for spacing
+        const dividerWrapper = document.createElement('div');
+        dividerWrapper.className = 'divider-wrapper';
+
+        // Create the actual divider line
+        const dividerLine = document.createElement('hr');
+        dividerLine.className = 'email-divider';
+        dividerLine.style.border = 'none';
+        dividerLine.style.borderTop = '2px solid #d1d5db';
+        dividerLine.style.width = '100%';
+        dividerLine.style.margin = '0 auto';
+
+        dividerWrapper.appendChild(dividerLine);
+        dividerBlock.appendChild(dividerWrapper);
+
+        // Position using calculated insertion point for full-width divider
+        dividerBlock.style.position = 'absolute';
+        dividerBlock.style.left = '0px'; // Full width - start at left edge
+        dividerBlock.style.top = insertPosition.y + 'px';
+        dividerBlock.style.width = '100%'; // Full width of canvas
+
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 10);
+        }
+
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            // Insert after the reference block
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(dividerBlock, nextSibling);
+                console.log('Inserted dividerBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(dividerBlock);
+                console.log('Appended dividerBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            // Insert before the reference block
+            canvas.insertBefore(dividerBlock, insertPosition.insertBefore);
+            console.log('Inserted dividerBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            // No specific position, append at end
+            canvas.appendChild(dividerBlock);
+            console.log('Appended dividerBlock at end');
+        }
+
+        // Add selection functionality
+        dividerBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(dividerBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        dividerBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        dividerBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
+        });
+
+        // Auto-select the new block
+        selectBlock(dividerBlock);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Divider block created and appended to canvas:', dividerBlock.dataset.blockId);
     }
 
     // Phase 4: SELECTION AND PROPERTIES PANEL FUNCTIONALITY
@@ -1117,6 +1509,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
         if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
         if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
+        if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
         if (block.dataset.blockType === 'text' && textPropertiesPanel) {
@@ -1128,6 +1521,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (block.dataset.blockType === 'button' && buttonPropertiesPanel) {
             buttonPropertiesPanel.style.display = 'block';
             addButtonPropertyListeners(block);
+        } else if (block.dataset.blockType === 'divider' && dividerPropertiesPanel) {
+            dividerPropertiesPanel.style.display = 'block';
+            addDividerPropertyListeners(block);
         }
     }
 
@@ -1253,6 +1649,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const titleInput = document.getElementById('image-title-' + statePath);
         const urlInput = document.getElementById('image-url-' + statePath);
         const deleteBtn = document.getElementById('delete-image-block-' + statePath);
+        const alignmentBtns = imagePropertiesPanel?.querySelectorAll('.alignment-btn');
 
         // Load current values into form
         if (img && widthInput) widthInput.value = img.style.width || '100%';
@@ -1262,6 +1659,16 @@ document.addEventListener('DOMContentLoaded', function() {
             urlInput.value = existingLink ? existingLink.href : '';
         }
         if (img && imagePreviewImg) imagePreviewImg.src = img.src;
+
+        // Set alignment button states
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.align === block.dataset.align) {
+                    btn.classList.add('active');
+                }
+            });
+        }
 
         // Image upload functionality
         if (imageUploadBtn && imageUpload) {
@@ -1344,6 +1751,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 console.log('Image link updated to:', url || 'none');
+            });
+        }
+
+        // Image alignment
+        if (alignmentBtns) {
+            alignmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newAlign = this.dataset.align;
+                    block.dataset.align = newAlign;
+
+                    // Remove active from all buttons
+                    alignmentBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+
+                    // Apply alignment
+                    if (imageWrapper) {
+                        imageWrapper.style.textAlign = newAlign;
+                    }
+
+                    console.log('Image alignment updated to:', newAlign);
+                });
             });
         }
 
@@ -1496,6 +1925,150 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show no selection panel
                 if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    function addDividerPropertyListeners(block) {
+        const dividerLine = block.querySelector('.email-divider');
+        const dividerWrapper = block.querySelector('.divider-wrapper');
+
+        // Get divider property controls
+        const colorPicker = document.getElementById('divider-color-' + statePath);
+        const colorText = document.getElementById('divider-color-text-' + statePath);
+        const thicknessSelect = document.getElementById('divider-thickness-' + statePath);
+        const widthSelect = document.getElementById('divider-width-' + statePath);
+        const spacingSelect = document.getElementById('divider-spacing-' + statePath);
+        const deleteBtn = document.getElementById('delete-divider-block-' + statePath);
+        const styleOptions = dividerPropertiesPanel?.querySelectorAll('.divider-style-option');
+
+        // Load current values into form
+        if (colorPicker) colorPicker.value = block.dataset.color || '#d1d5db';
+        if (colorText) colorText.value = block.dataset.color || '#d1d5db';
+        if (thicknessSelect) thicknessSelect.value = block.dataset.thickness || '2';
+        if (widthSelect) widthSelect.value = block.dataset.width || '100';
+        if (spacingSelect) spacingSelect.value = block.dataset.spacing || 'medium';
+
+        // Set active style option
+        if (styleOptions) {
+            styleOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.style === block.dataset.style) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // Apply current spacing
+        applySpacing();
+
+        function applySpacing() {
+            if (!dividerWrapper) return;
+
+            const spacing = block.dataset.spacing;
+            const spacingMap = {
+                'small': '10px',
+                'medium': '20px',
+                'large': '30px'
+            };
+
+            const paddingValue = spacingMap[spacing] || '20px';
+            dividerWrapper.style.padding = paddingValue + ' 0';
+        }
+
+        // Color controls (both picker and text input)
+        if (colorPicker) {
+            colorPicker.addEventListener('change', function() {
+                const color = this.value;
+                block.dataset.color = color;
+                if (colorText) colorText.value = color;
+                updateDividerStyle();
+                console.log('Divider color updated to:', color);
+            });
+        }
+
+        if (colorText) {
+            colorText.addEventListener('input', function() {
+                const color = this.value;
+                if (color.startsWith('#') && (color.length === 4 || color.length === 7)) {
+                    block.dataset.color = color;
+                    if (colorPicker) colorPicker.value = color;
+                    updateDividerStyle();
+                    console.log('Divider color updated to:', color);
+                }
+            });
+        }
+
+        // Thickness control
+        if (thicknessSelect) {
+            thicknessSelect.addEventListener('change', function() {
+                block.dataset.thickness = this.value;
+                updateDividerStyle();
+                console.log('Divider thickness updated to:', this.value);
+            });
+        }
+
+        // Width control
+        if (widthSelect) {
+            widthSelect.addEventListener('change', function() {
+                block.dataset.width = this.value;
+                if (dividerLine) {
+                    dividerLine.style.width = this.value + '%';
+                }
+                console.log('Divider width updated to:', this.value + '%');
+            });
+        }
+
+        // Spacing control
+        if (spacingSelect) {
+            spacingSelect.addEventListener('change', function() {
+                block.dataset.spacing = this.value;
+                applySpacing();
+                console.log('Divider spacing updated to:', this.value);
+            });
+        }
+
+        // Style options
+        if (styleOptions) {
+            styleOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const newStyle = this.dataset.style;
+                    block.dataset.style = newStyle;
+
+                    // Remove active from all options
+                    styleOptions.forEach(opt => opt.classList.remove('active'));
+                    // Add active to clicked option
+                    this.classList.add('active');
+
+                    updateDividerStyle();
+                    console.log('Divider style updated to:', newStyle);
+                });
+            });
+        }
+
+        function updateDividerStyle() {
+            if (!dividerLine) return;
+
+            const color = block.dataset.color || '#d1d5db';
+            const thickness = block.dataset.thickness || '2';
+            const style = block.dataset.style || 'solid';
+
+            dividerLine.style.borderTop = `${thickness}px ${style} ${color}`;
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting divider block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Update canvas height after deleting block
+                updateCanvasHeight();
+
+                // Show no selection panel
+                if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
                 if (noSelectionPanel) noSelectionPanel.style.display = 'block';
             };
         }
@@ -2494,6 +3067,34 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #ffffff;
 }
 
+/* Divider blocks */
+.email-block.divider-block {
+    background: transparent !important;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 600px; /* Match email layout width */
+}
+
+.divider-wrapper {
+    display: block;
+    width: 100%;
+    padding: 20px 0; /* Default medium spacing */
+}
+
+.email-divider {
+    border: none;
+    border-top: 2px solid #d1d5db;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    height: 0;
+}
+
 .text-block-content {
     outline: none;
     border: none;
@@ -2843,6 +3444,68 @@ document.addEventListener('DOMContentLoaded', function() {
 .dark .button-style-option.active {
     border-color: #3b82f6;
     background: rgba(59, 130, 246, 0.2);
+}
+
+/* Divider style grid */
+.divider-style-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.divider-style-option {
+    padding: 12px 8px 8px 8px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.divider-style-option:hover {
+    border-color: #d1d5db;
+    background: #f3f4f6;
+}
+
+.divider-style-option.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.divider-preview {
+    height: 20px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.divider-style-option span {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Dark mode for divider properties */
+.dark .divider-style-option {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.dark .divider-style-option:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+}
+
+.dark .divider-style-option.active {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.dark .divider-style-option span {
+    color: #9ca3af;
 }
 
 .dark .alignment-buttons {
