@@ -45,35 +45,39 @@
                         </div>
                         <div class="layout-builder-block-item" data-block-type="divider" draggable="true">
                             <span class="layout-builder-block-icon">➖</span>
-                            <span class="layout-builder-block-label">Divider</span>
+                            <span class="layout-builder-block-label">Spacer</span>
                         </div>
                     </div>
 
                     <!-- Layout Blocks -->
                     <div class="layout-builder-block-category">
                         <h4>Layout</h4>
-                        <div class="layout-builder-block-item" data-block-type="columns-2">
+                        <div class="layout-builder-block-item" data-block-type="columns-2" draggable="true">
                             <span class="layout-builder-block-icon">⬜⬜</span>
                             <span class="layout-builder-block-label">2 Columns</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="columns-3">
+                        <div class="layout-builder-block-item" data-block-type="columns-3" draggable="true">
                             <span class="layout-builder-block-icon">⬜⬜⬜</span>
                             <span class="layout-builder-block-label">3 Columns</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="spacer">
-                            <span class="layout-builder-block-icon">↕️</span>
-                            <span class="layout-builder-block-label">Spacer</span>
+                        <div class="layout-builder-block-item" data-block-type="columns-1-2" draggable="true">
+                            <span class="layout-builder-block-icon">⬜⬜⬜</span>
+                            <span class="layout-builder-block-label">1/3 + 2/3</span>
+                        </div>
+                        <div class="layout-builder-block-item" data-block-type="columns-2-1" draggable="true">
+                            <span class="layout-builder-block-icon">⬜⬜⬜</span>
+                            <span class="layout-builder-block-label">2/3 + 1/3</span>
                         </div>
                     </div>
 
                     <!-- Media Blocks -->
                     <div class="layout-builder-block-category">
                         <h4>Media</h4>
-                        <div class="layout-builder-block-item" data-block-type="video">
+                        <div class="layout-builder-block-item" data-block-type="video" draggable="true">
                             <span class="layout-builder-block-icon">🎥</span>
                             <span class="layout-builder-block-label">Video</span>
                         </div>
-                        <div class="layout-builder-block-item" data-block-type="social">
+                        <div class="layout-builder-block-item" data-block-type="social" draggable="true">
                             <span class="layout-builder-block-icon">🔗</span>
                             <span class="layout-builder-block-label">Social</span>
                         </div>
@@ -315,7 +319,7 @@
 
                 <!-- Divider Properties Panel -->
                 <div id="divider-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
-                    <h4>Divider Properties</h4>
+                    <h4>Spacer Properties</h4>
 
                     <div class="property-section">
                         <!-- Line Style -->
@@ -369,6 +373,19 @@
                             </select>
                         </div>
 
+                        <!-- Spacer Height -->
+                        <div class="property-group">
+                            <label class="property-label" for="divider-height-{{ $getStatePath() }}">Spacer Height</label>
+                            <input
+                                type="text"
+                                id="divider-height-{{ $getStatePath() }}"
+                                class="property-input"
+                                value="40px"
+                                placeholder="e.g. 40px, 2em, 1.5rem"
+                                title="Enter height with units: px, em, rem, %, vh"
+                            >
+                        </div>
+
                         <!-- Spacing -->
                         <div class="property-group">
                             <label class="property-label" for="divider-spacing-{{ $getStatePath() }}">Spacing</label>
@@ -382,6 +399,51 @@
                         <!-- Delete Block -->
                         <div class="property-group">
                             <button type="button" id="delete-divider-block-{{ $getStatePath() }}" class="delete-block-btn">
+                                🗑️ Delete Block
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columns Properties Panel -->
+                <div id="columns-properties-{{ $getStatePath() }}" class="properties-panel" style="display: none;">
+                    <h4>Column Properties</h4>
+
+                    <div class="property-section">
+                        <!-- Column Type Display -->
+                        <div class="property-group">
+                            <label class="property-label">Layout Type</label>
+                            <div id="columns-type-display-{{ $getStatePath() }}" class="columns-type-display">
+                                2 Columns (50% / 50%)
+                            </div>
+                        </div>
+
+                        <!-- Column Gap -->
+                        <div class="property-group">
+                            <label class="property-label" for="columns-gap-{{ $getStatePath() }}">Column Gap</label>
+                            <select id="columns-gap-{{ $getStatePath() }}" class="property-select">
+                                <option value="0">No Gap</option>
+                                <option value="5">5px</option>
+                                <option value="10" selected>10px</option>
+                                <option value="15">15px</option>
+                                <option value="20">20px</option>
+                                <option value="30">30px</option>
+                            </select>
+                        </div>
+
+                        <!-- Vertical Alignment -->
+                        <div class="property-group">
+                            <label class="property-label">Vertical Alignment</label>
+                            <div class="alignment-buttons">
+                                <button type="button" class="alignment-btn" data-valign="flex-start" title="Top">⬆️</button>
+                                <button type="button" class="alignment-btn active" data-valign="center" title="Middle">↔️</button>
+                                <button type="button" class="alignment-btn" data-valign="flex-end" title="Bottom">⬇️</button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Block -->
+                        <div class="property-group">
+                            <button type="button" id="delete-columns-block-{{ $getStatePath() }}" class="delete-block-btn">
                                 🗑️ Delete Block
                             </button>
                         </div>
@@ -902,6 +964,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 createButtonBlockAtPosition(insertPosition);
             } else if (blockType === 'divider') {
                 createDividerBlockAtPosition(insertPosition);
+            } else if (blockType === 'columns-2') {
+                createColumnsBlockAtPosition(insertPosition, 2);
+            } else if (blockType === 'columns-3') {
+                createColumnsBlockAtPosition(insertPosition, 3);
+            } else if (blockType === 'columns-1-2') {
+                createColumnsBlockAtPosition(insertPosition, '1-2');
+            } else if (blockType === 'columns-2-1') {
+                createColumnsBlockAtPosition(insertPosition, '2-1');
             } else {
                 console.warn('Unknown block type:', blockType);
             }
@@ -1048,6 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
     const buttonPropertiesPanel = document.getElementById('button-properties-' + statePath);
     const dividerPropertiesPanel = document.getElementById('divider-properties-' + statePath);
+    const columnsPropertiesPanel = document.getElementById('columns-properties-' + statePath);
 
     // Function to dynamically update canvas height based on content
     function updateCanvasHeight() {
@@ -1090,6 +1161,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log('Canvas height updated to:', requiredHeight + 'px', 'based on', blocks.length, 'blocks, maxBottom:', maxBottom);
         }, 50); // Small delay to ensure DOM updates
+    }
+
+    // Reposition all blocks after deletion to eliminate gaps
+    function repositionAllBlocks() {
+        if (!canvas) return;
+
+        // Use setTimeout to ensure DOM has updated after deletion
+        setTimeout(() => {
+            const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+            if (blocks.length === 0) {
+                updateCanvasHeight();
+                return;
+            }
+
+            // Sort blocks by their current top position to maintain order
+            blocks.sort((a, b) => {
+                const aTop = parseInt(a.style.top) || 0;
+                const bTop = parseInt(b.style.top) || 0;
+                return aTop - bTop;
+            });
+
+            let currentTop = 20; // Start with initial padding from top
+
+            blocks.forEach((block, index) => {
+                // Position block at current top position
+                block.style.top = currentTop + 'px';
+
+                // Calculate next position based on this block's height
+                const blockHeight = block.offsetHeight || block.getBoundingClientRect().height;
+                currentTop += blockHeight + 20; // 20px gap between blocks
+
+                console.log(`Repositioned block ${block.dataset.blockId}: top=${block.style.top}, height=${blockHeight}px`);
+            });
+
+            // Update canvas height after repositioning
+            updateCanvasHeight();
+
+            console.log('All blocks repositioned after deletion');
+        }, 100); // Slightly longer delay to ensure deletion is complete
     }
 
     // Periodic height check to ensure canvas stays in sync with content
@@ -1411,11 +1522,16 @@ document.addEventListener('DOMContentLoaded', function() {
         dividerBlock.dataset.color = '#d1d5db';
         dividerBlock.dataset.thickness = '2';
         dividerBlock.dataset.width = '100';
+        dividerBlock.dataset.height = '40';
+        dividerBlock.dataset.heightUnit = '40px';
         dividerBlock.dataset.spacing = 'medium';
 
         // Divider wrapper for spacing
         const dividerWrapper = document.createElement('div');
         dividerWrapper.className = 'divider-wrapper';
+        dividerWrapper.style.height = '40px'; // Set initial height
+        dividerWrapper.style.display = 'flex';
+        dividerWrapper.style.alignItems = 'center'; // Center the line vertically within the spacer
 
         // Create the actual divider line
         const dividerLine = document.createElement('hr');
@@ -1484,6 +1600,448 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Divider block created and appended to canvas:', dividerBlock.dataset.blockId);
     }
 
+    function createColumnsBlockAtPosition(insertPosition, columnType) {
+        blockCounter++;
+        console.log('Creating columns block #', blockCounter, 'type:', columnType);
+
+        // Hide placeholder if visible
+        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        if (canvasPlaceholder) {
+            canvasPlaceholder.style.display = 'none';
+        }
+
+        // Create columns block element
+        const columnsBlock = document.createElement('div');
+        columnsBlock.className = 'email-block columns-block';
+        columnsBlock.dataset.blockId = 'columns-' + blockCounter;
+        columnsBlock.dataset.blockType = 'columns';
+        columnsBlock.dataset.columnType = columnType;
+
+        // Create columns container
+        const columnsContainer = document.createElement('div');
+        columnsContainer.className = 'columns-container';
+        columnsContainer.style.display = 'flex';
+        columnsContainer.style.gap = '10px';
+        columnsContainer.style.width = '100%';
+
+        // Define column widths based on type
+        let columnWidths = [];
+        let columnCount = 0;
+
+        if (columnType === 2) {
+            columnWidths = ['50%', '50%'];
+            columnCount = 2;
+        } else if (columnType === 3) {
+            columnWidths = ['33.333%', '33.333%', '33.333%'];
+            columnCount = 3;
+        } else if (columnType === '1-2') {
+            columnWidths = ['33.333%', '66.667%'];
+            columnCount = 2;
+        } else if (columnType === '2-1') {
+            columnWidths = ['66.667%', '33.333%'];
+            columnCount = 2;
+        }
+
+        // Create individual columns
+        for (let i = 0; i < columnCount; i++) {
+            const column = document.createElement('div');
+            column.className = 'email-column empty'; // Add empty class for placeholder centering
+            column.dataset.columnIndex = i;
+            column.style.width = columnWidths[i];
+            column.style.minHeight = '100px';
+            column.style.border = '2px dashed #d1d5db';
+            column.style.borderRadius = '6px';
+            column.style.position = 'relative';
+            column.style.backgroundColor = '#f9fafb';
+            column.style.display = 'flex';
+            column.style.flexDirection = 'column';
+
+            // Add placeholder text
+            const placeholder = document.createElement('div');
+            placeholder.className = 'column-placeholder';
+            placeholder.textContent = 'Drop content here';
+            placeholder.style.color = '#9ca3af';
+            placeholder.style.fontSize = '14px';
+            placeholder.style.textAlign = 'center';
+            placeholder.style.pointerEvents = 'none';
+
+            column.appendChild(placeholder);
+
+            // Add drop zone functionality to individual columns
+            addColumnDropZone(column);
+
+            columnsContainer.appendChild(column);
+        }
+
+        columnsBlock.appendChild(columnsContainer);
+
+        // Position using calculated insertion point
+        columnsBlock.style.position = 'absolute';
+        columnsBlock.style.left = '0px'; // Full width - start at left edge
+        columnsBlock.style.top = insertPosition.y + 'px';
+        columnsBlock.style.width = '100%'; // Full width of canvas
+
+        // After insertion, reorder all blocks if necessary
+        if (insertPosition.insertAfter || insertPosition.insertBefore) {
+            setTimeout(() => reorderBlocks(), 10);
+        }
+
+        // Add to canvas in the correct DOM position
+        if (insertPosition.insertAfter) {
+            const nextSibling = insertPosition.insertAfter.nextSibling;
+            if (nextSibling) {
+                canvas.insertBefore(columnsBlock, nextSibling);
+                console.log('Inserted columnsBlock after', insertPosition.insertAfter.dataset.blockId, 'before', nextSibling.dataset?.blockId);
+            } else {
+                canvas.appendChild(columnsBlock);
+                console.log('Appended columnsBlock after', insertPosition.insertAfter.dataset.blockId, '(was last)');
+            }
+        } else if (insertPosition.insertBefore) {
+            canvas.insertBefore(columnsBlock, insertPosition.insertBefore);
+            console.log('Inserted columnsBlock before', insertPosition.insertBefore.dataset.blockId);
+        } else {
+            canvas.appendChild(columnsBlock);
+            console.log('Appended columnsBlock at end');
+        }
+
+        // Add selection functionality
+        columnsBlock.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(columnsBlock);
+        });
+
+        // Prevent drag events on blocks to ensure canvas handles all drops
+        columnsBlock.addEventListener('dragover', function(e) {
+            e.stopPropagation(); // Let canvas handle dragover
+        });
+
+        columnsBlock.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Let canvas handle drop
+        });
+
+        // Auto-select the new block
+        selectBlock(columnsBlock);
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        console.log('Columns block created and appended to canvas:', columnsBlock.dataset.blockId);
+    }
+
+    // Column drop zone functionality
+    function addColumnDropZone(column) {
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent canvas from handling this
+            e.dataTransfer.dropEffect = 'copy';
+
+            // Add visual feedback
+            column.style.borderColor = '#3b82f6';
+            column.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+
+            console.log('Dragging over column:', column.dataset.columnIndex);
+        });
+
+        column.addEventListener('dragleave', function(e) {
+            // Only remove styling if we're actually leaving the column
+            if (!column.contains(e.relatedTarget)) {
+                column.style.borderColor = '#d1d5db';
+                column.style.backgroundColor = '#f9fafb';
+            }
+        });
+
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Prevent canvas from handling this
+
+            // Reset visual feedback
+            column.style.borderColor = '#d1d5db';
+            column.style.backgroundColor = '#f9fafb';
+
+            const blockType = e.dataTransfer.getData('text/plain');
+            console.log('Dropped', blockType, 'into column', column.dataset.columnIndex);
+
+            // Hide placeholder if this is the first content
+            const placeholder = column.querySelector('.column-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+
+            // Remove empty class to enable top alignment
+            column.classList.remove('empty');
+
+            // Create content block inside the column
+            createContentInColumn(column, blockType);
+        });
+    }
+
+    // Create content blocks inside columns
+    function createContentInColumn(column, blockType) {
+        blockCounter++;
+
+        let contentElement;
+
+        if (blockType === 'text') {
+            contentElement = document.createElement('div');
+            contentElement.className = 'column-content text-content';
+            contentElement.dataset.blockId = 'column-text-' + blockCounter;
+            contentElement.dataset.blockType = 'text'; // Enable text properties panel
+            contentElement.innerHTML = '<p contenteditable="true">Click to edit text</p>';
+            contentElement.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                cursor: text;
+                font-family: Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                text-align: left;
+                background: transparent;
+                color: #374151;
+                min-height: 24px;
+            `;
+
+            // Make text editable
+            const textParagraph = contentElement.querySelector('p');
+            textParagraph.addEventListener('focus', function() {
+                this.style.outline = 'none';
+                contentElement.style.borderColor = '#3b82f6';
+                contentElement.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+            });
+
+            textParagraph.addEventListener('blur', function() {
+                contentElement.style.borderColor = 'transparent';
+                contentElement.style.boxShadow = 'none';
+                // Save content changes here if needed
+                console.log('Text updated:', this.textContent);
+            });
+
+            textParagraph.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.blur(); // Exit editing mode on Enter
+                }
+            });
+
+        } else if (blockType === 'image') {
+            contentElement = document.createElement('div');
+            contentElement.className = 'column-content image-content';
+            contentElement.dataset.blockId = 'column-image-' + blockCounter;
+            contentElement.dataset.blockType = 'image'; // Enable image properties panel
+
+            const imgWrapper = document.createElement('div');
+            imgWrapper.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                text-align: center;
+                background: #f8fafc;
+                min-height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            `;
+
+            // Create default placeholder image
+            const placeholderImg = document.createElement('img');
+            placeholderImg.src = 'https://placehold.co/600x400.png';
+            placeholderImg.alt = 'Click to add image';
+            placeholderImg.style.cssText = `
+                max-width: 100%;
+                height: auto;
+                border-radius: 4px;
+                cursor: pointer;
+                border: 2px dashed #d1d5db;
+                background: #f8fafc;
+            `;
+
+            // Create hidden file input for image upload
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.style.display = 'none';
+
+            // Add click handler for image upload
+            placeholderImg.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Update the placeholder image with the new image
+                        placeholderImg.src = e.target.result;
+                        placeholderImg.alt = file.name;
+                        placeholderImg.style.border = 'none'; // Remove dashed border
+                        placeholderImg.style.background = 'transparent';
+
+                        console.log('Image uploaded:', file.name);
+
+                        // If this image content is currently selected, update properties panel preview
+                        if (contentElement.classList.contains('selected')) {
+                            updateImagePropertiesPreview(e.target.result);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            imgWrapper.appendChild(placeholderImg);
+            imgWrapper.appendChild(fileInput);
+            contentElement.appendChild(imgWrapper);
+
+        } else if (blockType === 'button') {
+            contentElement = document.createElement('div');
+            contentElement.className = 'column-content button-content';
+            contentElement.dataset.blockId = 'column-button-' + blockCounter;
+            contentElement.dataset.blockType = 'button'; // Enable button properties panel
+
+            const buttonWrapper = document.createElement('div');
+            buttonWrapper.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                text-align: center;
+            `;
+
+            const button = document.createElement('a');
+            button.href = '#';
+            button.contentEditable = 'true';
+            button.textContent = 'Button Text';
+            button.style.cssText = `
+                display: inline-block;
+                background: #3b82f6;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+                cursor: pointer;
+                outline: none;
+            `;
+
+            // Make button text editable
+            button.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
+                this.style.background = '#2563eb';
+            });
+
+            button.addEventListener('blur', function() {
+                this.style.boxShadow = 'none';
+                this.style.background = '#3b82f6';
+                console.log('Button text updated:', this.textContent);
+            });
+
+            button.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+                // Prevent link navigation while editing
+                e.stopPropagation();
+            });
+
+            // Double-click to edit URL
+            button.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+                const newUrl = prompt('Enter button URL:', this.href);
+                if (newUrl !== null) {
+                    this.href = newUrl;
+                    console.log('Button URL updated:', newUrl);
+                }
+            });
+
+            // Prevent default link behavior while editing
+            button.addEventListener('click', function(e) {
+                if (this.contentEditable === 'true') {
+                    e.preventDefault();
+                }
+            });
+
+            buttonWrapper.appendChild(button);
+            contentElement.appendChild(buttonWrapper);
+
+        } else {
+            // Fallback for unknown block types
+            contentElement = document.createElement('div');
+            contentElement.className = 'column-content unknown-content';
+            contentElement.dataset.blockId = 'column-unknown-' + blockCounter;
+            contentElement.innerHTML = `<p>Unknown content type: ${blockType}</p>`;
+            contentElement.style.cssText = `
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                border: 1px solid #fbbf24;
+                border-radius: 4px;
+                background: #fef3c7;
+                color: #92400e;
+            `;
+        }
+
+        // Add hover effects and selection
+        contentElement.addEventListener('mouseenter', function() {
+            if (!this.querySelector(':focus')) { // Don't show hover when editing
+                this.style.borderColor = '#3b82f6';
+            }
+        });
+
+        contentElement.addEventListener('mouseleave', function() {
+            if (!this.querySelector(':focus')) { // Don't remove border when editing
+                this.style.borderColor = 'transparent';
+            }
+        });
+
+        contentElement.addEventListener('click', function(e) {
+            e.stopPropagation();
+            console.log('Selected column content:', this.dataset.blockId, 'Type:', this.dataset.blockType);
+
+            // Clear previous selections (both regular blocks and column content)
+            document.querySelectorAll('.email-block.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelectorAll('.column-content.selected').forEach(el => {
+                el.classList.remove('selected');
+                el.style.borderColor = 'transparent';
+            });
+
+            // Select this content element
+            this.classList.add('selected');
+            this.style.borderColor = '#3b82f6';
+            this.style.boxShadow = '0 0 0 1px rgba(59, 130, 246, 0.2)';
+
+            // Update properties panel using the existing selectBlock function
+            selectedBlock = this;
+            updatePropertiesPanel(this);
+        });
+
+        // Append to column
+        column.appendChild(contentElement);
+
+        // Remove empty class to ensure top alignment (in case it wasn't removed before)
+        column.classList.remove('empty');
+
+        console.log(`Created ${blockType} content in column ${column.dataset.columnIndex}`);
+    }
+
+    // Update image preview in properties panel
+    function updateImagePropertiesPreview(imageSrc) {
+        // Find the image preview in the properties panel and update it
+        const imagePropertiesPanel = document.getElementById('image-properties-' + statePath);
+        if (imagePropertiesPanel) {
+            const previewImage = imagePropertiesPanel.querySelector('img');
+            if (previewImage) {
+                previewImage.src = imageSrc;
+            }
+        }
+    }
+
     // Phase 4: SELECTION AND PROPERTIES PANEL FUNCTIONALITY
     function selectBlock(block) {
         console.log('Selecting block:', block.dataset.blockId);
@@ -1510,6 +2068,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
         if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
         if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
+        if (columnsPropertiesPanel) columnsPropertiesPanel.style.display = 'none';
 
         // Show relevant panel - NO innerHTML UPDATES!
         if (block.dataset.blockType === 'text' && textPropertiesPanel) {
@@ -1524,6 +2083,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (block.dataset.blockType === 'divider' && dividerPropertiesPanel) {
             dividerPropertiesPanel.style.display = 'block';
             addDividerPropertyListeners(block);
+        } else if (block.dataset.blockType === 'columns' && columnsPropertiesPanel) {
+            columnsPropertiesPanel.style.display = 'block';
+            addColumnsPropertyListeners(block);
         }
     }
 
@@ -1627,8 +2189,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 block.remove();
                 selectedBlock = null;
 
-                // Update canvas height after deleting block
-                updateCanvasHeight();
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
 
                 // Show no selection panel - NO innerHTML!
                 if (textPropertiesPanel) textPropertiesPanel.style.display = 'none';
@@ -1638,8 +2200,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addImagePropertyListeners(block) {
-        const img = block.querySelector('img');
-        const imageWrapper = block.querySelector('.image-wrapper');
+        // Handle both regular image blocks and column image content
+        let img, imageWrapper, isColumnContent = false;
+
+        if (block.classList.contains('column-content')) {
+            // This is column image content
+            isColumnContent = true;
+            img = block.querySelector('img');
+            imageWrapper = block.querySelector('div'); // The imgWrapper div
+        } else {
+            // This is a regular image block
+            img = block.querySelector('img');
+            imageWrapper = block.querySelector('.image-wrapper');
+        }
 
         // Get image property controls
         const imageUpload = document.getElementById('image-upload-' + statePath);
@@ -1652,13 +2225,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const alignmentBtns = imagePropertiesPanel?.querySelectorAll('.alignment-btn');
 
         // Load current values into form
-        if (img && widthInput) widthInput.value = img.style.width || '100%';
+        if (img && widthInput) {
+            if (isColumnContent) {
+                widthInput.value = img.style.maxWidth || '100%';
+            } else {
+                widthInput.value = img.style.width || '100%';
+            }
+        }
         if (img && titleInput) titleInput.value = img.alt || '';
-        if (imageWrapper && urlInput) {
+        if (imageWrapper && urlInput && !isColumnContent) {
+            // URL linking only for regular image blocks, not column content yet
             const existingLink = imageWrapper.querySelector('a');
             urlInput.value = existingLink ? existingLink.href : '';
         }
-        if (img && imagePreviewImg) imagePreviewImg.src = img.src;
+        if (img && imagePreviewImg) {
+            imagePreviewImg.src = img.src;
+            console.log('Updated properties panel preview with:', img.src);
+        }
 
         // Set alignment button states
         if (alignmentBtns) {
@@ -1690,7 +2273,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     const base64 = e.target.result;
 
                     // Update image in block
-                    if (img) img.src = base64;
+                    if (img) {
+                        img.src = base64;
+                        img.alt = file.name;
+
+                        // Remove placeholder styling for column content
+                        if (isColumnContent) {
+                            img.style.border = 'none';
+                            img.style.background = 'transparent';
+                        }
+                    }
                     if (imagePreviewImg) imagePreviewImg.src = base64;
 
                     console.log('Image updated with base64 data');
@@ -1783,8 +2375,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 block.remove();
                 selectedBlock = null;
 
-                // Update canvas height after deleting block
-                updateCanvasHeight();
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
 
                 // Show no selection panel
                 if (imagePropertiesPanel) imagePropertiesPanel.style.display = 'none';
@@ -1920,8 +2512,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 block.remove();
                 selectedBlock = null;
 
-                // Update canvas height after deleting block
-                updateCanvasHeight();
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
 
                 // Show no selection panel
                 if (buttonPropertiesPanel) buttonPropertiesPanel.style.display = 'none';
@@ -1939,6 +2531,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const colorText = document.getElementById('divider-color-text-' + statePath);
         const thicknessSelect = document.getElementById('divider-thickness-' + statePath);
         const widthSelect = document.getElementById('divider-width-' + statePath);
+        const heightSelect = document.getElementById('divider-height-' + statePath);
         const spacingSelect = document.getElementById('divider-spacing-' + statePath);
         const deleteBtn = document.getElementById('delete-divider-block-' + statePath);
         const styleOptions = dividerPropertiesPanel?.querySelectorAll('.divider-style-option');
@@ -1948,6 +2541,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (colorText) colorText.value = block.dataset.color || '#d1d5db';
         if (thicknessSelect) thicknessSelect.value = block.dataset.thickness || '2';
         if (widthSelect) widthSelect.value = block.dataset.width || '100';
+        if (heightSelect) heightSelect.value = (block.dataset.heightUnit || block.dataset.height + 'px') || '40px';
         if (spacingSelect) spacingSelect.value = block.dataset.spacing || 'medium';
 
         // Set active style option
@@ -2020,6 +2614,80 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        // Height control
+        if (heightSelect) {
+            heightSelect.addEventListener('input', function() {
+                const inputValue = this.value.trim();
+
+                // Parse height value and unit
+                const heightResult = parseHeightInput(inputValue);
+
+                if (heightResult.isValid) {
+                    // Store both numeric value and full value with unit
+                    block.dataset.height = heightResult.value;
+                    block.dataset.heightUnit = heightResult.fullValue;
+
+                    if (dividerWrapper) {
+                        dividerWrapper.style.height = heightResult.fullValue;
+                    }
+
+                    // Reset error styling
+                    this.style.borderColor = '';
+                    this.style.backgroundColor = '';
+                    this.style.color = '';
+
+                    console.log('Divider height updated to:', heightResult.fullValue);
+
+                    // Reposition all blocks after height change
+                    repositionAllBlocks();
+                } else {
+                    // Show error styling
+                    this.style.borderColor = '#ef4444';
+                    this.style.backgroundColor = '#fef2f2';
+                    this.style.color = '#dc2626'; // Dark red text for visibility
+                    console.warn('Invalid height input:', inputValue);
+                }
+            });
+        }
+
+        // Function to parse and validate height input
+        function parseHeightInput(input) {
+            // Remove all whitespace
+            input = input.replace(/\s/g, '');
+
+            // Regular expression to match number + unit
+            const heightRegex = /^(\d*\.?\d+)(px|em|rem|%|vh|vw|in|cm|mm|pt|pc)?$/i;
+            const match = input.match(heightRegex);
+
+            if (match) {
+                const numericValue = parseFloat(match[1]);
+                const unit = match[2] || 'px'; // Default to px if no unit provided
+
+                // Validate reasonable ranges
+                if (numericValue <= 0) {
+                    return { isValid: false };
+                }
+
+                // Check unit-specific limits
+                if (unit === 'px' && (numericValue < 1 || numericValue > 1000)) {
+                    return { isValid: false };
+                }
+
+                if (unit === '%' && (numericValue < 0 || numericValue > 500)) {
+                    return { isValid: false };
+                }
+
+                return {
+                    isValid: true,
+                    value: numericValue,
+                    unit: unit.toLowerCase(),
+                    fullValue: numericValue + unit.toLowerCase()
+                };
+            }
+
+            return { isValid: false };
+        }
+
         // Spacing control
         if (spacingSelect) {
             spacingSelect.addEventListener('change', function() {
@@ -2064,11 +2732,103 @@ document.addEventListener('DOMContentLoaded', function() {
                 block.remove();
                 selectedBlock = null;
 
-                // Update canvas height after deleting block
-                updateCanvasHeight();
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
 
                 // Show no selection panel
                 if (dividerPropertiesPanel) dividerPropertiesPanel.style.display = 'none';
+                if (noSelectionPanel) noSelectionPanel.style.display = 'block';
+            };
+        }
+    }
+
+    function addColumnsPropertyListeners(block) {
+        const columnsContainer = block.querySelector('.columns-container');
+
+        // Get column property controls
+        const typeDisplay = document.getElementById('columns-type-display-' + statePath);
+        const gapSelect = document.getElementById('columns-gap-' + statePath);
+        const deleteBtn = document.getElementById('delete-columns-block-' + statePath);
+        const valignmentBtns = columnsPropertiesPanel?.querySelectorAll('.alignment-btn');
+
+        // Update type display based on column type
+        if (typeDisplay) {
+            const columnType = block.dataset.columnType;
+            let displayText = '';
+
+            if (columnType === '2') {
+                displayText = '2 Columns (50% / 50%)';
+            } else if (columnType === '3') {
+                displayText = '3 Columns (33% / 33% / 33%)';
+            } else if (columnType === '1-2') {
+                displayText = '2 Columns (33% / 67%)';
+            } else if (columnType === '2-1') {
+                displayText = '2 Columns (67% / 33%)';
+            }
+
+            typeDisplay.textContent = displayText;
+        }
+
+        // Load current gap value
+        if (gapSelect && columnsContainer) {
+            const currentGap = columnsContainer.style.gap || '10px';
+            gapSelect.value = parseInt(currentGap) || 10;
+        }
+
+        // Set vertical alignment button states
+        if (valignmentBtns) {
+            valignmentBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.valign === 'center') { // Default center alignment
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Gap control
+        if (gapSelect) {
+            gapSelect.addEventListener('change', function() {
+                const gap = this.value + 'px';
+                if (columnsContainer) {
+                    columnsContainer.style.gap = gap;
+                }
+                console.log('Column gap updated to:', gap);
+            });
+        }
+
+        // Vertical alignment
+        if (valignmentBtns) {
+            valignmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const newValign = this.dataset.valign;
+
+                    // Remove active from all buttons
+                    valignmentBtns.forEach(b => b.classList.remove('active'));
+                    // Add active to clicked button
+                    this.classList.add('active');
+
+                    // Apply vertical alignment to columns container
+                    if (columnsContainer) {
+                        columnsContainer.style.alignItems = newValign;
+                    }
+
+                    console.log('Column vertical alignment updated to:', newValign);
+                });
+            });
+        }
+
+        // Delete block
+        if (deleteBtn) {
+            deleteBtn.onclick = function() {
+                console.log('Deleting columns block:', block.dataset.blockId);
+                block.remove();
+                selectedBlock = null;
+
+                // Reposition all remaining blocks and update canvas height
+                repositionAllBlocks();
+
+                // Show no selection panel
+                if (columnsPropertiesPanel) columnsPropertiesPanel.style.display = 'none';
                 if (noSelectionPanel) noSelectionPanel.style.display = 'block';
             };
         }
@@ -3081,9 +3841,12 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .divider-wrapper {
-    display: block;
+    display: flex;
     width: 100%;
-    padding: 20px 0; /* Default medium spacing */
+    align-items: center;
+    justify-content: center;
+    height: 40px; /* Default height, can be overridden by JavaScript */
+    padding: 0; /* Remove padding since we're using height for spacing */
 }
 
 .email-divider {
@@ -3093,6 +3856,214 @@ document.addEventListener('DOMContentLoaded', function() {
     margin: 0 auto;
     padding: 0;
     height: 0;
+}
+
+/* Column blocks */
+.email-block.columns-block {
+    background: transparent !important;
+    padding: 10px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    min-height: 120px;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.email-block.columns-block:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05) !important;
+}
+
+.email-block.columns-block.selected {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.columns-container {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    min-height: 100px;
+    align-items: flex-start; /* All columns start at top */
+}
+
+.email-column {
+    flex: 0 0 auto; /* Don't grow/shrink, respect explicit width */
+    min-height: 100px;
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+    position: relative;
+    background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Content fills width */
+    justify-content: flex-start; /* Content starts at top */
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Include padding/border in width calculation */
+}
+
+/* Empty column state for placeholder centering */
+.email-column.empty {
+    align-items: center;
+    justify-content: center;
+}
+
+.email-column:hover {
+    border-color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.column-placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+}
+
+.columns-type-display {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #6b7280;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Column content styles */
+.column-content {
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.column-content.selected {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.column-content:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.column-content.text-content {
+    color: #374151; /* Dark text for light mode */
+}
+
+.column-content.text-content p {
+    margin: 0;
+    outline: none;
+    color: inherit; /* Inherit color from parent */
+}
+
+.column-content.text-content:focus-within {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.column-content.button-content a:hover {
+    background: #2563eb !important;
+}
+
+.column-content.image-content:hover {
+    background: #f1f5f9 !important;
+}
+
+/* Content editing states */
+.column-content [contenteditable="true"]:focus {
+    outline: none;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.column-content.button-content a[contenteditable="true"] {
+    user-select: text;
+}
+
+.column-content.button-content a:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+    background: #2563eb !important;
+}
+
+/* Image upload feedback */
+.column-content.image-content img {
+    transition: all 0.2s ease;
+}
+
+.column-content.image-content img:hover {
+    opacity: 0.8;
+    transform: scale(1.02);
+}
+
+/* Selection indicators */
+.column-content::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.column-content.selected::after {
+    border-color: #3b82f6;
+}
+
+/* Column drag feedback */
+.email-column.drag-over {
+    border-color: #3b82f6 !important;
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode column styles */
+.dark .email-block.columns-block {
+    border-color: #4b5563;
+}
+
+.dark .email-block.columns-block:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark .email-column {
+    border-color: #4b5563;
+    background-color: #374151;
+}
+
+.dark .email-column:hover {
+    border-color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.dark .column-placeholder {
+    color: #6b7280;
+}
+
+.dark .column-content.text-content {
+    color: #f9fafb;
+}
+
+.dark .column-content.image-content {
+    background: #374151 !important;
+    color: #9ca3af;
+}
+
+.dark .column-content.image-content:hover {
+    background: #4b5563 !important;
+}
+
+.dark .columns-type-display {
+    background: #374151;
+    border-color: #4b5563;
+    color: #9ca3af;
 }
 
 .text-block-content {
