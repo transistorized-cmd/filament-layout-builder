@@ -953,13 +953,44 @@
             </div>
         </div>
 
-        <!-- Hidden input to store form data -->
-        <input type="hidden" name="{{ $getStatePath() }}" value="" />
+        {{-- This component will be wrapped in Alpine.js with reactive state --}}
+        <div
+            x-data="layoutBuilderComponent({
+                state: $wire.$entangle('{{ $getStatePath() }}'),
+                config: @js($getConfiguration()),
+            })"
+            x-init="initLayoutBuilder()"
+            wire:ignore
+            {{ $attributes->merge(['class' => 'filament-layout-builder'], escape: false) }}
+        >
+            <div id="layout-builder-wrapper-{{ $getStatePath() }}"></div>
+
+            {{-- Hidden input to ensure state is properly bound --}}
+            <input type="hidden" x-model="state" />
+        </div>
 
         <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get unique instance identifier first
-    const statePath = '{{ $getStatePath() }}';
+// Alpine.js component for layout builder
+window.layoutBuilderComponent = function(options) {
+    return {
+        state: options.state,
+        config: options.config,
+        statePath: '{{ $getStatePath() }}',
+
+        initLayoutBuilder() {
+            // Initialize the layout builder with Alpine context
+            this.setupLayoutBuilder();
+        },
+
+        setupLayoutBuilder() {
+            // Get unique instance identifier
+            const statePath = this.statePath;
+
+    // Constants to avoid Blade parsing conflicts
+    const PLACEHOLDER_TEXT = 'Click' + ' to edit';
+    const PLACEHOLDER_TEXT_FULL = 'Click' + ' to edit text';
+    const PLACEHOLDER_HTML = 'Click' + ' to edit this text...';
+    const TEMPLATE_SYNTAX = '{' + '{';
 
     // Theme state management
     let emailDarkMode = false;
@@ -1676,7 +1707,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const textContent = document.createElement('div');
         textContent.className = 'text-block-content';
         textContent.contentEditable = true;
-        textContent.innerHTML = 'Click to edit this text...';
+        textContent.innerHTML = PLACEHOLDER_HTML;
+
+        // Add event listeners to save content changes
+        textContent.addEventListener('blur', function() {
+            console.log('💾 Text content changed, triggering auto-save');
+            if (window.layoutBuilderSave) {
+                window.layoutBuilderSave();
+            }
+        });
+
+        textContent.addEventListener('input', function() {
+            // Auto-save after a short delay to avoid too many saves while typing
+            clearTimeout(textContent.saveTimeout);
+            textContent.saveTimeout = setTimeout(() => {
+                if (window.layoutBuilderSave) {
+                    console.log('💾 Auto-saving text changes');
+                    window.layoutBuilderSave();
+                }
+            }, 1000);
+        });
 
         // Force text block to match content height
         function autoResize() {
@@ -2569,7 +2619,7 @@ document.addEventListener('DOMContentLoaded', function() {
             contentElement.className = 'column-content text-content';
             contentElement.dataset.blockId = 'column-text-' + blockCounter;
             contentElement.dataset.blockType = 'text'; // Enable text properties panel
-            contentElement.innerHTML = '<p contenteditable="true">Click to edit text</p>';
+            contentElement.innerHTML = '<p contenteditable="true">' + PLACEHOLDER_TEXT_FULL + '</p>';
             contentElement.style.cssText = `
                 width: 100%;
                 padding: 10px;
@@ -4706,24 +4756,92 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function generateTextPreview(block) {
         const textContent = block.querySelector('.text-block-content');
-        const html = textContent ? textContent.innerHTML : '<p>Sample text content</p>';
-        return `<div class="preview-block preview-text-block">${html}</div>`;
+
+        if (textContent) {
+            // Get the visual text content (what's actually displayed), not raw HTML with variables
+            let content = '';
+
+            // Try to get the rendered text content first
+            const renderedText = textContent.textContent || textContent.innerText;
+
+            // If there's actual content (not just template variables), use innerHTML for formatting
+            if (renderedText &&
+                !renderedText.includes(TEMPLATE_SYNTAX) &&
+                renderedText.indexOf(PLACEHOLDER_TEXT) === -1 &&
+                renderedText.trim().length > 0) {
+                content = textContent.innerHTML;
+            } else {
+                // For template variables or empty content, show a cleaner preview
+                if (renderedText && renderedText.includes(TEMPLATE_SYNTAX)) {
+                    // Clean up template variables for preview
+                    content = renderedText
+                        .replace(/\{\{client\.name\}\}/g, 'John Doe')
+                        .replace(/\{\{contact\.name\}\}/g, 'Jane Smith')
+                        .replace(/\{\{quote\.series\}\}/g, 'Q-2025-001')
+                        .replace(/\{\{.*?\}\}/g, '[Dynamic Content]');
+
+                    // Apply basic HTML structure if it was in the original
+                    if (textContent.innerHTML.includes('<p>')) {
+                        content = '<p>' + content + '</p>';
+                    } else if (textContent.innerHTML.includes('<h')) {
+                        // Preserve heading structure
+                        content = textContent.innerHTML.replace(/\{\{.*?\}\}/g, '[Dynamic Content]');
+                    }
+                } else if (renderedText.indexOf(PLACEHOLDER_TEXT) !== -1) {
+                    content = '<p style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</p>';
+                } else {
+                    content = '<p>Sample text content</p>';
+                }
+            }
+
+            return '<div class="preview-block preview-text-block">' + content + '</div>';
+        }
+
+        return '<div class="preview-block preview-text-block"><p>Sample text content</p></div>';
     }
 
     function generateImagePreview(block) {
         const img = block.querySelector('img');
-        const alignment = block.dataset.align || 'center';
+        const alignment = block.dataset.align || block.dataset.alignment || 'center';
         let alignStyle = 'text-align: center;';
         if (alignment === 'left') alignStyle = 'text-align: left;';
         if (alignment === 'right') alignStyle = 'text-align: right;';
 
+        // Get the image width from multiple sources (prioritized)
+        let imageWidth = '100%';
+
+        if (block.dataset.width) {
+            imageWidth = block.dataset.width;
+        } else if (img && img.style.width) {
+            imageWidth = img.style.width;
+        } else if (img && img.style.maxWidth && img.style.maxWidth !== 'none') {
+            imageWidth = img.style.maxWidth;
+        } else if (img && img.width) {
+            imageWidth = img.width + 'px';
+        }
+
+        console.log('🖼️ Image preview width determination:');
+        console.log('  block.dataset.width:', block.dataset.width);
+        console.log('  img.style.width:', img?.style.width);
+        console.log('  img.style.maxWidth:', img?.style.maxWidth);
+        console.log('  img.width:', img?.width);
+        console.log('  Final width:', imageWidth);
+
         if (img && img.src && !img.src.includes('placeholder')) {
+            // Use actual width constraint instead of max-width
+            let imgStyles = `width: ${imageWidth}; height: auto;`;
+
+            // For very large images, add a sensible max-width to prevent breaking layout
+            if (imageWidth === '100%' || (imageWidth.includes('px') && parseInt(imageWidth) > 600)) {
+                imgStyles += ' max-width: 600px;';
+            }
+
             return `<div class="preview-block preview-image-block" style="${alignStyle}">
-                        <img src="${img.src}" alt="${img.alt || ''}" style="max-width: ${block.dataset.width || '100%'}; height: auto;" />
+                        <img src="${img.src}" alt="${img.alt || ''}" style="${imgStyles}" />
                     </div>`;
         } else {
             return `<div class="preview-block preview-image-block" style="${alignStyle}">
-                        <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 8px; padding: 40px; color: #6b7280; max-width: ${block.dataset.width || '300px'}; margin: 0 auto;">
+                        <div style="background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 8px; padding: 40px; color: #6b7280; width: ${imageWidth}; margin: 0 auto;">
                             🖼️ Image Placeholder
                         </div>
                     </div>`;
@@ -4875,12 +4993,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const allElements = Array.from(block.querySelectorAll('*'));
         let columnsWithContent = allElements.filter(el => {
             const text = el.textContent.trim();
-            return text === 'Click to edit text' || // Exact match for placeholder text
+            return text === '' + PLACEHOLDER_TEXT_FULL + '' || // Exact match for placeholder text
                    (text &&
                     text !== block.textContent.trim() && // Not the parent container
                     text.length > 0 &&
                     text.length < 200 && // Not too long (likely a container)
-                    (text.includes('Click to edit') || text.includes('Column') || !el.querySelector('*'))); // Specific content or leaf element
+                    (text.indexOf(PLACEHOLDER_TEXT) !== -1 || text.indexOf('Column') !== -1 || !el.querySelector('*'))); // Specific content or leaf element
         });
 
         // If we still haven't found any, be more aggressive
@@ -4942,8 +5060,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Handle special cases
-            if (columnContent === 'Click to edit text') {
-                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            if (columnContent === '' + PLACEHOLDER_TEXT_FULL + '') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</span>';
             }
 
             columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
@@ -4985,8 +5103,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Handle placeholder text styling
-            if (columnContent === 'Click to edit text') {
-                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            if (columnContent === '' + PLACEHOLDER_TEXT_FULL + '') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</span>';
             }
 
             console.log(`Generated column ${index + 1} with content:`, columnContent);
@@ -5024,8 +5142,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Handle placeholder text styling
-            if (columnContent === 'Click to edit text') {
-                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            if (columnContent === '' + PLACEHOLDER_TEXT_FULL + '') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</span>';
             }
 
             columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
@@ -5087,57 +5205,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 switch (blockType) {
                     case 'text':
-                        // Extract text content with detailed debugging
-                        console.log('    🔍 Debugging text block extraction:');
-                        console.log('      Block HTML:', block.innerHTML.substring(0, 200));
+                        // Extract text content using improved logic
+                        console.log('    🔍 Processing text block in column:');
 
                         const textContent = block.querySelector('.text-block-content');
-                        console.log('      Found .text-block-content:', !!textContent);
 
                         if (textContent) {
-                            console.log('      Text content element:', textContent);
-                            console.log('      innerHTML:', textContent.innerHTML);
-                            console.log('      textContent:', textContent.textContent);
+                            let content = '';
+                            const renderedText = textContent.textContent || textContent.innerText;
 
-                            let text = textContent.innerHTML || textContent.textContent || '';
-                            console.log('      Raw extracted text:', JSON.stringify(text));
-
-                            text = text.replace(/Drop content here/g, '').trim();
-                            console.log('      Cleaned text:', JSON.stringify(text));
-
-                            if (text && text !== 'Click to edit text') {
-                                columnContent += `<div style="margin-bottom: 10px;">${text}</div>`;
-                                console.log('      ✅ Added real content');
-                            } else if (text === 'Click to edit text') {
-                                columnContent += `<div style="margin-bottom: 10px; color: #9ca3af; font-style: italic;">Click to edit text</div>`;
-                                console.log('      ✅ Added placeholder text');
+                            // If there's actual content (not just template variables), use innerHTML for formatting
+                            if (renderedText &&
+                                !renderedText.includes(TEMPLATE_SYNTAX) &&
+                                renderedText.indexOf(PLACEHOLDER_TEXT) === -1 &&
+                                renderedText.trim().length > 0) {
+                                content = textContent.innerHTML;
+                                console.log('      ✅ Using real content with formatting');
                             } else {
-                                console.log('      ❌ No content added (empty or unmatched)');
+                                // For template variables or empty content, show a cleaner preview
+                                if (renderedText && renderedText.includes(TEMPLATE_SYNTAX)) {
+                                    // Clean up template variables for preview
+                                    content = renderedText
+                                        .replace(/\{\{client\.name\}\}/g, 'John Doe')
+                                        .replace(/\{\{contact\.name\}\}/g, 'Jane Smith')
+                                        .replace(/\{\{quote\.series\}\}/g, 'Q-2025-001')
+                                        .replace(/\{\{.*?\}\}/g, '[Dynamic Content]');
+
+                                    // Apply basic HTML structure if it was in the original
+                                    if (textContent.innerHTML.includes('<p>')) {
+                                        content = '<p>' + content + '</p>';
+                                    } else if (textContent.innerHTML.includes('<h')) {
+                                        content = textContent.innerHTML.replace(/\{\{.*?\}\}/g, '[Dynamic Content]');
+                                    }
+                                    console.log('      ✅ Converted template variables to preview text');
+                                } else if (renderedText.indexOf(PLACEHOLDER_TEXT) !== -1) {
+                                    content = '<span style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</span>';
+                                    console.log('      ✅ Using placeholder text');
+                                } else {
+                                    content = 'Sample text content';
+                                    console.log('      ✅ Using fallback sample text');
+                                }
+                            }
+
+                            if (content) {
+                                columnContent += `<div style="margin-bottom: 10px;">${content}</div>`;
                             }
                         } else {
-                            // Fallback: try to get text from any text-containing element
-                            console.log('      No .text-block-content found, trying fallback...');
+                            // Fallback: try to get text from the block directly
                             const blockText = block.textContent.trim();
-                            console.log('      Block textContent:', JSON.stringify(blockText));
-
                             if (blockText && blockText !== 'Drop content here') {
-                                columnContent += `<div style="margin-bottom: 10px;">${blockText}</div>`;
+                                let cleanText = blockText;
+                                if (blockText.includes(TEMPLATE_SYNTAX)) {
+                                    cleanText = blockText
+                                        .replace(/\{\{client\.name\}\}/g, 'John Doe')
+                                        .replace(/\{\{contact\.name\}\}/g, 'Jane Smith')
+                                        .replace(/\{\{quote\.series\}\}/g, 'Q-2025-001')
+                                        .replace(/\{\{.*?\}\}/g, '[Dynamic Content]');
+                                }
+                                columnContent += `<div style="margin-bottom: 10px;">${cleanText}</div>`;
                                 console.log('      ✅ Added fallback content');
                             }
                         }
-
-                        console.log('      Column content after text processing:', columnContent.length ? columnContent.substring(0, 50) : 'EMPTY');
                         break;
 
                     case 'image':
-                        // Extract image content
+                        // Extract image content with proper sizing
                         const img = block.querySelector('img');
+
+                        // Get the image width from multiple sources (same logic as generateImagePreview)
+                        let imageWidth = '100%';
+                        if (block.dataset.width) {
+                            imageWidth = block.dataset.width;
+                        } else if (img && img.style.width) {
+                            imageWidth = img.style.width;
+                        } else if (img && img.style.maxWidth && img.style.maxWidth !== 'none') {
+                            imageWidth = img.style.maxWidth;
+                        } else if (img && img.width) {
+                            imageWidth = img.width + 'px';
+                        }
+
+                        console.log(`      🖼️ Image in column - width: ${imageWidth}`);
+
                         if (img && img.src && !img.src.includes('placeholder')) {
+                            // Use width constraint instead of max-width for columns
+                            let imgStyles = `width: ${imageWidth}; height: auto; border-radius: 4px;`;
+
+                            // For column images, keep them smaller by default
+                            if (imageWidth === '100%') {
+                                imgStyles = `max-width: 200px; height: auto; border-radius: 4px;`;
+                            } else if (imageWidth.includes('px') && parseInt(imageWidth) > 200) {
+                                imgStyles = `width: 200px; height: auto; border-radius: 4px;`;
+                            }
+
                             columnContent += `<div style="margin-bottom: 10px; text-align: center;">
-                                                <img src="${img.src}" alt="${img.alt || ''}" style="max-width: 100%; height: auto; border-radius: 4px;" />
+                                                <img src="${img.src}" alt="${img.alt || ''}" style="${imgStyles}" />
                                               </div>`;
+                            console.log('      ✅ Added image with proper sizing');
                         } else {
                             columnContent += `<div style="margin-bottom: 10px; text-align: center; color: #9ca3af; font-style: italic;">🖼️ Image</div>`;
+                            console.log('      ✅ Added image placeholder');
                         }
                         break;
 
@@ -5223,7 +5389,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clean up the content
             columnContent = columnContent
                 .replace(/Drop content here/g, '')
-                .replace(/Click to edit text/g, 'Click to edit text')
+                .replace(/' + PLACEHOLDER_TEXT_FULL + '/g, '' + PLACEHOLDER_TEXT_FULL + '')
                 .trim();
 
             // If content is empty after cleaning, use placeholder
@@ -5232,8 +5398,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Handle special cases
-            if (columnContent === 'Click to edit text') {
-                columnContent = '<span style="color: #9ca3af; font-style: italic;">Click to edit text</span>';
+            if (columnContent === '' + PLACEHOLDER_TEXT_FULL + '') {
+                columnContent = '<span style="color: #9ca3af; font-style: italic;">' + PLACEHOLDER_TEXT_FULL + '</span>';
             }
 
             columnsHTML += `<div class="preview-column" style="flex: 1; padding: 15px; margin: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #374151; text-align: center;">
@@ -5251,7 +5417,670 @@ document.addEventListener('DOMContentLoaded', function() {
             closePreviewModal();
         }
     });
-});
+
+    // ====== SAVE/LOAD LAYOUT FUNCTIONALITY ======
+
+    function serializeLayout() {
+        console.log('🔄 Serializing layout...');
+
+        const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+        const layoutData = {
+            version: '1.0',
+            timestamp: new Date().toISOString(),
+            blocks: [],
+            background: {
+                color: backgroundState.color || '#ffffff',
+                image: backgroundState.imageBase64 || null,
+                size: backgroundState.size || 'cover',
+                repeat: backgroundState.repeat || 'no-repeat',
+                position: backgroundState.position || 'center center',
+                attachment: backgroundState.attachment || 'scroll'
+            }
+        };
+
+        blocks.forEach((block, index) => {
+            console.log(`Serializing block ${index + 1}:`, block);
+
+            const blockData = {
+                id: block.dataset.blockId || `block-${Date.now()}-${index}`,
+                type: block.dataset.blockType || 'unknown',
+                position: {
+                    top: parseInt(block.style.top) || 0,
+                    left: parseInt(block.style.left) || 0,
+                    width: block.style.width || '100%',
+                    height: block.style.height || 'auto'
+                },
+                style: {
+                    position: block.style.position || 'absolute'
+                }
+            };
+
+            // Block-specific data extraction
+            switch (blockData.type) {
+                case 'text':
+                    const textContent = block.querySelector('.text-block-content');
+                    blockData.content = {
+                        html: textContent ? textContent.innerHTML : '',
+                        text: textContent ? textContent.textContent : '',
+                        fontFamily: block.dataset.fontFamily || 'Arial, Helvetica, sans-serif',
+                        fontSize: block.dataset.fontSize || '16px',
+                        color: block.dataset.color || '#000000',
+                        lineHeight: block.dataset.lineHeight || '1.5',
+                        letterSpacing: block.dataset.letterSpacing || '0px',
+                        textAlign: block.dataset.textAlign || 'left'
+                    };
+                    break;
+
+                case 'image':
+                    const img = block.querySelector('img');
+                    const imageLink = block.querySelector('a');
+                    blockData.content = {
+                        src: img ? img.src : '',
+                        alt: img ? img.alt : '',
+                        width: block.dataset.width || '100%',
+                        title: img ? img.title : '',
+                        url: imageLink ? imageLink.href : '',
+                        alignment: block.dataset.alignment || 'center'
+                    };
+                    break;
+
+                case 'button':
+                    const button = block.querySelector('a, button');
+                    blockData.content = {
+                        text: button ? button.textContent : 'Click here',
+                        url: button ? (button.href === location.href + '#' ? '' : button.href) : '',
+                        style: block.dataset.style || 'primary',
+                        size: block.dataset.size || 'medium',
+                        alignment: block.dataset.alignment || 'center'
+                    };
+                    break;
+
+                case 'social':
+                    blockData.content = {
+                        platforms: JSON.parse(block.dataset.platforms || '{}'),
+                        size: block.dataset.size || 'medium',
+                        alignment: block.dataset.alignment || 'center',
+                        grayscale: block.dataset.grayscale === 'true'
+                    };
+                    break;
+
+                case 'divider':
+                    blockData.content = {
+                        color: block.dataset.color || '#d1d5db',
+                        thickness: block.dataset.thickness || '2',
+                        width: block.dataset.width || '100',
+                        height: block.dataset.heightUnit || block.dataset.height + 'px' || '40px',
+                        spacing: block.dataset.spacing || 'medium',
+                        style: block.dataset.style || 'solid'
+                    };
+                    break;
+
+                case 'columns':
+                    const columnType = block.dataset.columnType || '2';
+                    const columnsContainer = block.querySelector('.columns-container');
+                    const columns = columnsContainer ? Array.from(columnsContainer.querySelectorAll('.email-column')) : [];
+
+                    blockData.content = {
+                        columnType: columnType,
+                        columns: columns.map((column, colIndex) => {
+                            const columnBlocks = Array.from(column.querySelectorAll('.email-block'));
+                            return {
+                                index: colIndex,
+                                width: column.style.width || '50%',
+                                blocks: columnBlocks.map(subBlock => ({
+                                    type: subBlock.dataset.blockType || 'unknown',
+                                    id: subBlock.dataset.blockId || `col-block-${colIndex}-${Date.now()}`,
+                                    content: extractBlockContent(subBlock)
+                                }))
+                            };
+                        })
+                    };
+                    break;
+
+                case 'video':
+                    const video = block.querySelector('video, iframe');
+                    blockData.content = {
+                        src: video ? video.src : '',
+                        width: block.dataset.width || '100%',
+                        height: block.dataset.height || '315px',
+                        autoplay: block.dataset.autoplay === 'true',
+                        controls: block.dataset.controls !== 'false',
+                        alignment: block.dataset.alignment || 'center'
+                    };
+                    break;
+
+                default:
+                    // Generic content extraction
+                    blockData.content = {
+                        html: block.innerHTML,
+                        text: block.textContent.trim(),
+                        datasets: {...block.dataset}
+                    };
+            }
+
+            // Store all dataset attributes
+            blockData.datasets = {...block.dataset};
+
+            layoutData.blocks.push(blockData);
+        });
+
+        console.log('✅ Layout serialized:', layoutData);
+        return layoutData;
+    }
+
+    function extractBlockContent(block) {
+        const blockType = block.dataset.blockType || 'unknown';
+
+        switch (blockType) {
+            case 'text':
+                const textContent = block.querySelector('.text-block-content');
+                return {
+                    html: textContent ? textContent.innerHTML : '',
+                    text: textContent ? textContent.textContent : ''
+                };
+            case 'image':
+                const img = block.querySelector('img');
+                return {
+                    src: img ? img.src : '',
+                    alt: img ? img.alt : ''
+                };
+            case 'button':
+                const button = block.querySelector('a, button');
+                return {
+                    text: button ? button.textContent : 'Click here',
+                    url: button ? button.href : ''
+                };
+            default:
+                return {
+                    html: block.innerHTML,
+                    text: block.textContent.trim()
+                };
+        }
+    }
+
+    // Update the save function to use Alpine state
+    const saveLayoutToHiddenInput = () => {
+        const layoutData = serializeLayout();
+
+        console.log('🔍 DEBUG: Saving layout data via Alpine state');
+        console.log('📊 Data size:', JSON.stringify(layoutData).length + ' characters');
+        console.log('🔍 DEBUG: Layout data preview:', JSON.stringify(layoutData).substring(0, 200) + '...');
+
+        // Update Alpine state directly - this automatically syncs with Livewire
+        this.state = JSON.stringify(layoutData);
+        console.log('✅ Layout saved to Alpine state (auto-syncs with Filament)');
+    };
+
+    function loadLayoutFromData(layoutData) {
+        console.log('🔄 Loading layout from data...', layoutData);
+
+        if (!layoutData || !layoutData.blocks) {
+            console.warn('❌ No valid layout data to load');
+            return false;
+        }
+
+        // Clear existing canvas
+        clearCanvas();
+
+        // Restore background
+        if (layoutData.background) {
+            backgroundState.color = layoutData.background.color || '#ffffff';
+            backgroundState.imageBase64 = layoutData.background.image || null;
+            backgroundState.size = layoutData.background.size || 'cover';
+            backgroundState.repeat = layoutData.background.repeat || 'no-repeat';
+            backgroundState.position = layoutData.background.position || 'center center';
+            backgroundState.attachment = layoutData.background.attachment || 'scroll';
+
+            // Apply background to canvas
+            applyBackgroundToCanvas();
+
+            // Update background UI controls
+            updateBackgroundUI();
+        }
+
+        // Restore blocks
+        layoutData.blocks.forEach((blockData, index) => {
+            console.log(`Restoring block ${index + 1}:`, blockData);
+
+            const block = createBlockFromData(blockData);
+            if (block) {
+                canvas.appendChild(block);
+                console.log(`✅ Block ${index + 1} restored successfully`);
+            } else {
+                console.error(`❌ Failed to restore block ${index + 1}:`, blockData);
+            }
+        });
+
+        // Update canvas height
+        updateCanvasHeight();
+
+        // Hide placeholder if we have content
+        if (layoutData.blocks && layoutData.blocks.length > 0) {
+            const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+            if (canvasPlaceholder) {
+                canvasPlaceholder.style.display = 'none';
+                console.log('✅ Hidden canvas placeholder (content loaded)');
+            }
+        }
+
+        console.log('✅ Layout loaded successfully!');
+        return true;
+    }
+
+    // Helper functions to create blocks without side effects
+    function createTextBlockElement() {
+        blockCounter++;
+        const textBlock = document.createElement('div');
+        textBlock.className = 'email-block text-block';
+        textBlock.dataset.blockId = 'text-' + blockCounter;
+        textBlock.dataset.blockType = 'text';
+
+        const textContent = document.createElement('div');
+        textContent.className = 'text-block-content';
+        textContent.contentEditable = true;
+        textContent.innerHTML = PLACEHOLDER_HTML;
+
+        textBlock.appendChild(textContent);
+        textBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); min-height: 60px; border: 2px solid transparent; border-radius: 6px; padding: 10px; background: white; cursor: text; font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; color: #374151; box-sizing: border-box; transition: border-color 0.2s ease;';
+
+        return textBlock;
+    }
+
+    function createImageBlockElement() {
+        blockCounter++;
+        const imageBlock = document.createElement('div');
+        imageBlock.className = 'email-block image-block';
+        imageBlock.dataset.blockId = 'image-' + blockCounter;
+        imageBlock.dataset.blockType = 'image';
+
+        const imageWrapper = document.createElement('div');
+        imageWrapper.className = 'image-wrapper';
+
+        const img = document.createElement('img');
+        img.src = 'https://placehold.co/600x400.png';
+        img.alt = '';
+        img.style.cssText = 'max-width: 100%; height: auto; display: block; border-radius: 4px; object-fit: cover;';
+
+        imageWrapper.appendChild(img);
+        imageBlock.appendChild(imageWrapper);
+        imageBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); min-height: 200px; border: 2px solid transparent; border-radius: 6px; padding: 10px; background: white; text-align: center; cursor: pointer; box-sizing: border-box; transition: border-color 0.2s ease;';
+
+        return imageBlock;
+    }
+
+    function createButtonBlockElement() {
+        blockCounter++;
+        const buttonBlock = document.createElement('div');
+        buttonBlock.className = 'email-block button-block';
+        buttonBlock.dataset.blockId = 'button-' + blockCounter;
+        buttonBlock.dataset.blockType = 'button';
+
+        const buttonLink = document.createElement('a');
+        buttonLink.href = '#';
+        buttonLink.textContent = 'Click here';
+        buttonLink.style.cssText = 'display: inline-block; padding: 12px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; text-align: center; border: 2px solid #3b82f6; transition: all 0.2s ease;';
+
+        buttonBlock.appendChild(buttonLink);
+        buttonBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); min-height: 60px; border: 2px solid transparent; border-radius: 6px; padding: 15px; background: white; text-align: center; cursor: pointer; box-sizing: border-box; transition: border-color 0.2s ease;';
+
+        return buttonBlock;
+    }
+
+    function createSocialBlockElement() {
+        blockCounter++;
+        const socialBlock = document.createElement('div');
+        socialBlock.className = 'email-block social-block';
+        socialBlock.dataset.blockId = 'social-' + blockCounter;
+        socialBlock.dataset.blockType = 'social';
+
+        // Set default platforms data
+        socialBlock.dataset.platforms = JSON.stringify({
+            facebook: { enabled: true, url: 'https://facebook.com/' },
+            x: { enabled: true, url: 'https://x.com/' },
+            linkedin: { enabled: true, url: 'https://linkedin.com/' },
+            youtube: { enabled: true, url: 'https://youtube.com/' },
+            instagram: { enabled: true, url: 'https://instagram.com/' },
+            tiktok: { enabled: true, url: 'https://tiktok.com/' },
+            whatsapp: { enabled: false, url: '' },
+            threads: { enabled: false, url: '' },
+            bluesky: { enabled: false, url: '' }
+        });
+
+        const socialContainer = document.createElement('div');
+        socialContainer.className = 'social-container';
+        socialContainer.style.cssText = 'display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap;';
+
+        socialBlock.appendChild(socialContainer);
+        socialBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); min-height: 60px; border: 2px solid transparent; border-radius: 6px; padding: 15px; background: white; text-align: center; cursor: pointer; box-sizing: border-box; transition: border-color 0.2s ease;';
+
+        return socialBlock;
+    }
+
+    function createBlockFromData(blockData) {
+        console.log(`Creating ${blockData.type} block from data:`, blockData);
+
+        let block;
+
+        switch (blockData.type) {
+            case 'text':
+                block = createTextBlockElement();
+                // Restore text content - handle both old and new formats
+                const textContent = block.querySelector('.text-block-content');
+                if (textContent) {
+                    if (blockData.content && typeof blockData.content === 'object' && blockData.content.html) {
+                        // New format: content is an object
+                        textContent.innerHTML = blockData.content.html;
+                    } else if (blockData.content) {
+                        // Old format: content is a string
+                        textContent.innerHTML = blockData.content;
+                    }
+                }
+                // Restore text properties - handle both formats
+                const textProps = blockData.content && typeof blockData.content === 'object' ? blockData.content : blockData;
+                if (textProps.fontFamily) block.dataset.fontFamily = textProps.fontFamily;
+                if (textProps.fontSize) block.dataset.fontSize = textProps.fontSize;
+                if (textProps.color) block.dataset.color = textProps.color;
+                if (textProps.lineHeight) block.dataset.lineHeight = textProps.lineHeight;
+                if (textProps.letterSpacing) block.dataset.letterSpacing = textProps.letterSpacing;
+                if (textProps.textAlign) block.dataset.textAlign = textProps.textAlign;
+
+                // Apply text styles to the content element
+                if (textContent) {
+                    if (textProps.fontFamily) textContent.style.fontFamily = textProps.fontFamily;
+                    if (textProps.fontSize) textContent.style.fontSize = textProps.fontSize;
+                    if (textProps.color) textContent.style.color = textProps.color;
+                    if (textProps.lineHeight) textContent.style.lineHeight = textProps.lineHeight;
+                    if (textProps.letterSpacing) textContent.style.letterSpacing = textProps.letterSpacing;
+                    if (textProps.textAlign) textContent.style.textAlign = textProps.textAlign;
+                }
+                break;
+
+            case 'image':
+                block = createImageBlockElement();
+                // Restore image content - handle both old and new formats
+                const img = block.querySelector('img');
+                if (img) {
+                    if (blockData.content && typeof blockData.content === 'object' && blockData.content.src) {
+                        // New format: content is an object
+                        img.src = blockData.content.src;
+                        img.alt = blockData.content.alt || '';
+                        img.title = blockData.content.title || '';
+                    } else if (blockData.src) {
+                        // Old format: src at top level
+                        img.src = blockData.src;
+                        img.alt = blockData.alt || '';
+                        img.title = blockData.title || '';
+                    }
+                }
+                // Restore image properties - handle both formats
+                const imgProps = blockData.content && typeof blockData.content === 'object' ? blockData.content : blockData;
+                if (imgProps.width) block.dataset.width = imgProps.width;
+                if (imgProps.alignment || imgProps.align) block.dataset.alignment = imgProps.alignment || imgProps.align;
+
+                // Apply image styles
+                if (img && imgProps.width) {
+                    img.style.width = imgProps.width;
+                    img.style.height = 'auto'; // Maintain aspect ratio
+                }
+
+                // Apply alignment
+                const alignment = imgProps.alignment || imgProps.align;
+                if (alignment) {
+                    const imageWrapper = block.querySelector('.image-wrapper');
+                    if (imageWrapper) {
+                        imageWrapper.style.textAlign = alignment;
+                    }
+                }
+
+                if (imgProps.url) {
+                    // Add link wrapper if URL provided
+                    const imageWrapper = block.querySelector('.image-wrapper');
+                    if (imageWrapper && !imageWrapper.querySelector('a')) {
+                        const link = document.createElement('a');
+                        link.href = imgProps.url;
+                        link.target = '_blank';
+                        link.appendChild(img);
+                        imageWrapper.appendChild(link);
+                    }
+                }
+                break;
+
+            case 'button':
+                block = createButtonBlockElement();
+                if (blockData.content) {
+                    const button = block.querySelector('a');
+                    if (button) {
+                        button.textContent = blockData.content.text || 'Click here';
+                        button.href = blockData.content.url || '#';
+                    }
+                    if (blockData.content.style) block.dataset.style = blockData.content.style;
+                    if (blockData.content.size) block.dataset.size = blockData.content.size;
+                    if (blockData.content.alignment) block.dataset.alignment = blockData.content.alignment;
+
+                    // Apply button alignment
+                    if (blockData.content.alignment) {
+                        block.style.textAlign = blockData.content.alignment;
+                    }
+                }
+                break;
+
+            case 'social':
+                block = createSocialBlockElement();
+                if (blockData.content) {
+                    if (blockData.content.platforms) {
+                        block.dataset.platforms = JSON.stringify(blockData.content.platforms);
+                        updateSocialIcons(block);
+                    }
+                    if (blockData.content.size) block.dataset.size = blockData.content.size;
+                    if (blockData.content.alignment) block.dataset.alignment = blockData.content.alignment;
+                    if (blockData.content.grayscale !== undefined) block.dataset.grayscale = blockData.content.grayscale.toString();
+                }
+                break;
+
+            case 'divider':
+                // For now, skip divider blocks in loading since they're complex
+                console.warn('Divider block loading not yet implemented');
+                return null;
+
+            case 'columns':
+                // For now, skip columns blocks in loading since they're complex
+                console.warn('Columns block loading not yet implemented');
+                return null;
+
+            default:
+                console.warn(`Unknown block type: ${blockData.type}`);
+                return null;
+        }
+
+        if (!block) {
+            console.error(`Failed to create block of type: ${blockData.type}`);
+            return null;
+        }
+
+        // Restore common properties
+        if (blockData.id) block.dataset.blockId = blockData.id;
+        if (blockData.type) block.dataset.blockType = blockData.type;
+
+        // Restore position and styling
+        if (blockData.position) {
+            console.log(`🔧 Applying position to ${blockData.type} block:`, blockData.position);
+            block.style.position = blockData.position.position || 'absolute';
+            block.style.top = blockData.position.top + 'px';
+            block.style.left = blockData.position.left + 'px';
+            block.style.width = blockData.position.width || '100%';
+            if (blockData.position.height !== 'auto') {
+                block.style.height = blockData.position.height;
+            }
+            console.log(`✅ Position applied: top=${block.style.top}, left=${block.style.left}, width=${block.style.width}`);
+        } else {
+            console.log(`⚠️ No position data for ${blockData.type} block, auto-positioning`);
+            // No position data - auto-position blocks sequentially
+            const existingBlocks = canvas.querySelectorAll('.email-block');
+            let topPosition = 20; // Start 20px from top
+
+            // Calculate position based on existing blocks
+            existingBlocks.forEach(existingBlock => {
+                if (existingBlock !== block) {
+                    const blockBottom = parseInt(existingBlock.style.top || '0') + (existingBlock.offsetHeight || 60);
+                    if (blockBottom + 20 > topPosition) {
+                        topPosition = blockBottom + 20;
+                    }
+                }
+            });
+
+            // Apply default positioning
+            block.style.position = 'absolute';
+            block.style.top = topPosition + 'px';
+            block.style.left = '10px';
+            block.style.width = 'calc(100% - 20px)';
+
+            console.log(`Auto-positioned block at top=${topPosition}px`);
+        }
+
+        // Restore all dataset attributes
+        if (blockData.datasets) {
+            Object.keys(blockData.datasets).forEach(key => {
+                if (blockData.datasets[key] !== undefined) {
+                    block.dataset[key] = blockData.datasets[key];
+                }
+            });
+        }
+
+        // Add selection functionality (missing from loaded blocks)
+        block.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectBlock(block);
+        });
+
+        return block;
+    }
+
+    function updateBackgroundUI() {
+        const bgColorPicker = document.getElementById('bg-color-' + statePath);
+        const bgColorText = document.getElementById('bg-color-text-' + statePath);
+
+        if (bgColorPicker) bgColorPicker.value = backgroundState.color;
+        if (bgColorText) bgColorText.value = backgroundState.color;
+    }
+
+    function clearCanvas() {
+        const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+        blocks.forEach(block => block.remove());
+        updateCanvasHeight();
+    }
+
+    // Auto-save functionality
+    let saveTimeout;
+    function autoSave() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            saveLayoutToHiddenInput();
+        }, 1000); // Save 1 second after the last change
+    }
+
+    // Hook into existing functions to trigger auto-save
+    const originalCreateTextBlockAtPosition = createTextBlockAtPosition;
+    const originalCreateImageBlockAtPosition = createImageBlockAtPosition;
+    const originalCreateButtonBlockAtPosition = createButtonBlockAtPosition;
+    const originalCreateSocialBlockAtPosition = createSocialBlockAtPosition;
+    const originalCreateDividerBlockAtPosition = createDividerBlockAtPosition;
+    const originalCreateColumnsBlockAtPosition = createColumnsBlockAtPosition;
+
+    createTextBlockAtPosition = function() {
+        const result = originalCreateTextBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    createImageBlockAtPosition = function() {
+        const result = originalCreateImageBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    createButtonBlockAtPosition = function() {
+        const result = originalCreateButtonBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    createSocialBlockAtPosition = function() {
+        const result = originalCreateSocialBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    createDividerBlockAtPosition = function() {
+        const result = originalCreateDividerBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    createColumnsBlockAtPosition = function() {
+        const result = originalCreateColumnsBlockAtPosition.apply(this, arguments);
+        setTimeout(autoSave, 100);
+        return result;
+    };
+
+    // Load initial data if present
+    function loadInitialData() {
+        const hiddenInput = document.querySelector(`input[name="${statePath}"]`);
+
+        if (hiddenInput && hiddenInput.value.trim()) {
+            try {
+                const layoutData = JSON.parse(hiddenInput.value);
+                console.log('📁 Loading saved template data...');
+                loadLayoutFromData(layoutData);
+            } catch (error) {
+                console.warn('⚠️ Failed to parse saved template data:', error);
+                console.log('Raw data preview:', hiddenInput.value.substring(0, 200));
+            }
+        } else {
+            console.log('ℹ️ Starting with empty template');
+        }
+    }
+
+    // Load initial data after a short delay to ensure DOM is ready
+    setTimeout(loadInitialData, 500);
+
+    // Manual save function (can be called externally)
+    window.saveEmailLayout = function() {
+        saveLayoutToHiddenInput();
+    };
+
+    // Manual load function (can be called externally)
+    window.loadEmailLayout = function(data) {
+        return loadLayoutFromData(data);
+    };
+
+    console.log('💾 Save/Load system initialized');
+
+    // Load existing data on initialization
+    if (this.state && typeof this.state === 'string') {
+        try {
+            const data = JSON.parse(this.state);
+            if (data && (data.blocks || data.version)) {
+                loadLayoutFromData(data);
+                console.log('✅ Loaded existing layout data');
+            }
+        } catch (e) {
+            console.warn('Could not parse existing state:', e);
+            console.log('State content:', this.state);
+        }
+    }
+
+    // Make save function available globally for auto-save hooks
+    window.layoutBuilderSave = saveLayoutToHiddenInput;
+        },
+
+        // Cleanup method for Alpine
+        destroy() {
+            if (window.layoutBuilderSave) {
+                delete window.layoutBuilderSave;
+            }
+        }
+    };
+};
         </script>
 
         <style>
@@ -6044,6 +6873,11 @@ document.addEventListener('DOMContentLoaded', function() {
     display: block;
     box-sizing: border-box;
     overflow: visible;
+}
+
+/* Allow absolute positioning for positioned blocks (loaded from saved templates) */
+.email-block[style*="position: absolute"] {
+    position: absolute !important;
 }
 
 .email-block:hover {
