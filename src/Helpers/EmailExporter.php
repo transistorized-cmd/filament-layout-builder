@@ -102,15 +102,33 @@ HTML;
      */
     protected static function generateTextHTML(array $blockData): string
     {
-        $fontSize = self::getEffectiveFontSize($blockData);
-        $fontFamily = $blockData['fontFamily'] ?? 'Arial, sans-serif';
-        $fontWeight = $blockData['fontWeight'] ?? 'normal';
-        $fontStyle = $blockData['fontStyle'] ?? 'normal';
-        $color = $blockData['color'] ?? '#000000';
-        $textAlign = $blockData['textAlign'] ?? 'left';
-        $padding = $blockData['padding'] ?? '10px';
-        $backgroundColor = $blockData['backgroundColor'] ?? 'transparent';
-        $content = $blockData['content'] ?? 'Enter your text here';
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? null;
+        if (is_array($content) && isset($content['html'])) {
+            // New format: content is object with html, fontFamily, etc.
+            $html = $content['html'] ?? '';
+            $fontFamily = $content['fontFamily'] ?? 'Arial, sans-serif';
+            $fontSize = $content['fontSize'] ?? '16px';
+            $color = $content['color'] ?? '#000000';
+            $textAlign = $content['textAlign'] ?? 'left';
+            $lineHeight = $content['lineHeight'] ?? '1.5';
+            $fontWeight = $blockData['fontWeight'] ?? 'normal';
+            $fontStyle = $blockData['fontStyle'] ?? 'normal';
+            $padding = $blockData['padding'] ?? '10px';
+            $backgroundColor = $blockData['backgroundColor'] ?? 'transparent';
+        } else {
+            // Old format: properties directly on blockData
+            $fontSize = self::getEffectiveFontSize($blockData);
+            $fontFamily = $blockData['fontFamily'] ?? 'Arial, sans-serif';
+            $fontWeight = $blockData['fontWeight'] ?? 'normal';
+            $fontStyle = $blockData['fontStyle'] ?? 'normal';
+            $color = $blockData['color'] ?? '#000000';
+            $textAlign = $blockData['textAlign'] ?? 'left';
+            $lineHeight = '1.5';
+            $padding = $blockData['padding'] ?? '10px';
+            $backgroundColor = $blockData['backgroundColor'] ?? 'transparent';
+            $html = is_string($content) ? $content : ($blockData['content'] ?? 'Enter your text here');
+        }
 
         return <<<HTML
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -122,10 +140,11 @@ HTML;
                     font-style: {$fontStyle};
                     color: {$color};
                     text-align: {$textAlign};
+                    line-height: {$lineHeight};
                     padding: {$padding};
                     background-color: {$backgroundColor};
                 ">
-                    {$content}
+                    {$html}
                 </td>
             </tr>
         </table>
@@ -137,12 +156,26 @@ HTML;
      */
     protected static function generateImageHTML(array $blockData): string
     {
-        $src = $blockData['src'] ?? '';
-        $alt = $blockData['alt'] ?? 'Image';
-        $width = $blockData['width'] ?? '100%';
-        $textAlign = $blockData['textAlign'] ?? 'center';
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && isset($content['src'])) {
+            $src = $content['src'] ?? '';
+            $alt = $content['alt'] ?? 'Image';
+            $width = $content['width'] ?? '100%';
+            $textAlign = $content['alignment'] ?? $content['textAlign'] ?? 'center';
+            $linkUrl = $content['url'] ?? $content['linkUrl'] ?? '';
+        } else {
+            $src = $blockData['src'] ?? '';
+            $alt = $blockData['alt'] ?? 'Image';
+            $width = $blockData['width'] ?? '100%';
+            $textAlign = $blockData['textAlign'] ?? 'center';
+            $linkUrl = $blockData['linkUrl'] ?? '';
+        }
         $padding = $blockData['padding'] ?? '10px';
-        $linkUrl = $blockData['linkUrl'] ?? '';
+
+        if (empty($src) || str_contains($src, 'placeholder')) {
+            return '';
+        }
 
         $imageTag = "<img src=\"{$src}\" alt=\"{$alt}\" style=\"display: block; width: {$width}; max-width: 100%; height: auto; border: 0;\" />";
         $imageContent = $linkUrl
@@ -165,14 +198,25 @@ HTML;
      */
     protected static function generateButtonHTML(array $blockData): string
     {
-        $text = $blockData['text'] ?? 'Click Here';
-        $href = $blockData['href'] ?? '#';
-        $backgroundColor = $blockData['backgroundColor'] ?? '#3498db';
-        $color = $blockData['color'] ?? '#ffffff';
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && isset($content['text'])) {
+            $text = $content['text'] ?? 'Click Here';
+            $href = $content['url'] ?? $content['href'] ?? '#';
+            $backgroundColor = $content['backgroundColor'] ?? '#3498db';
+            $color = $content['textColor'] ?? $content['color'] ?? '#ffffff';
+            $textAlign = $content['alignment'] ?? $content['textAlign'] ?? 'center';
+            $borderRadius = $content['borderRadius'] ?? '4px';
+        } else {
+            $text = $blockData['text'] ?? 'Click Here';
+            $href = $blockData['href'] ?? '#';
+            $backgroundColor = $blockData['backgroundColor'] ?? '#3498db';
+            $color = $blockData['color'] ?? '#ffffff';
+            $textAlign = $blockData['textAlign'] ?? 'center';
+            $borderRadius = $blockData['borderRadius'] ?? '4px';
+        }
         $fontSize = $blockData['fontSize'] ?? '16px';
         $padding = $blockData['padding'] ?? '12px 30px';
-        $textAlign = $blockData['textAlign'] ?? 'center';
-        $borderRadius = $blockData['borderRadius'] ?? '4px';
         $fontFamily = $blockData['fontFamily'] ?? 'Arial, sans-serif';
 
         return <<<HTML
@@ -217,9 +261,17 @@ HTML;
      */
     protected static function generateDividerHTML(array $blockData): string
     {
-        $borderColor = $blockData['borderColor'] ?? '#cccccc';
-        $borderWidth = $blockData['borderWidth'] ?? '1px';
-        $borderStyle = $blockData['borderStyle'] ?? 'solid';
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && (isset($content['style']) || isset($content['color']))) {
+            $borderColor = $content['color'] ?? '#cccccc';
+            $borderWidth = $content['thickness'] ?? '1px';
+            $borderStyle = $content['style'] ?? 'solid';
+        } else {
+            $borderColor = $blockData['borderColor'] ?? '#cccccc';
+            $borderWidth = $blockData['borderWidth'] ?? '1px';
+            $borderStyle = $blockData['borderStyle'] ?? 'solid';
+        }
         $padding = $blockData['padding'] ?? '10px';
 
         return <<<HTML
@@ -248,7 +300,12 @@ HTML;
      */
     protected static function generateSpacerHTML(array $blockData): string
     {
-        $height = str_replace('px', '', $blockData['height'] ?? '20');
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        $height = is_array($content) && isset($content['height'])
+            ? $content['height']
+            : ($blockData['height'] ?? '20px');
+        $height = str_replace('px', '', $height);
 
         return <<<HTML
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -266,22 +323,39 @@ HTML;
      */
     protected static function generateColumnsHTML(array $blockData): string
     {
-        $columnCount = $blockData['columnCount'] ?? 2;
-        $columnWidths = $blockData['columnWidths'] ?? array_fill(0, $columnCount, 100 / $columnCount);
-        $columns = $blockData['columns'] ?? [];
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && isset($content['columns'])) {
+            $columns = $content['columns'] ?? [];
+            $columnType = $content['columnType'] ?? '2-equal';
+            $columnCount = count($columns);
+        } else {
+            $columnCount = $blockData['columnCount'] ?? 2;
+            $columns = $blockData['columns'] ?? [];
+            $columnType = $blockData['columnType'] ?? '2-equal';
+        }
+
         $emailWidth = 600;
+
+        // Calculate column widths based on columnType
+        $columnWidths = $blockData['columnWidths'] ?? match ($columnType) {
+            '1-2' => [33, 67],
+            '2-1' => [67, 33],
+            '3-equal' => [33, 33, 34],
+            default => array_fill(0, $columnCount, 100 / max($columnCount, 1)),
+        };
 
         $columnsHTML = '';
         for ($i = 0; $i < $columnCount; $i++) {
             // Calculate actual width for email compatibility - handle percentage strings
-            $widthValue = $columnWidths[$i];
+            $widthValue = $columnWidths[$i] ?? (100 / max($columnCount, 1));
             if (is_string($widthValue)) {
                 $widthValue = (float) str_replace('%', '', $widthValue);
             }
             $columnWidth = floor(($widthValue / 100) * $emailWidth);
 
             // Get column blocks - handle both array and object structures
-            $columnBlocks = $columns[$i] ?? [];
+            $columnBlocks = $columns[$i]['blocks'] ?? $columns[$i] ?? [];
             if (is_object($columnBlocks)) {
                 $columnBlocks = (array) $columnBlocks;
             }
@@ -331,10 +405,21 @@ HTML;
      */
     protected static function generateVideoHTML(array $blockData): string
     {
-        $videoUrl = $blockData['videoUrl'] ?? '';
-        $thumbnailUrl = $blockData['thumbnailUrl'] ?? '';
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && isset($content['url'])) {
+            $videoUrl = $content['url'] ?? '';
+            $thumbnailUrl = $content['thumbnail'] ?? '';
+        } else {
+            $videoUrl = $blockData['videoUrl'] ?? $blockData['url'] ?? '';
+            $thumbnailUrl = $blockData['thumbnailUrl'] ?? $blockData['thumbnail'] ?? '';
+        }
         $textAlign = $blockData['textAlign'] ?? 'center';
         $padding = $blockData['padding'] ?? '10px';
+
+        if (empty($videoUrl)) {
+            return '';
+        }
 
         return <<<HTML
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -354,7 +439,13 @@ HTML;
      */
     protected static function generateSocialHTML(array $blockData): string
     {
-        $icons = $blockData['icons'] ?? [];
+        // Handle new format where properties are inside content object
+        $content = $blockData['content'] ?? $blockData;
+        if (is_array($content) && isset($content['links'])) {
+            $icons = $content['links'] ?? [];
+        } else {
+            $icons = $blockData['icons'] ?? $blockData['links'] ?? [];
+        }
         $iconSize = $blockData['iconSize'] ?? '32px';
         $textAlign = $blockData['align'] ?? 'center';
         $padding = $blockData['padding'] ?? '16px';
