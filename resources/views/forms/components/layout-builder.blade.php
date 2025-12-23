@@ -1344,14 +1344,10 @@ window.layoutBuilderComponent = function(options) {
     });
 
     // Phase 2: Canvas drop zone functionality with smart block ordering
-    console.log('DEBUG: Canvas element for', statePath, ':', canvas);
-    console.log('DEBUG: Canvas ID searched:', 'layout-builder-canvas-' + statePath);
     if (canvas) {
-        console.log('DEBUG: Attaching drop events to canvas for', statePath);
         let dropIndicator = null;
 
         canvas.addEventListener('dragover', function(e) {
-            console.log('DEBUG: dragover event fired on canvas');
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             canvas.classList.add('drag-over-canvas');
@@ -5612,13 +5608,8 @@ window.layoutBuilderComponent = function(options) {
     const saveLayoutToHiddenInput = () => {
         const layoutData = serializeLayout();
 
-        console.log('🔍 DEBUG: Saving layout data via Alpine state');
-        console.log('📊 Data size:', JSON.stringify(layoutData).length + ' characters');
-        console.log('🔍 DEBUG: Layout data preview:', JSON.stringify(layoutData).substring(0, 200) + '...');
-
         // Update Alpine state directly - this automatically syncs with Livewire
         this.state = JSON.stringify(layoutData);
-        console.log('✅ Layout saved to Alpine state (auto-syncs with Filament)');
     };
 
     function loadLayoutFromData(layoutData) {
