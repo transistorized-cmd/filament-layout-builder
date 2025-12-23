@@ -1746,8 +1746,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating text block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -1877,8 +1877,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating image block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -1973,8 +1973,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating button block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -2065,8 +2065,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating divider block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -2162,8 +2162,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating video block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -2298,8 +2298,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating social block #', blockCounter);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -2503,8 +2503,8 @@ window.layoutBuilderComponent = function(options) {
         blockCounter++;
         console.log('Creating columns block #', blockCounter, 'type:', columnType);
 
-        // Hide placeholder if visible
-        const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+        // Hide placeholder if visible (use canvas-scoped selector for multi-instance support)
+        const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
         if (canvasPlaceholder) {
             canvasPlaceholder.style.display = 'none';
         }
@@ -5805,12 +5805,25 @@ window.layoutBuilderComponent = function(options) {
     };
 
     function loadLayoutFromData(layoutData) {
-        console.log('🔄 Loading layout from data...', layoutData);
+        console.log('🔄 Loading layout from data for statePath:', statePath);
+        console.log('📦 Layout data:', JSON.stringify(layoutData, null, 2));
+        console.log('📍 Canvas element:', canvas);
+        console.log('📍 Canvas ID:', canvas?.id);
+
+        if (!canvas) {
+            console.error('❌ Canvas element not found for statePath:', statePath);
+            return false;
+        }
 
         if (!layoutData || !layoutData.blocks) {
             console.warn('❌ No valid layout data to load');
             return false;
         }
+
+        console.log('📊 Number of blocks to load:', layoutData.blocks.length);
+        layoutData.blocks.forEach((b, i) => {
+            console.log(`   Block ${i + 1}: type=${b.type}, id=${b.id}`);
+        });
 
         // Clear existing canvas
         clearCanvas();
@@ -5849,10 +5862,12 @@ window.layoutBuilderComponent = function(options) {
 
         // Hide placeholder if we have content
         if (layoutData.blocks && layoutData.blocks.length > 0) {
-            const canvasPlaceholder = document.querySelector('.layout-builder-canvas-placeholder');
+            // IMPORTANT: Use canvas-scoped selector, not document.querySelector
+            // This prevents hiding wrong placeholder when multiple layout builders exist
+            const canvasPlaceholder = canvas.querySelector('.layout-builder-canvas-placeholder');
             if (canvasPlaceholder) {
                 canvasPlaceholder.style.display = 'none';
-                console.log('✅ Hidden canvas placeholder (content loaded)');
+                console.log('✅ Hidden canvas placeholder for statePath:', statePath);
             }
         }
 
@@ -5950,23 +5965,31 @@ window.layoutBuilderComponent = function(options) {
     }
 
     function createBlockFromData(blockData) {
-        console.log(`Creating ${blockData.type} block from data:`, blockData);
+        console.log(`🔧 Creating ${blockData.type} block from data:`, blockData);
 
         let block;
 
         switch (blockData.type) {
             case 'text':
+                console.log('   📝 Creating text block element...');
                 block = createTextBlockElement();
+                console.log('   📝 Text block element created:', block);
+
                 // Restore text content - handle both old and new formats
                 const textContent = block.querySelector('.text-block-content');
+                console.log('   📝 Text content element found:', textContent);
+
                 if (textContent) {
                     if (blockData.content && typeof blockData.content === 'object' && blockData.content.html) {
                         // New format: content is an object
+                        console.log('   📝 Setting HTML from new format:', blockData.content.html?.substring(0, 100));
                         textContent.innerHTML = blockData.content.html;
                     } else if (blockData.content) {
                         // Old format: content is a string
+                        console.log('   📝 Setting HTML from old format:', String(blockData.content).substring(0, 100));
                         textContent.innerHTML = blockData.content;
                     }
+                    console.log('   📝 Final innerHTML:', textContent.innerHTML?.substring(0, 100));
                 }
                 // Restore text properties - handle both formats
                 const textProps = blockData.content && typeof blockData.content === 'object' ? blockData.content : blockData;
@@ -6017,9 +6040,41 @@ window.layoutBuilderComponent = function(options) {
                 block.dataset.width = savedWidth;
                 block.dataset.align = savedAlignment;
 
-                // Apply block container width and positioning based on alignment
-                // Note: position.width and position.left from blockData.position will override in the position restoration step below
-                // So we only set alignment data here for the properties panel to read
+                // Apply the saved width and alignment visually
+                console.log('   🖼️ Applying image properties: width=' + savedWidth + ', alignment=' + savedAlignment);
+
+                // Calculate block width and position based on saved properties
+                const canvasWidth = canvas ? canvas.offsetWidth : 600;
+                let blockWidth, blockLeft;
+
+                if (savedWidth.includes('%')) {
+                    const widthPercent = parseInt(savedWidth) / 100;
+                    blockWidth = Math.floor(canvasWidth * widthPercent);
+                } else if (savedWidth.includes('px')) {
+                    blockWidth = parseInt(savedWidth);
+                } else {
+                    blockWidth = canvasWidth - 20; // Default full width with margins
+                }
+
+                // Calculate left position based on alignment
+                switch (savedAlignment) {
+                    case 'left':
+                        blockLeft = 10;
+                        break;
+                    case 'right':
+                        blockLeft = canvasWidth - blockWidth - 10;
+                        break;
+                    case 'center':
+                    default:
+                        blockLeft = Math.floor((canvasWidth - blockWidth) / 2);
+                        break;
+                }
+
+                // Apply the calculated dimensions
+                block.style.width = blockWidth + 'px';
+                block.style.left = blockLeft + 'px';
+
+                console.log('   🖼️ Applied: blockWidth=' + blockWidth + 'px, blockLeft=' + blockLeft + 'px');
 
                 if (imgProps.url) {
                     // Add link wrapper if URL provided
@@ -6096,8 +6151,14 @@ window.layoutBuilderComponent = function(options) {
             console.log(`🔧 Applying position to ${blockData.type} block:`, blockData.position);
             block.style.position = blockData.position.position || 'absolute';
             block.style.top = blockData.position.top + 'px';
-            block.style.left = blockData.position.left + 'px';
-            block.style.width = blockData.position.width || '100%';
+
+            // For image blocks, we already calculated width/left from content properties (width, alignment)
+            // Don't override those calculations with the position data
+            if (blockData.type !== 'image') {
+                block.style.left = blockData.position.left + 'px';
+                block.style.width = blockData.position.width || '100%';
+            }
+
             if (blockData.position.height !== 'auto') {
                 block.style.height = blockData.position.height;
             }
@@ -6153,11 +6214,8 @@ window.layoutBuilderComponent = function(options) {
         if (bgColorText) bgColorText.value = backgroundState.color;
     }
 
-    function clearCanvas() {
-        const blocks = Array.from(canvas.querySelectorAll('.email-block'));
-        blocks.forEach(block => block.remove());
-        updateCanvasHeight();
-    }
+    // NOTE: clearCanvas() is defined earlier in the file around line 4661
+    // with full placeholder handling. Do not duplicate it here.
 
     // Auto-save functionality
     let saveTimeout;
@@ -6212,26 +6270,8 @@ window.layoutBuilderComponent = function(options) {
         return result;
     };
 
-    // Load initial data if present
-    function loadInitialData() {
-        const hiddenInput = document.querySelector(`input[name="${statePath}"]`);
-
-        if (hiddenInput && hiddenInput.value.trim()) {
-            try {
-                const layoutData = JSON.parse(hiddenInput.value);
-                console.log('📁 Loading saved template data...');
-                loadLayoutFromData(layoutData);
-            } catch (error) {
-                console.warn('⚠️ Failed to parse saved template data:', error);
-                console.log('Raw data preview:', hiddenInput.value.substring(0, 200));
-            }
-        } else {
-            console.log('ℹ️ Starting with empty template');
-        }
-    }
-
-    // Load initial data after a short delay to ensure DOM is ready
-    setTimeout(loadInitialData, 500);
+    // NOTE: loadInitialData removed - we now load from this.state in Alpine component
+    // The old hidden input approach was redundant and caused "Starting with empty template" logs
 
     // Manual save function (can be called externally)
     window.saveEmailLayout = function() {
@@ -6243,20 +6283,35 @@ window.layoutBuilderComponent = function(options) {
         return loadLayoutFromData(data);
     };
 
-    console.log('💾 Save/Load system initialized');
+    console.log('💾 Save/Load system initialized for statePath:', statePath);
 
     // Load existing data on initialization
-    if (this.state && typeof this.state === 'string') {
+    console.log('🔍 Checking for existing state to load...');
+    console.log('   this.state:', this.state);
+    console.log('   typeof this.state:', typeof this.state);
+    console.log('   this.state length:', this.state?.length);
+
+    if (this.state && typeof this.state === 'string' && this.state.length > 2) {
         try {
+            console.log('🔍 Attempting to parse state...');
             const data = JSON.parse(this.state);
+            console.log('🔍 Parsed data:', data);
+            console.log('🔍 Has blocks:', !!data?.blocks);
+            console.log('🔍 Blocks count:', data?.blocks?.length || 0);
+
             if (data && (data.blocks || data.version)) {
+                console.log('📥 Loading layout data...');
                 loadLayoutFromData(data);
                 console.log('✅ Loaded existing layout data');
+            } else {
+                console.log('⚠️ Data exists but no blocks or version found');
             }
         } catch (e) {
-            console.warn('Could not parse existing state:', e);
-            console.log('State content:', this.state);
+            console.warn('❌ Could not parse existing state:', e);
+            console.log('State content preview:', this.state?.substring(0, 200));
         }
+    } else {
+        console.log('ℹ️ No existing state to load (empty or invalid)');
     }
 
     // Make save function available globally for auto-save hooks
@@ -6271,9 +6326,25 @@ window.layoutBuilderComponent = function(options) {
     window.layoutBuilderInstances[statePath] = {
         save: () => {
             console.log('💾 Instance save triggered for:', statePath);
+            console.log('📍 Canvas element:', canvas);
+            console.log('📍 Canvas ID:', canvas?.id);
+
+            const blocksInCanvas = canvas?.querySelectorAll('.email-block');
+            console.log('📍 Blocks found in canvas:', blocksInCanvas?.length);
+
+            if (blocksInCanvas) {
+                blocksInCanvas.forEach((block, i) => {
+                    console.log(`  Block ${i}:`, block.dataset.blockType, block.dataset.blockId);
+                });
+            }
+
             const layoutData = serializeLayout();
             const jsonString = JSON.stringify(layoutData);
-            console.log('📊 Serialized:', { blockCount: layoutData?.blocks?.length || 0 });
+
+            console.log('📊 Serialized for', statePath, ':', {
+                blockCount: layoutData?.blocks?.length || 0,
+                blocks: layoutData?.blocks?.map(b => ({ type: b.type, id: b.id }))
+            });
 
             // Update Alpine state
             componentRef.state = jsonString;
@@ -6281,20 +6352,35 @@ window.layoutBuilderComponent = function(options) {
             // Also sync to Livewire directly
             if (componentRef.$wire) {
                 componentRef.$wire.set(statePath, jsonString);
-                console.log('✅ Synced to Livewire');
+                console.log('✅ Synced to Livewire for', statePath);
             }
         },
         getState: () => componentRef.state,
-        component: componentRef
+        component: componentRef,
+        canvas: canvas
     };
     console.log('📝 Registered layout builder instance:', statePath);
 
-    // Add form submission hook to sync ALL layout builders before submit
-    const form = document.querySelector('form');
-    if (form && !form.hasAttribute('data-layout-builder-hooked')) {
-        form.setAttribute('data-layout-builder-hooked', 'true');
-        form.addEventListener('submit', function(e) {
-            console.log('📝 Form submitting - syncing all layout builders...');
+    // Add Livewire hooks to sync ALL layout builders before any request
+    if (!window.layoutBuilderLivewireHooked) {
+        window.layoutBuilderLivewireHooked = true;
+
+        // Hook into Livewire's commit cycle
+        document.addEventListener('livewire:commit', function(e) {
+            console.log('📝 Livewire commit - syncing all layout builders...');
+            syncAllLayoutBuilders();
+        });
+
+        // Also hook into form submit as backup
+        document.addEventListener('submit', function(e) {
+            if (e.target.tagName === 'FORM') {
+                console.log('📝 Form submit event - syncing all layout builders...');
+                syncAllLayoutBuilders();
+            }
+        }, true);
+
+        // Sync function
+        window.syncAllLayoutBuilders = function() {
             if (window.layoutBuilderInstances) {
                 Object.keys(window.layoutBuilderInstances).forEach(path => {
                     const instance = window.layoutBuilderInstances[path];
@@ -6308,8 +6394,9 @@ window.layoutBuilderComponent = function(options) {
                     }
                 });
             }
-        }, true); // Use capture phase to run before form submission
-        console.log('✅ Form submission hook installed for layout builders');
+        };
+
+        console.log('✅ Livewire hooks installed for layout builders');
     }
         },
 
@@ -8042,9 +8129,9 @@ window.layoutBuilderComponent = function(options) {
     color: #374151;
 }
 
-/* Editor dark mode - Higher specificity */
+/* Editor dark mode - text blocks inherit canvas background */
 .dark .email-block.text-block {
-    background: transparent !important; /* Transparent background */
+    background: transparent;
 }
 
 /* Responsive design for properties panel */
