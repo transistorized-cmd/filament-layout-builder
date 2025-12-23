@@ -1642,76 +1642,100 @@ window.layoutBuilderComponent = function(options) {
         }, 50); // Small delay to ensure DOM updates
     }
 
-    // Reposition all blocks after deletion to eliminate gaps
+    // Reposition all blocks to stack vertically without gaps
     function repositionAllBlocks() {
         if (!canvas) return;
 
         // Force layout reflow to ensure dimensions are current
         void canvas.offsetHeight;
 
-        // Use requestAnimationFrame for better timing with browser rendering
-        requestAnimationFrame(() => {
-            // Double requestAnimationFrame for more reliable DOM updates
-            requestAnimationFrame(() => {
-                const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+        const blocks = Array.from(canvas.querySelectorAll('.email-block'));
 
-                if (blocks.length === 0) {
-                    updateCanvasHeight();
-                    return;
-                }
+        if (blocks.length === 0) {
+            updateCanvasHeight();
+            return;
+        }
 
-                // Sort blocks by their current top position to maintain order
-                blocks.sort((a, b) => {
-                    const aTop = parseInt(a.style.top) || 0;
-                    const bTop = parseInt(b.style.top) || 0;
-                    return aTop - bTop;
-                });
-
-                let currentTop = 20; // Start with initial padding from top
-
-                blocks.forEach((block, index) => {
-                    // Position block at current top position
-                    block.style.top = currentTop + 'px';
-
-                    // Force reflow for this specific block to get accurate height
-                    void block.offsetHeight;
-
-                    // Get the accurate block height using getBoundingClientRect
-                    const rect = block.getBoundingClientRect();
-                    let blockHeight = rect.height;
-
-                    // For image blocks, also check the image dimensions
-                    if (block.classList.contains('image-block')) {
-                        const img = block.querySelector('img');
-                        if (img && img.naturalHeight > 0) {
-                            // Image has loaded, use actual rendered height
-                            const imgRect = img.getBoundingClientRect();
-                            blockHeight = Math.max(blockHeight, imgRect.height);
-                        }
-                    }
-
-                    // Ensure minimum height for empty/loading blocks
-                    blockHeight = Math.max(blockHeight, 50);
-
-                    currentTop += blockHeight + 20; // 20px gap between blocks
-
-                    console.log(`Repositioned block ${block.dataset.blockId}: top=${block.style.top}, height=${blockHeight}px`);
-                });
-
-                // Update canvas height after repositioning
-                updateCanvasHeight();
-
-                console.log('All blocks repositioned');
-            });
+        // Sort blocks by their current top position to maintain order
+        blocks.sort((a, b) => {
+            const aTop = parseInt(a.style.top) || 0;
+            const bTop = parseInt(b.style.top) || 0;
+            return aTop - bTop;
         });
+
+        let currentTop = 20; // Start with initial padding from top
+
+        blocks.forEach((block, index) => {
+            // Force reflow for this specific block to get accurate height BEFORE setting top
+            void block.offsetHeight;
+
+            // Get the accurate block height using getBoundingClientRect
+            const rect = block.getBoundingClientRect();
+            let blockHeight = rect.height;
+
+            // For image blocks, also check the image dimensions
+            if (block.classList.contains('image-block')) {
+                const img = block.querySelector('img');
+                if (img && img.naturalHeight > 0) {
+                    // Image has loaded, use actual rendered height
+                    const imgRect = img.getBoundingClientRect();
+                    blockHeight = Math.max(blockHeight, imgRect.height);
+                }
+                // If image hasn't loaded yet, use a reasonable minimum
+                if (blockHeight < 20) {
+                    blockHeight = 50;
+                }
+            }
+
+            // Ensure minimum height for empty/loading blocks
+            blockHeight = Math.max(blockHeight, 40);
+
+            // Position block at current top position
+            block.style.top = currentTop + 'px';
+
+            currentTop += blockHeight + 20; // 20px gap between blocks
+
+            console.log(`Repositioned block ${block.dataset.blockId}: top=${block.style.top}, height=${blockHeight}px`);
+        });
+
+        // Update canvas height after repositioning
+        updateCanvasHeight();
+
+        console.log('All blocks repositioned');
     }
 
-    // Periodic height check to ensure canvas stays in sync with content
+    // Periodic check to ensure blocks stay properly positioned and canvas height is correct
     setInterval(() => {
         if (canvas && canvas.querySelectorAll('.email-block').length > 0) {
+            // Check if any blocks are overlapping and reposition if needed
+            const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+            // Sort by top position
+            blocks.sort((a, b) => (parseInt(a.style.top) || 0) - (parseInt(b.style.top) || 0));
+
+            let needsReposition = false;
+
+            for (let i = 0; i < blocks.length - 1; i++) {
+                const currentBlock = blocks[i];
+                const nextBlock = blocks[i + 1];
+                const currentBottom = (parseInt(currentBlock.style.top) || 0) + currentBlock.offsetHeight;
+                const nextTop = parseInt(nextBlock.style.top) || 0;
+
+                // If blocks are overlapping or too close, reposition
+                if (nextTop < currentBottom + 10) {
+                    needsReposition = true;
+                    break;
+                }
+            }
+
+            if (needsReposition) {
+                console.log('⚠️ Detected block overlap, repositioning...');
+                repositionAllBlocks();
+            }
+
             updateCanvasHeight();
         }
-    }, 2000); // Check every 2 seconds
+    }, 1000); // Check every second
 
     // Also update on window resize
     window.addEventListener('resize', () => {
@@ -1765,17 +1789,21 @@ window.layoutBuilderComponent = function(options) {
             textBlock.style.removeProperty('height');
 
             // Force reflow to get accurate measurements
-            setTimeout(() => {
-                const contentHeight = textContent.offsetHeight;
-                const fullHeight = contentHeight + 32; // padding
+            const contentHeight = textContent.offsetHeight;
+            const fullHeight = contentHeight + 32; // padding
 
-                // Use setProperty with important to force height
-                textBlock.style.setProperty('height', fullHeight + 'px', 'important');
-                textBlock.style.setProperty('min-height', fullHeight + 'px', 'important');
+            // Use setProperty with important to force height
+            textBlock.style.setProperty('height', fullHeight + 'px', 'important');
+            textBlock.style.setProperty('min-height', fullHeight + 'px', 'important');
 
-                // Reposition all blocks below this one to account for height change
+            // Force reflow to ensure height is applied
+            void textBlock.offsetHeight;
+
+            // Reposition all blocks after a delay to ensure DOM is updated
+            clearTimeout(textBlock.repositionTimeout);
+            textBlock.repositionTimeout = setTimeout(() => {
                 repositionAllBlocks();
-            }, 10);
+            }, 50);
         }
 
         textContent.addEventListener('input', autoResize);
