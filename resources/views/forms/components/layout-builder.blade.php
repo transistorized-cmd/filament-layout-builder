@@ -5784,10 +5784,24 @@ window.layoutBuilderComponent = function(options) {
 
     // Update the save function to use Alpine state
     const saveLayoutToHiddenInput = () => {
+        console.log('💾 saveLayoutToHiddenInput called for:', statePath);
         const layoutData = serializeLayout();
+        const jsonString = JSON.stringify(layoutData);
+
+        console.log('📊 Serialized layout:', {
+            statePath,
+            blockCount: layoutData?.blocks?.length || 0,
+            dataLength: jsonString.length
+        });
 
         // Update Alpine state directly - this automatically syncs with Livewire
-        this.state = JSON.stringify(layoutData);
+        this.state = jsonString;
+
+        // Also dispatch a Livewire event to ensure state is synced
+        if (this.$wire) {
+            this.$wire.set(statePath, jsonString);
+            console.log('✅ State synced to Livewire via $wire.set');
+        }
     };
 
     function loadLayoutFromData(layoutData) {
@@ -6247,12 +6261,66 @@ window.layoutBuilderComponent = function(options) {
 
     // Make save function available globally for auto-save hooks
     window.layoutBuilderSave = saveLayoutToHiddenInput;
+
+    // Register this instance's save function globally (for multi-instance support)
+    // Store reference to 'this' (Alpine component) for later use
+    const componentRef = this;
+    if (!window.layoutBuilderInstances) {
+        window.layoutBuilderInstances = {};
+    }
+    window.layoutBuilderInstances[statePath] = {
+        save: () => {
+            console.log('💾 Instance save triggered for:', statePath);
+            const layoutData = serializeLayout();
+            const jsonString = JSON.stringify(layoutData);
+            console.log('📊 Serialized:', { blockCount: layoutData?.blocks?.length || 0 });
+
+            // Update Alpine state
+            componentRef.state = jsonString;
+
+            // Also sync to Livewire directly
+            if (componentRef.$wire) {
+                componentRef.$wire.set(statePath, jsonString);
+                console.log('✅ Synced to Livewire');
+            }
+        },
+        getState: () => componentRef.state,
+        component: componentRef
+    };
+    console.log('📝 Registered layout builder instance:', statePath);
+
+    // Add form submission hook to sync ALL layout builders before submit
+    const form = document.querySelector('form');
+    if (form && !form.hasAttribute('data-layout-builder-hooked')) {
+        form.setAttribute('data-layout-builder-hooked', 'true');
+        form.addEventListener('submit', function(e) {
+            console.log('📝 Form submitting - syncing all layout builders...');
+            if (window.layoutBuilderInstances) {
+                Object.keys(window.layoutBuilderInstances).forEach(path => {
+                    const instance = window.layoutBuilderInstances[path];
+                    if (instance && typeof instance.save === 'function') {
+                        console.log('💾 Syncing layout builder:', path);
+                        try {
+                            instance.save();
+                        } catch (err) {
+                            console.error('Error syncing layout builder:', path, err);
+                        }
+                    }
+                });
+            }
+        }, true); // Use capture phase to run before form submission
+        console.log('✅ Form submission hook installed for layout builders');
+    }
         },
 
         // Cleanup method for Alpine
         destroy() {
             if (window.layoutBuilderSave) {
                 delete window.layoutBuilderSave;
+            }
+            // Clean up this instance
+            if (window.layoutBuilderInstances && window.layoutBuilderInstances[this.statePath]) {
+                delete window.layoutBuilderInstances[this.statePath];
             }
         }
     };
