@@ -3213,10 +3213,19 @@ window.layoutBuilderComponent = function(options) {
 
         // Load current values into form
         if (img && widthInput) {
+            let currentWidth;
             if (isColumnContent) {
-                widthInput.value = img.style.maxWidth || '100%';
+                currentWidth = img.style.maxWidth || '100%';
             } else {
-                widthInput.value = img.style.width || '100%';
+                currentWidth = block.dataset.width || img.style.width || '100%';
+            }
+            widthInput.value = currentWidth;
+
+            // Set display mode based on width (inline-block for alignment, block for full width)
+            if (currentWidth !== '100%') {
+                img.style.display = 'inline-block';
+            } else {
+                img.style.display = 'block';
             }
         }
         if (img && titleInput) titleInput.value = img.alt || '';
@@ -3281,9 +3290,28 @@ window.layoutBuilderComponent = function(options) {
         // Width control
         if (widthInput) {
             widthInput.addEventListener('input', function() {
-                const width = this.value.trim();
+                const width = this.value.trim() || '100%';
                 if (img) {
-                    img.style.width = width || '100%';
+                    img.style.width = width;
+                    // When width is not 100%, use inline-block so text-align works for alignment
+                    // When width is 100%, use block for full-width display
+                    if (width === '100%') {
+                        img.style.display = 'block';
+                        img.style.margin = '0';
+                    } else {
+                        img.style.display = 'inline-block';
+                        // Apply centering based on current alignment
+                        const currentAlign = block.dataset.align || 'center';
+                        if (currentAlign === 'center') {
+                            imageWrapper.style.textAlign = 'center';
+                        } else if (currentAlign === 'right') {
+                            imageWrapper.style.textAlign = 'right';
+                        } else {
+                            imageWrapper.style.textAlign = 'left';
+                        }
+                    }
+                    // Store width in dataset for saving
+                    block.dataset.width = width;
                     // Update canvas height in case image size changed
                     setTimeout(updateCanvasHeight, 100);
                 }
@@ -3348,6 +3376,12 @@ window.layoutBuilderComponent = function(options) {
                     // Apply alignment
                     if (imageWrapper) {
                         imageWrapper.style.textAlign = newAlign;
+                    }
+
+                    // Ensure image is inline-block if not 100% width (so text-align works)
+                    const currentWidth = img?.style.width || block.dataset.width || '100%';
+                    if (img && currentWidth !== '100%') {
+                        img.style.display = 'inline-block';
                     }
 
                     console.log('Image alignment updated to:', newAlign);
@@ -5483,10 +5517,10 @@ window.layoutBuilderComponent = function(options) {
                     blockData.content = {
                         src: img ? img.src : '',
                         alt: img ? img.alt : '',
-                        width: block.dataset.width || '100%',
+                        width: block.dataset.width || img?.style.width || '100%',
                         title: img ? img.title : '',
                         url: imageLink ? imageLink.href : '',
-                        alignment: block.dataset.alignment || 'center'
+                        alignment: block.dataset.align || block.dataset.alignment || 'center'
                     };
                     break;
 
@@ -6973,10 +7007,10 @@ window.layoutBuilderComponent = function(options) {
 }
 
 .image-wrapper img {
-    width: 100%;
     height: auto;
-    display: block;
     border-radius: 4px;
+    max-width: 100%;
+    /* display and width controlled by JavaScript for alignment support */
 }
 
 .image-wrapper a {
