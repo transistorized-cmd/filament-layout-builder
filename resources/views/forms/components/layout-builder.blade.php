@@ -1646,40 +1646,64 @@ window.layoutBuilderComponent = function(options) {
     function repositionAllBlocks() {
         if (!canvas) return;
 
-        // Use setTimeout to ensure DOM has updated after deletion
-        setTimeout(() => {
-            const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+        // Force layout reflow to ensure dimensions are current
+        void canvas.offsetHeight;
 
-            if (blocks.length === 0) {
+        // Use requestAnimationFrame for better timing with browser rendering
+        requestAnimationFrame(() => {
+            // Double requestAnimationFrame for more reliable DOM updates
+            requestAnimationFrame(() => {
+                const blocks = Array.from(canvas.querySelectorAll('.email-block'));
+
+                if (blocks.length === 0) {
+                    updateCanvasHeight();
+                    return;
+                }
+
+                // Sort blocks by their current top position to maintain order
+                blocks.sort((a, b) => {
+                    const aTop = parseInt(a.style.top) || 0;
+                    const bTop = parseInt(b.style.top) || 0;
+                    return aTop - bTop;
+                });
+
+                let currentTop = 20; // Start with initial padding from top
+
+                blocks.forEach((block, index) => {
+                    // Position block at current top position
+                    block.style.top = currentTop + 'px';
+
+                    // Force reflow for this specific block to get accurate height
+                    void block.offsetHeight;
+
+                    // Get the accurate block height using getBoundingClientRect
+                    const rect = block.getBoundingClientRect();
+                    let blockHeight = rect.height;
+
+                    // For image blocks, also check the image dimensions
+                    if (block.classList.contains('image-block')) {
+                        const img = block.querySelector('img');
+                        if (img && img.naturalHeight > 0) {
+                            // Image has loaded, use actual rendered height
+                            const imgRect = img.getBoundingClientRect();
+                            blockHeight = Math.max(blockHeight, imgRect.height);
+                        }
+                    }
+
+                    // Ensure minimum height for empty/loading blocks
+                    blockHeight = Math.max(blockHeight, 50);
+
+                    currentTop += blockHeight + 20; // 20px gap between blocks
+
+                    console.log(`Repositioned block ${block.dataset.blockId}: top=${block.style.top}, height=${blockHeight}px`);
+                });
+
+                // Update canvas height after repositioning
                 updateCanvasHeight();
-                return;
-            }
 
-            // Sort blocks by their current top position to maintain order
-            blocks.sort((a, b) => {
-                const aTop = parseInt(a.style.top) || 0;
-                const bTop = parseInt(b.style.top) || 0;
-                return aTop - bTop;
+                console.log('All blocks repositioned');
             });
-
-            let currentTop = 20; // Start with initial padding from top
-
-            blocks.forEach((block, index) => {
-                // Position block at current top position
-                block.style.top = currentTop + 'px';
-
-                // Calculate next position based on this block's height
-                const blockHeight = block.offsetHeight || block.getBoundingClientRect().height;
-                currentTop += blockHeight + 20; // 20px gap between blocks
-
-                console.log(`Repositioned block ${block.dataset.blockId}: top=${block.style.top}, height=${blockHeight}px`);
-            });
-
-            // Update canvas height after repositioning
-            updateCanvasHeight();
-
-            console.log('All blocks repositioned after deletion');
-        }, 100); // Slightly longer delay to ensure deletion is complete
+        });
     }
 
     // Periodic height check to ensure canvas stays in sync with content
@@ -1858,6 +1882,8 @@ window.layoutBuilderComponent = function(options) {
         imageBlock.style.position = 'absolute';
         imageBlock.style.left = '10px'; // Close to left edge
         imageBlock.style.top = insertPosition.y + 'px';
+        imageBlock.style.width = 'calc(100% - 20px)'; // Default full width with padding
+        imageBlock.dataset.width = '100%'; // Track width in dataset
 
         // After insertion, reorder all blocks if necessary
         if (insertPosition.insertAfter || insertPosition.insertBefore) {
@@ -3225,19 +3251,15 @@ window.layoutBuilderComponent = function(options) {
             if (!isColumnContent && currentWidth !== '100%') {
                 const currentAlign = block.dataset.align || 'center';
                 block.style.width = currentWidth;
+                block.style.transform = 'none';
+                block.style.right = 'auto';
 
                 if (currentAlign === 'center') {
-                    block.style.left = '50%';
-                    block.style.right = 'auto';
-                    block.style.transform = 'translateX(-50%)';
+                    block.style.left = `calc(50% - ${parseFloat(currentWidth) / 2}%)`;
                 } else if (currentAlign === 'right') {
-                    block.style.left = 'auto';
-                    block.style.right = '10px';
-                    block.style.transform = 'none';
+                    block.style.left = `calc(100% - ${currentWidth} - 10px)`;
                 } else {
                     block.style.left = '10px';
-                    block.style.right = 'auto';
-                    block.style.transform = 'none';
                 }
             }
         }
@@ -3295,6 +3317,12 @@ window.layoutBuilderComponent = function(options) {
                     if (imagePreviewImg) imagePreviewImg.src = base64;
 
                     console.log('Image updated with base64 data');
+
+                    // Trigger auto-save after image upload
+                    if (window.layoutBuilderSave) {
+                        console.log('💾 Auto-saving after image upload');
+                        window.layoutBuilderSave();
+                    }
                 };
                 reader.readAsDataURL(file);
             };
@@ -3309,6 +3337,10 @@ window.layoutBuilderComponent = function(options) {
                     img.style.width = '100%';
                     img.style.display = 'block';
 
+                    // Reset any transform that might interfere with positioning
+                    block.style.transform = 'none';
+                    block.style.right = 'auto';
+
                     // Resize the block container itself based on the width value
                     if (width === '100%') {
                         // Full width - use calc to account for canvas padding
@@ -3318,33 +3350,42 @@ window.layoutBuilderComponent = function(options) {
                         // Set block width to the specified value
                         block.style.width = width;
 
-                        // Position based on alignment
+                        // Position based on alignment using left positioning only
                         const currentAlign = block.dataset.align || 'center';
-                        const canvasWidth = canvas.offsetWidth;
 
                         if (currentAlign === 'center') {
-                            // Center the block
-                            block.style.left = '50%';
-                            block.style.transform = 'translateX(-50%)';
+                            // Center using calc
+                            block.style.left = `calc(50% - ${parseFloat(width) / 2}%)`;
                         } else if (currentAlign === 'right') {
-                            // Align right
-                            block.style.left = 'auto';
-                            block.style.right = '10px';
-                            block.style.transform = 'none';
+                            // Align right using calc
+                            block.style.left = `calc(100% - ${width} - 10px)`;
                         } else {
                             // Align left (default)
                             block.style.left = '10px';
-                            block.style.right = 'auto';
-                            block.style.transform = 'none';
                         }
                     }
 
                     // Store width in dataset for saving
                     block.dataset.width = width;
-                    // Update canvas height in case image size changed
-                    setTimeout(updateCanvasHeight, 100);
-                    // Reposition blocks after width change
-                    setTimeout(repositionAllBlocks, 150);
+
+                    // Force reflow to ensure browser has applied width change
+                    void block.offsetHeight;
+
+                    // Update canvas height and reposition blocks
+                    // Use longer delay to allow image to recalculate dimensions after width change
+                    setTimeout(() => {
+                        updateCanvasHeight();
+                        repositionAllBlocks();
+                    }, 200);
+
+                    // Trigger auto-save
+                    if (window.layoutBuilderSave) {
+                        clearTimeout(widthInput.saveTimeout);
+                        widthInput.saveTimeout = setTimeout(() => {
+                            console.log('💾 Auto-saving image width change');
+                            window.layoutBuilderSave();
+                        }, 500);
+                    }
                 }
                 console.log('Image width updated to:', width);
             });
@@ -3358,6 +3399,15 @@ window.layoutBuilderComponent = function(options) {
                     img.title = this.value;
                 }
                 console.log('Image alt text updated to:', this.value);
+
+                // Debounced auto-save
+                if (window.layoutBuilderSave) {
+                    clearTimeout(titleInput.saveTimeout);
+                    titleInput.saveTimeout = setTimeout(() => {
+                        console.log('💾 Auto-saving image alt text change');
+                        window.layoutBuilderSave();
+                    }, 500);
+                }
             });
         }
 
@@ -3389,6 +3439,15 @@ window.layoutBuilderComponent = function(options) {
                 }
 
                 console.log('Image link updated to:', url || 'none');
+
+                // Debounced auto-save
+                if (window.layoutBuilderSave) {
+                    clearTimeout(urlInput.saveTimeout);
+                    urlInput.saveTimeout = setTimeout(() => {
+                        console.log('💾 Auto-saving image link change');
+                        window.layoutBuilderSave();
+                    }, 500);
+                }
             });
         }
 
@@ -3407,22 +3466,26 @@ window.layoutBuilderComponent = function(options) {
                     // Apply block-level positioning based on alignment
                     const currentWidth = block.dataset.width || '100%';
 
+                    // Reset transform and right positioning
+                    block.style.transform = 'none';
+                    block.style.right = 'auto';
+
                     if (currentWidth !== '100%') {
                         // Only apply positioning for non-100% widths
                         if (newAlign === 'center') {
-                            block.style.left = '50%';
-                            block.style.right = 'auto';
-                            block.style.transform = 'translateX(-50%)';
+                            block.style.left = `calc(50% - ${parseFloat(currentWidth) / 2}%)`;
                         } else if (newAlign === 'right') {
-                            block.style.left = 'auto';
-                            block.style.right = '10px';
-                            block.style.transform = 'none';
+                            block.style.left = `calc(100% - ${currentWidth} - 10px)`;
                         } else {
                             // left alignment
                             block.style.left = '10px';
-                            block.style.right = 'auto';
-                            block.style.transform = 'none';
                         }
+                    }
+
+                    // Trigger auto-save
+                    if (window.layoutBuilderSave) {
+                        console.log('💾 Auto-saving image alignment change');
+                        window.layoutBuilderSave();
                     }
 
                     console.log('Image alignment updated to:', newAlign);
@@ -5887,26 +5950,22 @@ window.layoutBuilderComponent = function(options) {
                         img.alt = blockData.alt || '';
                         img.title = blockData.title || '';
                     }
+                    // Image should always be 100% of its container
+                    img.style.width = '100%';
+                    img.style.height = 'auto';
+                    img.style.display = 'block';
                 }
                 // Restore image properties - handle both formats
                 const imgProps = blockData.content && typeof blockData.content === 'object' ? blockData.content : blockData;
-                if (imgProps.width) block.dataset.width = imgProps.width;
-                if (imgProps.alignment || imgProps.align) block.dataset.alignment = imgProps.alignment || imgProps.align;
+                const savedWidth = imgProps.width || '100%';
+                const savedAlignment = imgProps.alignment || imgProps.align || 'center';
 
-                // Apply image styles
-                if (img && imgProps.width) {
-                    img.style.width = imgProps.width;
-                    img.style.height = 'auto'; // Maintain aspect ratio
-                }
+                block.dataset.width = savedWidth;
+                block.dataset.align = savedAlignment;
 
-                // Apply alignment
-                const alignment = imgProps.alignment || imgProps.align;
-                if (alignment) {
-                    const imageWrapper = block.querySelector('.image-wrapper');
-                    if (imageWrapper) {
-                        imageWrapper.style.textAlign = alignment;
-                    }
-                }
+                // Apply block container width and positioning based on alignment
+                // Note: position.width and position.left from blockData.position will override in the position restoration step below
+                // So we only set alignment data here for the properties panel to read
 
                 if (imgProps.url) {
                     // Add link wrapper if URL provided
@@ -5915,6 +5974,7 @@ window.layoutBuilderComponent = function(options) {
                         const link = document.createElement('a');
                         link.href = imgProps.url;
                         link.target = '_blank';
+                        link.style.display = 'block';
                         link.appendChild(img);
                         imageWrapper.appendChild(link);
                     }
@@ -7037,9 +7097,9 @@ window.layoutBuilderComponent = function(options) {
     box-shadow: none;
     border-radius: 0;
     display: block;
-    width: auto;
     height: auto;
-    /* JavaScript controls width dynamically */
+    min-height: 50px;
+    /* Width is fully controlled by JavaScript inline styles */
 }
 
 .image-wrapper {
