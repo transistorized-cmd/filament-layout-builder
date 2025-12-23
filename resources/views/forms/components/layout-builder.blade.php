@@ -958,6 +958,7 @@
             x-data="layoutBuilderComponent({
                 state: $wire.$entangle('{{ $getStatePath() }}'),
                 config: @js($getConfiguration()),
+                statePath: '{{ $getStatePath() }}',
             })"
             x-init="initLayoutBuilder()"
             wire:ignore
@@ -970,12 +971,13 @@
         </div>
 
         <script>
-// Alpine.js component for layout builder
+// Alpine.js component for layout builder - MUST only define once
+if (typeof window.layoutBuilderComponent === 'undefined') {
 window.layoutBuilderComponent = function(options) {
     return {
         state: options.state,
         config: options.config,
-        statePath: '{{ $getStatePath() }}',
+        statePath: options.statePath,
 
         initLayoutBuilder() {
             // Initialize the layout builder with Alpine context
@@ -1342,10 +1344,14 @@ window.layoutBuilderComponent = function(options) {
     });
 
     // Phase 2: Canvas drop zone functionality with smart block ordering
+    console.log('DEBUG: Canvas element for', statePath, ':', canvas);
+    console.log('DEBUG: Canvas ID searched:', 'layout-builder-canvas-' + statePath);
     if (canvas) {
+        console.log('DEBUG: Attaching drop events to canvas for', statePath);
         let dropIndicator = null;
 
         canvas.addEventListener('dragover', function(e) {
+            console.log('DEBUG: dragover event fired on canvas');
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             canvas.classList.add('drag-over-canvas');
@@ -1541,6 +1547,10 @@ window.layoutBuilderComponent = function(options) {
             updateCanvasHeight();
             console.log('reorderBlocks completed');
         }
+    } else {
+        console.error('DEBUG: Canvas NOT FOUND for statePath:', statePath);
+        console.error('DEBUG: Looking for element with ID:', 'layout-builder-canvas-' + statePath);
+        console.error('DEBUG: All canvas elements on page:', document.querySelectorAll('[id^="layout-builder-canvas-"]'));
     }
 
     // Phase 3: DOM Creation Function - TESTING IF THIS CAUSES LIVEWIRE ERROR
@@ -6081,6 +6091,7 @@ window.layoutBuilderComponent = function(options) {
         }
     };
 };
+} // End of: if (typeof window.layoutBuilderComponent === 'undefined')
         </script>
 
         <style>
