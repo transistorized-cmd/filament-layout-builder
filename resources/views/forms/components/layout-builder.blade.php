@@ -1773,9 +1773,9 @@ window.layoutBuilderComponent = function(options) {
                 textBlock.style.setProperty('height', fullHeight + 'px', 'important');
                 textBlock.style.setProperty('min-height', fullHeight + 'px', 'important');
 
-                // Update canvas height when text content changes
-                updateCanvasHeight();
-            }, 1);
+                // Reposition all blocks below this one to account for height change
+                repositionAllBlocks();
+            }, 10);
         }
 
         textContent.addEventListener('input', autoResize);
@@ -1874,6 +1874,12 @@ window.layoutBuilderComponent = function(options) {
         img.style.height = 'auto';
         img.style.display = 'block';
         img.style.maxWidth = '100%';
+
+        // Reposition blocks after image loads to get accurate heights
+        img.addEventListener('load', function() {
+            console.log('Image loaded, repositioning blocks');
+            repositionAllBlocks();
+        });
 
         imageWrapper.appendChild(img);
         imageBlock.appendChild(imageWrapper);
@@ -3305,6 +3311,12 @@ window.layoutBuilderComponent = function(options) {
 
                     // Update image in block
                     if (img) {
+                        // Add load handler to reposition after new image dimensions are known
+                        img.onload = function() {
+                            console.log('New image loaded, repositioning blocks');
+                            repositionAllBlocks();
+                        };
+
                         img.src = base64;
                         img.alt = file.name;
 
@@ -5842,7 +5854,7 @@ window.layoutBuilderComponent = function(options) {
 
         imageWrapper.appendChild(img);
         imageBlock.appendChild(imageWrapper);
-        imageBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); min-height: 200px; border: 2px solid transparent; border-radius: 6px; padding: 10px; background: white; text-align: center; cursor: pointer; box-sizing: border-box; transition: border-color 0.2s ease;';
+        imageBlock.style.cssText = 'position: absolute; left: 10px; width: calc(100% - 20px); border: 2px solid transparent; border-radius: 6px; padding: 0; background: transparent; text-align: center; cursor: pointer; box-sizing: border-box; transition: border-color 0.2s ease;';
 
         return imageBlock;
     }
@@ -7097,8 +7109,8 @@ window.layoutBuilderComponent = function(options) {
     box-shadow: none;
     border-radius: 0;
     display: block;
-    height: auto;
-    min-height: 50px;
+    height: auto !important;
+    min-height: auto !important;
     /* Width is fully controlled by JavaScript inline styles */
 }
 
