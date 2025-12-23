@@ -141,7 +141,7 @@
                         <button type="button" class="layout-builder-view-btn">💻 Desktop</button>
                     </div>
                 </div>
-                <div class="layout-builder-canvas-wrapper">
+                <div class="layout-builder-canvas-wrapper" wire:ignore>
                     <div id="layout-builder-canvas-{{ $getStatePath() }}" class="layout-builder-canvas" data-email-theme="light">
                         <div class="layout-builder-canvas-placeholder">
                             <p>✨ Start building your email</p>
