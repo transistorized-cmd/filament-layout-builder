@@ -3217,15 +3217,28 @@ window.layoutBuilderComponent = function(options) {
             if (isColumnContent) {
                 currentWidth = img.style.maxWidth || '100%';
             } else {
-                currentWidth = block.dataset.width || img.style.width || '100%';
+                currentWidth = block.dataset.width || '100%';
             }
             widthInput.value = currentWidth;
 
-            // Set display mode based on width (inline-block for alignment, block for full width)
-            if (currentWidth !== '100%') {
-                img.style.display = 'inline-block';
-            } else {
-                img.style.display = 'block';
+            // Apply block positioning based on stored width and alignment
+            if (!isColumnContent && currentWidth !== '100%') {
+                const currentAlign = block.dataset.align || 'center';
+                block.style.width = currentWidth;
+
+                if (currentAlign === 'center') {
+                    block.style.left = '50%';
+                    block.style.right = 'auto';
+                    block.style.transform = 'translateX(-50%)';
+                } else if (currentAlign === 'right') {
+                    block.style.left = 'auto';
+                    block.style.right = '10px';
+                    block.style.transform = 'none';
+                } else {
+                    block.style.left = '10px';
+                    block.style.right = 'auto';
+                    block.style.transform = 'none';
+                }
             }
         }
         if (img && titleInput) titleInput.value = img.alt || '';
@@ -3292,28 +3305,46 @@ window.layoutBuilderComponent = function(options) {
             widthInput.addEventListener('input', function() {
                 const width = this.value.trim() || '100%';
                 if (img) {
-                    img.style.width = width;
-                    // When width is not 100%, use inline-block so text-align works for alignment
-                    // When width is 100%, use block for full-width display
+                    // Set image to 100% of its container
+                    img.style.width = '100%';
+                    img.style.display = 'block';
+
+                    // Resize the block container itself based on the width value
                     if (width === '100%') {
-                        img.style.display = 'block';
-                        img.style.margin = '0';
+                        // Full width - use calc to account for canvas padding
+                        block.style.width = 'calc(100% - 20px)';
+                        block.style.left = '10px';
                     } else {
-                        img.style.display = 'inline-block';
-                        // Apply centering based on current alignment
+                        // Set block width to the specified value
+                        block.style.width = width;
+
+                        // Position based on alignment
                         const currentAlign = block.dataset.align || 'center';
+                        const canvasWidth = canvas.offsetWidth;
+
                         if (currentAlign === 'center') {
-                            imageWrapper.style.textAlign = 'center';
+                            // Center the block
+                            block.style.left = '50%';
+                            block.style.transform = 'translateX(-50%)';
                         } else if (currentAlign === 'right') {
-                            imageWrapper.style.textAlign = 'right';
+                            // Align right
+                            block.style.left = 'auto';
+                            block.style.right = '10px';
+                            block.style.transform = 'none';
                         } else {
-                            imageWrapper.style.textAlign = 'left';
+                            // Align left (default)
+                            block.style.left = '10px';
+                            block.style.right = 'auto';
+                            block.style.transform = 'none';
                         }
                     }
+
                     // Store width in dataset for saving
                     block.dataset.width = width;
                     // Update canvas height in case image size changed
                     setTimeout(updateCanvasHeight, 100);
+                    // Reposition blocks after width change
+                    setTimeout(repositionAllBlocks, 150);
                 }
                 console.log('Image width updated to:', width);
             });
@@ -3373,15 +3404,25 @@ window.layoutBuilderComponent = function(options) {
                     // Add active to clicked button
                     this.classList.add('active');
 
-                    // Apply alignment
-                    if (imageWrapper) {
-                        imageWrapper.style.textAlign = newAlign;
-                    }
+                    // Apply block-level positioning based on alignment
+                    const currentWidth = block.dataset.width || '100%';
 
-                    // Ensure image is inline-block if not 100% width (so text-align works)
-                    const currentWidth = img?.style.width || block.dataset.width || '100%';
-                    if (img && currentWidth !== '100%') {
-                        img.style.display = 'inline-block';
+                    if (currentWidth !== '100%') {
+                        // Only apply positioning for non-100% widths
+                        if (newAlign === 'center') {
+                            block.style.left = '50%';
+                            block.style.right = 'auto';
+                            block.style.transform = 'translateX(-50%)';
+                        } else if (newAlign === 'right') {
+                            block.style.left = 'auto';
+                            block.style.right = '10px';
+                            block.style.transform = 'none';
+                        } else {
+                            // left alignment
+                            block.style.left = '10px';
+                            block.style.right = 'auto';
+                            block.style.transform = 'none';
+                        }
                     }
 
                     console.log('Image alignment updated to:', newAlign);
